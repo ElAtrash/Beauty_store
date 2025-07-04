@@ -12,17 +12,12 @@ Rails.application.routes.draw do
 
   post "/set_locale", to: "locale#set"
 
-  scope "(:locale)", locale: /en|ar/ do
-    root "home#index"
+  root "home#index"
 
-    resource :session
-    resources :passwords, param: :token
+  resource :session
+  resources :passwords, param: :token
 
-    get "login" => "sessions#new"
-    get "logout" => "sessions#destroy"
-    get "register" => "registrations#new"
-  end
-
-  # Redirect root to default locale
-  get "/", to: redirect("/#{I18n.default_locale}")
+  get "login" => "sessions#new"
+  get "logout" => "sessions#destroy"
+  get "register" => "registrations#new"
 end

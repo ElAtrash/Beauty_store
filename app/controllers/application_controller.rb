@@ -19,10 +19,9 @@ class ApplicationController < ActionController::Base
   def extract_locale_from_accept_language_header
     return nil unless request.env["HTTP_ACCEPT_LANGUAGE"]
 
-    request.env["HTTP_ACCEPT_LANGUAGE"].scan(/^[a-z]{2}/).first&.to_sym
-  end
+    accepted_languages = request.env["HTTP_ACCEPT_LANGUAGE"].scan(/^[a-z]{2}/)
+    available_locales = I18n.available_locales.map(&:to_s)
 
-  def default_url_options
-    { locale: I18n.locale }
+    accepted_languages.find { |lang| available_locales.include?(lang) }&.to_sym
   end
 end

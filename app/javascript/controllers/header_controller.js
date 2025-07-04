@@ -75,10 +75,14 @@ export default class extends Controller {
     localeInput.value = targetLocale
     form.appendChild(localeInput)
 
+    let currentPath = window.location.pathname
+    currentPath = currentPath.replace(/^\/(en|ar)\/?/, '/')
+    if (currentPath === '') currentPath = '/'
+
     const returnToInput = document.createElement('input')
     returnToInput.type = 'hidden'
     returnToInput.name = 'return_to'
-    returnToInput.value = window.location.pathname + window.location.search
+    returnToInput.value = currentPath + window.location.search
     form.appendChild(returnToInput)
 
     document.body.appendChild(form)
