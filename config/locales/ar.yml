@@ -1,0 +1,46 @@
+ar:
+  home:
+    welcome: "مرحباً بكم في متجر الجمال"
+    subtitle: "وجهتكم لمنتجات الجمال المميزة"
+    current_locale: "اللغة الحالية"
+  header:
+    logo: "متجر الجمال"
+    delivery_info: "توصيل مجاني من 50 دولار"
+    location:
+      beirut: "بيروت"
+      mount_lebanon: "جبل لبنان"
+      north_lebanon: "الشمال"
+      south_lebanon: "الجنوب"
+      bekaa: "البقاع"
+      nabatieh: "النبطية"
+      akkar: "عكار"
+      baalbek_hermel: "بعلبك الهرمل"
+    nav:
+      catalog: "الكتالوج"
+      brands: "الماركات"
+      new_in: "الجديد"
+      sale: "التخفيضات"
+      skincare: "العناية بالبشرة"
+      makeup: "المكياج"
+      fragrance: "العطور"
+      hair: "الشعر والجسم"
+    search:
+      placeholder: "البحث عن المنتجات والماركات..."
+    cart:
+      items_count:
+        zero: "السلة فارغة"
+        one: "منتج واحد"
+        other: "%{count} منتجات"
+    favorites:
+      count:
+        zero: "لا يوجد مفضلات"
+        one: "مفضل واحد"
+        other: "%{count} مفضلات"
+    profile:
+      signed_in_as: "أهلاً، %{name}"
+      sign_in: "تسجيل الدخول"
+      sign_up: "إنشاء حساب"
+      my_account: "حسابي"
+      orders: "الطلبات"
+      favorites: "المفضلات"
+      sign_out: "تسجيل الخروج"

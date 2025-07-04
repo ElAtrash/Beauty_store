@@ -1,1 +1,94 @@
 @import "tailwindcss";
+
+/* Tailwind v4 theme configuration */
+@theme {
+  /* Custom colors for beauty store */
+  --color-beauty-primary: #ec4899;
+  --color-beauty-secondary: #f43f5e;
+  --color-beauty-accent: #fdf2f8;
+
+  /* Custom font families */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-arabic: 'Noto Sans Arabic', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  body {
+    font-family: var(--font-family-sans);
+  }
+
+  .rtl body {
+    font-family: var(--font-family-arabic);
+  }
+
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .rtl .ltr-content {
+    direction: ltr;
+    text-align: left;
+  }
+}
+
+@layer components {
+  .rtl .space-x-2 > * + * {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  .rtl .space-x-4 > * + * {
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+
+  .rtl .space-x-8 > * + * {
+    margin-left: 0;
+    margin-right: 2rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(to right, var(--color-beauty-primary), var(--color-beauty-secondary));
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 200ms;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #db2777, #e11d48);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 200ms;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+  }
+}
+
+@layer utilities {
+  .text-beauty-primary {
+    color: var(--color-beauty-primary);
+  }
+
+  .bg-beauty-gradient {
+    background: linear-gradient(to right, var(--color-beauty-primary), var(--color-beauty-secondary));
+  }
+
+  .border-beauty {
+    border-color: #fce7f3;
+  }
+}

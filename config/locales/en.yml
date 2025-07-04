@@ -1,31 +1,46 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  home:
+    welcome: "Welcome to Beauty Store"
+    subtitle: "Your destination for premium beauty products"
+    current_locale: "Current language"
+  header:
+    logo: "Beauty Store"
+    delivery_info: "Free delivery from $50"
+    location:
+      beirut: "Beirut"
+      mount_lebanon: "Mount Lebanon"
+      north_lebanon: "North Lebanon"
+      south_lebanon: "South Lebanon"
+      bekaa: "Bekaa"
+      nabatieh: "Nabatieh"
+      akkar: "Akkar"
+      baalbek_hermel: "Baalbek-Hermel"
+    nav:
+      catalog: "Catalog"
+      brands: "Brands"
+      new_in: "New In"
+      sale: "Sale"
+      skincare: "Skincare"
+      makeup: "Makeup"
+      fragrance: "Fragrance"
+      hair: "Hair & Body"
+    search:
+      placeholder: "Search for products, brands..."
+    cart:
+      items_count:
+        zero: "Empty cart"
+        one: "1 item"
+        other: "%{count} items"
+    favorites:
+      count:
+        zero: "No favorites"
+        one: "1 favorite"
+        other: "%{count} favorites"
+    profile:
+      signed_in_as: "Hello, %{name}"
+      sign_in: "Sign In"
+      sign_up: "Sign Up"
+      my_account: "My Account"
+      orders: "Orders"
+      favorites: "Favorites"
+      sign_out: "Sign Out"
