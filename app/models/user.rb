@@ -2,16 +2,16 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
 
-  validates :email_address, presence: true, uniqueness: true
-  validates :first_name, :last_name, presence: true
-  validates :phone_number, presence: true, format: { with: /\A\+?[0-9\s\-\(\)]+\z/ }
-  validates :preferred_language, inclusion: { in: %w[ar en fr] }
-  validates :governorate, inclusion: { in: LEBANESE_GOVERNORATES }
-
   LEBANESE_GOVERNORATES = [
     "Beirut", "Mount Lebanon", "North Lebanon", "South Lebanon",
     "Bekaa", "Nabatieh", "Akkar", "Baalbek-Hermel"
   ].freeze
+
+  validates :email_address, presence: true, uniqueness: true
+  validates :first_name, :last_name, presence: true
+  validates :phone_number, format: { with: /\A\+?[0-9\s\-\(\)]+\z/ }
+  validates :preferred_language, inclusion: { in: %w[ar en fr] }
+  validates :governorate, inclusion: { in: LEBANESE_GOVERNORATES }
 
   scope :by_language, ->(lang) { where(preferred_language: lang) }
   scope :by_governorate, ->(gov) { where(governorate: gov) }
