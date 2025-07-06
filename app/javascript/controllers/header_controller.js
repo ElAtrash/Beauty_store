@@ -1,18 +1,40 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["header", "nav", "locationSelector", "searchBtn", "favoritesBtn", "profileBtn", "cartBtn", "mobileMenuToggle"]
+  static targets = ["header", "nav", "locationSelector", "searchBtn", "favoritesBtn", "profileBtn", "cartBtn", "mobileMenuToggle", "mobileMenuOverlay", "mobileMenuPanel"]
 
   connect() {
+    console.log("Header controller connected")
     this.scrollThreshold = 10
     this.isScrolled = false
+    this.isMobileMenuOpen = false
     this.setupScrollListener()
     this.setupHoverEffects()
+
+    // Ensure header starts transparent
+    this.initializeHeaderState()
   }
 
   disconnect() {
     this.removeScrollListener()
     this.removeHoverEffects()
+  }
+
+  initializeHeaderState() {
+    console.log("Initializing header state")
+    // Ensure header starts with transparent background
+    if (this.headerTarget && this.navTarget) {
+      console.log("Setting initial transparent state")
+      this.headerTarget.classList.add('bg-transparent')
+      this.navTarget.classList.add('bg-transparent')
+      this.headerTarget.classList.remove('bg-white')
+      this.navTarget.classList.remove('bg-white')
+
+      console.log("Header classes:", this.headerTarget.className)
+      console.log("Nav classes:", this.navTarget.className)
+    } else {
+      console.error("Header or nav targets not found")
+    }
   }
 
   setupScrollListener() {
@@ -44,12 +66,14 @@ export default class extends Controller {
   }
 
   handleMouseEnter() {
+    console.log("Mouse enter, scrollY:", window.scrollY)
     if (window.scrollY <= this.scrollThreshold) {
       this.updateHeaderBackground(true)
     }
   }
 
   handleMouseLeave() {
+    console.log("Mouse leave, scrollY:", window.scrollY)
     if (window.scrollY <= this.scrollThreshold) {
       this.updateHeaderBackground(false)
     }
@@ -59,6 +83,7 @@ export default class extends Controller {
     const shouldBeScrolled = window.scrollY > this.scrollThreshold
 
     if (shouldBeScrolled !== this.isScrolled) {
+      console.log("Scroll state changed:", shouldBeScrolled)
       this.isScrolled = shouldBeScrolled
       this.updateHeaderBackground(shouldBeScrolled)
     }
@@ -67,6 +92,7 @@ export default class extends Controller {
   updateHeaderBackground(isScrolled) {
     if (!this.headerTarget || !this.navTarget) return
 
+    console.log("Updating header background, isScrolled:", isScrolled)
     const method = isScrolled ? 'add' : 'remove'
     const oppositeMethod = isScrolled ? 'remove' : 'add'
 
@@ -74,6 +100,9 @@ export default class extends Controller {
     this.navTarget.classList[method]('bg-white')
     this.headerTarget.classList[oppositeMethod]('bg-transparent')
     this.navTarget.classList[oppositeMethod]('bg-transparent')
+
+    console.log("Header classes after update:", this.headerTarget.className)
+    console.log("Nav classes after update:", this.navTarget.className)
   }
 
   throttle(func, limit) {
@@ -121,8 +150,32 @@ export default class extends Controller {
 
   toggleMobileMenu(event) {
     event.preventDefault()
-    // TODO: Toggle mobile menu
-    console.log('Mobile menu toggled')
+    this.isMobileMenuOpen = !this.isMobileMenuOpen
+    this.updateMobileMenu()
+  }
+
+  closeMobileMenu(event) {
+    event.preventDefault()
+    this.isMobileMenuOpen = false
+    this.updateMobileMenu()
+  }
+
+  updateMobileMenu() {
+    if (!this.hasMobileMenuOverlayTarget || !this.hasMobileMenuPanelTarget || !this.hasMobileMenuToggleTarget) return
+
+    if (this.isMobileMenuOpen) {
+      // Open mobile menu
+      this.mobileMenuOverlayTarget.classList.remove('opacity-0', 'pointer-events-none')
+      this.mobileMenuPanelTarget.classList.remove('-translate-x-full')
+      this.mobileMenuToggleTarget.setAttribute('aria-expanded', 'true')
+      document.body.style.overflow = 'hidden' // Prevent background scrolling
+    } else {
+      // Close mobile menu
+      this.mobileMenuOverlayTarget.classList.add('opacity-0', 'pointer-events-none')
+      this.mobileMenuPanelTarget.classList.add('-translate-x-full')
+      this.mobileMenuToggleTarget.setAttribute('aria-expanded', 'false')
+      document.body.style.overflow = '' // Restore scrolling
+    }
   }
 
   switchLanguage(event) {

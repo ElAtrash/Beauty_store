@@ -1,10 +1,10 @@
 <div class="header-wrapper" data-controller="header">
   <!-- Fixed Header Bar -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300" data-header-target="header">
+  <header class="fixed top-0 left-0 right-0 z-[100] transition-all duration-300" data-header-target="header">
     <!-- Header Bar -->
-    <div class="flex items-center justify-between mx-8 px-1 py-4">
-      <!-- Left Side: Location + Language -->
-      <div class="flex items-center space-x-4">
+    <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
+      <!-- Left Side: Location + Language (hidden on mobile) -->
+      <div class="hidden md:flex items-center space-x-4">
         <!-- Location Selector -->
         <div class="flex items-center space-x-2 text-gray-600">
           <%= render 'shared/icons/location', class: "w-4 h-4" %>
@@ -20,29 +20,41 @@
           <%= language_link(:ar, "العربية") %>
         </div>
       </div>
+      <!-- Mobile: Empty space for balance -->
+      <div class="md:hidden w-8"></div>
       <!-- Center: Logo Icon -->
       <div class="flex justify-center">
         <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
-          <div class="w-10 h-10 flex items-center justify-center">
-            <%= render 'shared/icons/logo', class: "w-6 h-6" %>
+          <div class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+            <%= render 'shared/icons/logo', class: "w-5 h-5 md:w-6 md:h-6" %>
           </div>
         <% end %>
       </div>
       <!-- Right Side: Action Icons -->
-      <div class="flex items-center space-x-4">
-        <%= render 'shared/header_action_button',
-            icon: 'search',
-            action: 'openSearch',
-            aria_label: t('header.actions.search') %>
-        <%= render 'shared/header_action_button',
-            icon: 'heart',
-            action: 'openFavorites',
-            aria_label: t('header.actions.favorites'),
-            badge: 3 %>
-        <%= render 'shared/header_action_button',
-            icon: 'user',
-            action: 'openProfile',
-            aria_label: t('header.actions.profile') %>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <!-- Search (hidden on mobile, will be in mobile menu) -->
+        <div class="hidden md:block">
+          <%= render 'shared/header_action_button',
+              icon: 'search',
+              action: 'openSearch',
+              aria_label: t('header.actions.search') %>
+        </div>
+        <!-- Heart (hidden on mobile, will be in mobile menu) -->
+        <div class="hidden md:block">
+          <%= render 'shared/header_action_button',
+              icon: 'heart',
+              action: 'openFavorites',
+              aria_label: t('header.actions.favorites'),
+              badge: 3 %>
+        </div>
+        <!-- User (hidden on mobile, will be in mobile menu) -->
+        <div class="hidden md:block">
+          <%= render 'shared/header_action_button',
+              icon: 'user',
+              action: 'openProfile',
+              aria_label: t('header.actions.profile') %>
+        </div>
+        <!-- Shopping Cart (visible on all devices) -->
         <%= render 'shared/header_action_button',
             icon: 'shopping_cart',
             action: 'openCart',
@@ -51,8 +63,8 @@
       </div>
     </div>
   </header>
-  <!-- Navigation Menu (scrolls away) -->
-  <nav class="navigation-wrapper bg-transparent transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-header-target="nav">
+  <!-- Navigation Menu (hidden on mobile) -->
+  <nav class="navigation-wrapper hidden md:block transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-header-target="nav">
     <div class="container mx-auto px-4">
       <ul class="flex items-center justify-center space-x-8 py-3" role="list">
         <% header_navigation_items.each do |item| %>
@@ -66,10 +78,79 @@
     </div>
   </nav>
   <!-- Mobile Menu Toggle -->
-  <button class="md:hidden fixed top-4 left-4 z-60 p-2 bg-white rounded-full shadow-md"
+  <button class="md:hidden fixed top-4 left-4 z-[110] p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md transition-all duration-300"
           data-action="click->header#toggleMobileMenu"
+    data-header-target="mobileMenuToggle"
     aria-label="<%= t('header.mobile_menu_toggle') %>"
     aria-expanded="false">
-    <%= render 'shared/icons/menu', class: "w-6 h-6" %>
+    <%= render 'shared/icons/menu', class: "w-5 h-5" %>
   </button>
+  <!-- Mobile Menu Overlay -->
+  <div class="md:hidden fixed inset-0 bg-black/50 z-[105] transition-opacity duration-300 opacity-0 pointer-events-none"
+       data-header-target="mobileMenuOverlay"
+       data-action="click->header#closeMobileMenu">
+  </div>
+  <!-- Mobile Menu Panel -->
+  <div class="md:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-xl z-[110] transform -translate-x-full transition-transform duration-300"
+       data-header-target="mobileMenuPanel">
+    <div class="flex flex-col h-full">
+      <!-- Mobile Menu Header -->
+      <div class="flex items-center justify-between p-4 border-b">
+        <h2 class="text-lg font-semibold text-gray-900"><%= t('header.mobile_menu_title') %></h2>
+        <button class="p-2 text-gray-500 hover:text-gray-700"
+                data-action="click->header#closeMobileMenu"
+          aria-label="<%= t('header.close_menu') %>">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Mobile Menu Content -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Location Selector -->
+        <div class="p-4 border-b">
+          <div class="flex items-center space-x-2 text-gray-600">
+            <%= render 'shared/icons/location', class: "w-4 h-4" %>
+            <button class="hover:text-cyan-600 transition-colors text-sm"
+                    data-action="click->header#selectLocation">
+              <%= t('header.location.beirut') %>
+            </button>
+          </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="p-4">
+          <ul class="space-y-4">
+            <% header_navigation_items.each do |item| %>
+              <li>
+                <%= link_to t("header.nav.#{item[:key]}"), item[:path],
+                    class: "block py-2 text-gray-700 hover:text-cyan-600 transition-colors",
+                    data: { turbo: true, action: "click->header#closeMobileMenu" } %>
+              </li>
+            <% end %>
+          </ul>
+        </nav>
+        <!-- Action Buttons -->
+        <div class="p-4 border-t">
+          <div class="space-y-3">
+            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    data-action="click->header#openSearch">
+              <%= render 'shared/icons/search', class: "w-5 h-5" %>
+              <span><%= t('header.actions.search') %></span>
+            </button>
+            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    data-action="click->header#openFavorites">
+              <%= render 'shared/icons/heart', class: "w-5 h-5" %>
+              <span><%= t('header.actions.favorites') %></span>
+              <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+            </button>
+            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    data-action="click->header#openProfile">
+              <%= render 'shared/icons/user', class: "w-5 h-5" %>
+              <span><%= t('header.actions.profile') %></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
