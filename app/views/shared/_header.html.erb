@@ -1,76 +1,75 @@
-<header class="sticky top-0 z-50 bg-white" data-controller="header">
-  <!-- Header Bar -->
-  <div class="flex items-center justify-between mx-8 px-1 py-4">
-    <!-- Left Side: Location + Language -->
-    <div class="flex items-center space-x-4">
-      <!-- Location Selector -->
-      <div class="flex items-center space-x-2 text-gray-600">
-        <%= render 'shared/icons/location', class: "w-4 h-4" %>
-        <button class="hover:text-cyan-600 transition-colors text-sm"
-                data-action="click->header#selectLocation">
-          <%= t('header.location.beirut') %>
-        </button>
-      </div>
-      <!-- Language Switcher -->
-      <div class="flex items-center space-x-2 text-gray-600 text-sm">
-        <%= link_to "EN", "#",
-            class: header_language_class(:en),
-            data: { action: "click->header#switchLanguage" } %>
-        <span class="text-gray-300">|</span>
-        <%= link_to "العربية", "#",
-            class: header_language_class(:ar),
-            data: { action: "click->header#switchLanguage" } %>
-      </div>
-    </div>
-    <!-- Center: Logo Icon -->
-    <div class="flex justify-center">
-      <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
-        <div class="w-10 h-10 flex items-center justify-center">
-          <%= render 'shared/icons/logo', class: "w-6 h-6" %>
+<div class="header-wrapper" data-controller="header">
+  <!-- Fixed Header Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300" data-header-target="header">
+    <!-- Header Bar -->
+    <div class="flex items-center justify-between mx-8 px-1 py-4">
+      <!-- Left Side: Location + Language -->
+      <div class="flex items-center space-x-4">
+        <!-- Location Selector -->
+        <div class="flex items-center space-x-2 text-gray-600">
+          <%= render 'shared/icons/location', class: "w-4 h-4" %>
+          <button class="hover:text-cyan-600 transition-colors text-sm"
+                  data-action="click->header#selectLocation">
+            <%= t('header.location.beirut') %>
+          </button>
         </div>
-      <% end %>
+        <!-- Language Switcher -->
+        <div class="flex items-center space-x-2 text-gray-600 text-sm">
+          <%= language_link(:en, "EN") %>
+          <span class="text-gray-300">|</span>
+          <%= language_link(:ar, "العربية") %>
+        </div>
+      </div>
+      <!-- Center: Logo Icon -->
+      <div class="flex justify-center">
+        <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
+          <div class="w-10 h-10 flex items-center justify-center">
+            <%= render 'shared/icons/logo', class: "w-6 h-6" %>
+          </div>
+        <% end %>
+      </div>
+      <!-- Right Side: Action Icons -->
+      <div class="flex items-center space-x-4">
+        <%= render 'shared/header_action_button',
+            icon: 'search',
+            action: 'openSearch',
+            aria_label: t('header.actions.search') %>
+        <%= render 'shared/header_action_button',
+            icon: 'heart',
+            action: 'openFavorites',
+            aria_label: t('header.actions.favorites'),
+            badge: 3 %>
+        <%= render 'shared/header_action_button',
+            icon: 'user',
+            action: 'openProfile',
+            aria_label: t('header.actions.profile') %>
+        <%= render 'shared/header_action_button',
+            icon: 'shopping_cart',
+            action: 'openCart',
+            aria_label: t('header.actions.cart'),
+            badge: 2 %>
+      </div>
     </div>
-    <!-- Right Side: Action Icons -->
-    <div class="flex items-center space-x-4">
-      <%= render 'shared/header_action_button',
-          icon: 'search',
-          action: 'openSearch',
-          aria_label: t('header.actions.search') %>
-      <%= render 'shared/header_action_button',
-          icon: 'heart',
-          action: 'openFavorites',
-          aria_label: t('header.actions.favorites'),
-          badge: 3 %>
-      <%= render 'shared/header_action_button',
-          icon: 'user',
-          action: 'openProfile',
-          aria_label: t('header.actions.profile') %>
-      <%= render 'shared/header_action_button',
-          icon: 'shopping_cart',
-          action: 'openCart',
-          aria_label: t('header.actions.cart'),
-          badge: 2 %>
+  </header>
+  <!-- Navigation Menu (scrolls away) -->
+  <nav class="navigation-wrapper bg-transparent transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-header-target="nav">
+    <div class="container mx-auto px-4">
+      <ul class="flex items-center justify-center space-x-8 py-3" role="list">
+        <% header_navigation_items.each do |item| %>
+          <li role="listitem">
+            <%= link_to t("header.nav.#{item[:key]}"), item[:path],
+                class: header_nav_class(item[:key]),
+                data: { turbo: true } %>
+          </li>
+        <% end %>
+      </ul>
     </div>
-  </div>
-</header>
-<!-- Navigation Menu -->
-<nav class="bg-white" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>">
-  <div class="container mx-auto px-4">
-    <ul class="flex items-center justify-center space-x-8 py-3" role="list">
-      <% header_navigation_items.each do |item| %>
-        <li role="listitem">
-          <%= link_to t("header.nav.#{item[:key]}"), item[:path],
-              class: header_nav_class(item[:key]),
-              data: { turbo: true } %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</nav>
-<!-- Mobile Menu Toggle -->
-<button class="md:hidden fixed top-4 left-4 z-60 p-2 bg-white rounded-full shadow-md"
-        data-action="click->header#toggleMobileMenu"
-  aria-label="<%= t('header.mobile_menu_toggle') %>"
-  aria-expanded="false">
-  <%= render 'shared/icons/menu', class: "w-6 h-6" %>
-</button>
+  </nav>
+  <!-- Mobile Menu Toggle -->
+  <button class="md:hidden fixed top-4 left-4 z-60 p-2 bg-white rounded-full shadow-md"
+          data-action="click->header#toggleMobileMenu"
+    aria-label="<%= t('header.mobile_menu_toggle') %>"
+    aria-expanded="false">
+    <%= render 'shared/icons/menu', class: "w-6 h-6" %>
+  </button>
+</div>

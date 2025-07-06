@@ -10,6 +10,15 @@ module HeaderHelper
     end
   end
 
+  def language_link(locale, text)
+    link_to text, "#",
+      class: header_language_class(locale),
+      data: {
+        action: "click->header#switchLanguage",
+        locale: locale.to_s
+      }
+  end
+
   def header_navigation_items
     [
       { key: "catalog", path: "#", highlight: false },
