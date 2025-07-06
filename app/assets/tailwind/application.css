@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Custom fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap");
 
 /* Tailwind v4 theme configuration */
 @theme {
@@ -8,12 +10,10 @@
   --color-beauty-accent: #fdf2f8;
 
   /* Custom font families */
-  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-family-arabic: 'Noto Sans Arabic', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-family-arabic: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui,
+    sans-serif;
 }
-
-/* Custom fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   body {
@@ -52,7 +52,11 @@
   }
 
   .btn-primary {
-    background: linear-gradient(to right, var(--color-beauty-primary), var(--color-beauty-secondary));
+    background: linear-gradient(
+      to right,
+      var(--color-beauty-primary),
+      var(--color-beauty-secondary)
+    );
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
@@ -85,7 +89,11 @@
   }
 
   .bg-beauty-gradient {
-    background: linear-gradient(to right, var(--color-beauty-primary), var(--color-beauty-secondary));
+    background: linear-gradient(
+      to right,
+      var(--color-beauty-primary),
+      var(--color-beauty-secondary)
+    );
   }
 
   .border-beauty {

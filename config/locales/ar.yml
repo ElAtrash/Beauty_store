@@ -5,7 +5,24 @@ ar:
     current_locale: "اللغة الحالية"
   header:
     logo: "متجر الجمال"
-    delivery_info: "توصيل مجاني من 50 دولار"
+    logo_alt: "الصفحة الرئيسية لمتجر الجمال"
+    mobile_menu_toggle: "فتح القائمة"
+    badge_count: "%{count} عناصر"
+    actions:
+      search: "البحث عن المنتجات"
+      favorites: "عرض المفضلات"
+      profile: "الملف الشخصي"
+      cart: "عرض السلة"
+    nav:
+      main_navigation: "القائمة الرئيسية"
+      catalog: "الكتالوج"
+      brands: "الماركات"
+      new_in: "الجديد"
+      sale: "التخفيضات"
+      skincare: "العناية بالبشرة"
+      makeup: "المكياج"
+      fragrance: "العطور"
+      hair: "الشعر والجسم"
     location:
       beirut: "بيروت"
       mount_lebanon: "جبل لبنان"
@@ -15,32 +32,3 @@ ar:
       nabatieh: "النبطية"
       akkar: "عكار"
       baalbek_hermel: "بعلبك الهرمل"
-    nav:
-      catalog: "الكتالوج"
-      brands: "الماركات"
-      new_in: "الجديد"
-      sale: "التخفيضات"
-      skincare: "العناية بالبشرة"
-      makeup: "المكياج"
-      fragrance: "العطور"
-      hair: "الشعر والجسم"
-    search:
-      placeholder: "البحث عن المنتجات والماركات..."
-    cart:
-      items_count:
-        zero: "السلة فارغة"
-        one: "منتج واحد"
-        other: "%{count} منتجات"
-    favorites:
-      count:
-        zero: "لا يوجد مفضلات"
-        one: "مفضل واحد"
-        other: "%{count} مفضلات"
-    profile:
-      signed_in_as: "أهلاً، %{name}"
-      sign_in: "تسجيل الدخول"
-      sign_up: "إنشاء حساب"
-      my_account: "حسابي"
-      orders: "الطلبات"
-      favorites: "المفضلات"
-      sign_out: "تسجيل الخروج"

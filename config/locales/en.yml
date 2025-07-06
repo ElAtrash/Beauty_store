@@ -5,7 +5,24 @@ en:
     current_locale: "Current language"
   header:
     logo: "Beauty Store"
-    delivery_info: "Free delivery from $50"
+    logo_alt: "Beauty Store Home"
+    mobile_menu_toggle: "Toggle mobile menu"
+    badge_count: "%{count} items"
+    actions:
+      search: "Search products"
+      favorites: "View favorites"
+      profile: "User profile"
+      cart: "View cart"
+    nav:
+      main_navigation: "Main navigation"
+      catalog: "Catalog"
+      brands: "Brands"
+      new_in: "New In"
+      sale: "Sale"
+      skincare: "Skincare"
+      makeup: "Makeup"
+      fragrance: "Fragrance"
+      hair: "Hair & Body"
     location:
       beirut: "Beirut"
       mount_lebanon: "Mount Lebanon"
@@ -15,32 +32,3 @@ en:
       nabatieh: "Nabatieh"
       akkar: "Akkar"
       baalbek_hermel: "Baalbek-Hermel"
-    nav:
-      catalog: "Catalog"
-      brands: "Brands"
-      new_in: "New In"
-      sale: "Sale"
-      skincare: "Skincare"
-      makeup: "Makeup"
-      fragrance: "Fragrance"
-      hair: "Hair & Body"
-    search:
-      placeholder: "Search for products, brands..."
-    cart:
-      items_count:
-        zero: "Empty cart"
-        one: "1 item"
-        other: "%{count} items"
-    favorites:
-      count:
-        zero: "No favorites"
-        one: "1 favorite"
-        other: "%{count} favorites"
-    profile:
-      signed_in_as: "Hello, %{name}"
-      sign_in: "Sign In"
-      sign_up: "Sign Up"
-      my_account: "My Account"
-      orders: "Orders"
-      favorites: "Favorites"
-      sign_out: "Sign Out"
