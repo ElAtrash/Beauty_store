@@ -1,31 +1,60 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  home:
+    welcome: "Welcome to Beauty Store"
+    subtitle: "Your destination for premium beauty products"
+    current_locale: "Current language"
+    featured_categories: "Featured Categories"
+    category_skincare: "Skincare"
+    category_skincare_desc: "Nourish and protect your skin"
+    category_makeup: "Makeup"
+    category_makeup_desc: "Enhance your natural beauty"
+    category_fragrance: "Fragrance"
+    category_fragrance_desc: "Discover your signature scent"
+    category_hair: "Hair & Body"
+    category_hair_desc: "Care for your hair and body"
+  hero:
+    title: "Discover Your Beauty"
+    subtitle: "Premium beauty products for every skin type and style"
+    cta_primary: "Shop Now"
+    cta_secondary: "Learn More"
+    title_2: "New Collection"
+    subtitle_2: "Explore our latest arrivals and trending products"
+    cta_primary_2: "View Collection"
+    cta_secondary_2: "Get Inspired"
+    title_3: "Expert Advice"
+    subtitle_3: "Get personalized recommendations from beauty experts"
+    cta_primary_3: "Book Consultation"
+    cta_secondary_3: "Read Blog"
+    previous_slide: "Previous slide"
+    next_slide: "Next slide"
+  header:
+    logo: "Beauty Store"
+    logo_alt: "Beauty Store Home"
+    mobile_menu_toggle: "Toggle mobile menu"
+    mobile_menu_title: "Menu"
+    close_menu: "Close menu"
+    badge_count: "%{count} items"
+    actions:
+      search: "Search products"
+      favorites: "View favorites"
+      profile: "User profile"
+      cart: "View cart"
+    nav:
+      main_navigation: "Main navigation"
+      catalog: "Catalog"
+      brands: "Brands"
+      new_in: "New In"
+      sale: "Sale"
+      skincare: "Skincare"
+      makeup: "Makeup"
+      fragrance: "Fragrance"
+      hair: "Hair & Body"
+    location:
+      beirut: "Beirut"
+      mount_lebanon: "Mount Lebanon"
+      north_lebanon: "North Lebanon"
+      south_lebanon: "South Lebanon"
+      bekaa: "Bekaa"
+      nabatieh: "Nabatieh"
+      akkar: "Akkar"
+      baalbek_hermel: "Baalbek-Hermel"
