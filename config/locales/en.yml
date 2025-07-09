@@ -1,4 +1,18 @@
 en:
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            email_address:
+              blank: "Email is required."
+              invalid: "Email is not valid."
+              taken: "This email is already registered."
+            password:
+              blank: "Password is required."
+              too_short: "Password must be at least 8 characters."
+            password_confirmation:
+              confirmation: "Passwords do not match."
   home:
     welcome: "Welcome to Beauty Store"
     subtitle: "Your destination for premium beauty products"
@@ -58,3 +72,46 @@ en:
       nabatieh: "Nabatieh"
       akkar: "Akkar"
       baalbek_hermel: "Baalbek-Hermel"
+  auth:
+    welcome: "Welcome"
+    welcome_back: "Welcome back"
+    close: "Close"
+    sign_in: "Sign In"
+    sign_up: "Sign Up"
+    sign_out: "Sign Out"
+    email: "Email"
+    email_placeholder: "Enter your email"
+    password: "Password"
+    password_placeholder: "Enter your password"
+    confirm_password: "Confirm Password"
+    password_confirmation_placeholder: "Confirm your password"
+    first_name: "First Name"
+    first_name_placeholder: "Enter your first name"
+    last_name: "Last Name"
+    last_name_placeholder: "Enter your last name"
+    phone: "Phone Number"
+    phone_placeholder: "Enter your phone number"
+    remember_me: "Remember me"
+    forgot_password: "Forgot password?"
+    profile: "My Profile"
+    orders: "My Orders"
+    settings: "Settings"
+    terms_text: "By signing up, you agree to our"
+    terms_link: "Terms of Service"
+    and: "and"
+    privacy_link: "Privacy Policy"
+    password_requirements: "Password requirements:"
+    password_length: "At least 8 characters"
+    show_password: "Show password"
+    hide_password: "Hide password"
+    errors:
+      email_required: "Email is required."
+      email_invalid: "Email is not valid."
+      password_required: "Password is required."
+      password_too_short: "Password must be at least 8 characters."
+      password_confirmation_required: "Password confirmation is required."
+      passwords_dont_match: "Passwords do not match."
+      invalid_credentials: "Invalid email or password. Please try again."
+      account_created: "Welcome! Account created successfully!"
+      signed_in: "Successfully signed in!"
+      rate_limit: "Try again later."

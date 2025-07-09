@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_30_215351) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_08_014500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,11 +36,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_215351) do
     t.string "city"
     t.date "date_of_birth"
     t.boolean "admin", default: false
+    t.index ["admin", "created_at"], name: "index_users_on_admin_and_created_at"
     t.index ["admin"], name: "index_users_on_admin"
+    t.index ["date_of_birth"], name: "index_users_on_date_of_birth"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["governorate", "city"], name: "index_users_on_governorate_and_city"
     t.index ["governorate"], name: "index_users_on_governorate"
     t.index ["phone_number"], name: "index_users_on_phone_number"
     t.index ["preferred_language"], name: "index_users_on_preferred_language"
+    t.check_constraint "date_of_birth IS NULL OR date_of_birth < CURRENT_DATE", name: "date_of_birth_in_past"
+    t.check_constraint "first_name IS NULL OR length(first_name::text) >= 2", name: "first_name_min_length"
+    t.check_constraint "last_name IS NULL OR length(last_name::text) >= 2", name: "last_name_min_length"
+    t.check_constraint "preferred_language IS NULL OR (preferred_language::text = ANY (ARRAY['ar'::character varying, 'en'::character varying]::text[]))", name: "valid_language"
   end
 
   add_foreign_key "sessions", "users"

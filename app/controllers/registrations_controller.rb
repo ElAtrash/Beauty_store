@@ -1,19 +1,18 @@
 class RegistrationsController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create ]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_registration_url, alert: "Try again later." }
+  include AuthenticationFlow
 
   def new
     @user = User.new
   end
 
   def create
+    store_return_url
     @user = User.new(user_params)
 
     if @user.save
-      start_new_session_for @user
-      redirect_to after_authentication_url, notice: "Welcome! You have signed up successfully."
+      handle_successful_authentication(@user, t("auth.errors.account_created"))
     else
-      render :new, status: :unprocessable_entity
+      handle_registration_errors
     end
   end
 
@@ -23,18 +22,20 @@ class RegistrationsController < ApplicationController
     params.require(:user).permit(
       :email_address,
       :password,
-      :password_confirmation,
-      :first_name,
-      :last_name,
-      :phone_number,
-      :preferred_language,
-      :governorate,
-      :city,
-      :date_of_birth
+      :password_confirmation
     )
   end
 
-  def after_authentication_url
-    root_url
+  def handle_registration_errors
+    errors = @user.errors.full_messages.join(", ")
+    respond_to do |format|
+      format.html { render :new, status: :unprocessable_entity }
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace("auth_result",
+          partial: "shared/auth_error",
+          locals: { message: errors }
+        )
+      end
+    end
   end
 end

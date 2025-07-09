@@ -1,4 +1,18 @@
 ar:
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            email_address:
+              blank: "البريد الإلكتروني مطلوب."
+              invalid: "البريد الإلكتروني غير صالح."
+              taken: "هذا البريد الإلكتروني مسجل بالفعل."
+            password:
+              blank: "كلمة المرور مطلوبة."
+              too_short: "كلمة المرور يجب أن تكون 8 أحرف على الأقل."
+            password_confirmation:
+              confirmation: "كلمات المرور غير متطابقة."
   home:
     welcome: "مرحباً بكم في متجر الجمال"
     subtitle: "وجهتكم لمنتجات الجمال المميزة"
@@ -58,3 +72,46 @@ ar:
       nabatieh: "النبطية"
       akkar: "عكار"
       baalbek_hermel: "بعلبك الهرمل"
+  auth:
+    welcome: "مرحباً"
+    welcome_back: "مرحباً بعودتك"
+    close: "إغلاق"
+    sign_in: "تسجيل الدخول"
+    sign_up: "إنشاء حساب"
+    sign_out: "تسجيل الخروج"
+    email: "البريد الإلكتروني"
+    email_placeholder: "أدخل بريدك الإلكتروني"
+    password: "كلمة المرور"
+    password_placeholder: "أدخل كلمة المرور"
+    confirm_password: "تأكيد كلمة المرور"
+    password_confirmation_placeholder: "أكد كلمة المرور"
+    first_name: "الاسم الأول"
+    first_name_placeholder: "أدخل اسمك الأول"
+    last_name: "الاسم الأخير"
+    last_name_placeholder: "أدخل اسمك الأخير"
+    phone: "رقم الهاتف"
+    phone_placeholder: "أدخل رقم هاتفك"
+    remember_me: "تذكرني"
+    forgot_password: "نسيت كلمة المرور؟"
+    profile: "ملفي الشخصي"
+    orders: "طلباتي"
+    settings: "الإعدادات"
+    terms_text: "بإنشاء حساب، فإنك توافق على"
+    terms_link: "شروط الخدمة"
+    and: "و"
+    privacy_link: "سياسة الخصوصية"
+    password_requirements: "متطلبات كلمة المرور:"
+    password_length: "8 أحرف على الأقل"
+    show_password: "إظهار كلمة المرور"
+    hide_password: "إخفاء كلمة المرور"
+    errors:
+      email_required: "البريد الإلكتروني مطلوب."
+      email_invalid: "البريد الإلكتروني غير صالح."
+      password_required: "كلمة المرور مطلوبة."
+      password_too_short: "كلمة المرور يجب أن تكون 8 أحرف على الأقل."
+      password_confirmation_required: "تأكيد كلمة المرور مطلوب."
+      passwords_dont_match: "كلمات المرور غير متطابقة."
+      invalid_credentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى."
+      account_created: "مرحباً! تم إنشاء حسابك بنجاح!"
+      signed_in: "تم تسجيل الدخول بنجاح!"
+      rate_limit: "يرجى المحاولة لاحقاً."

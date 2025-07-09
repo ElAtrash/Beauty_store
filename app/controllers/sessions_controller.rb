@@ -1,21 +1,21 @@
 class SessionsController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create ]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_url, alert: "Try again later." }
+  include AuthenticationFlow
 
   def new
   end
 
   def create
+    store_return_url
+
     if user = User.authenticate_by(params.permit(:email_address, :password))
-      start_new_session_for user
-      redirect_to after_authentication_url
+      handle_successful_authentication(user, t("auth.errors.signed_in"))
     else
-      redirect_to new_session_path, alert: "Try another email address or password."
+      handle_authentication_error(t("auth.errors.invalid_credentials"), new_session_path)
     end
   end
 
   def destroy
     terminate_session
-    redirect_to new_session_path
+    redirect_to root_path
   end
 end

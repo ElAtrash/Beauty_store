@@ -1,4 +1,6 @@
 class LocaleController < ApplicationController
+  allow_unauthenticated_access only: [:set]
+  
   def set
     locale = params[:locale]
 

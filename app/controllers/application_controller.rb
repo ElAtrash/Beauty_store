@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :set_locale
+  before_action :set_current_session
 
   private
 
@@ -23,5 +24,9 @@ class ApplicationController < ActionController::Base
     available_locales = I18n.available_locales.map(&:to_s)
 
     accepted_languages.find { |lang| available_locales.include?(lang) }&.to_sym
+  end
+
+  def set_current_session
+    resume_session
   end
 end
