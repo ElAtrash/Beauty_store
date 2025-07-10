@@ -1,8 +1,5 @@
-<!-- Hero Carousel Section -->
-<%= render 'shared/hero_carousel' %>
-<!-- Main Content -->
+<%= render HeroCarouselComponent.new %>
 <div class="container mx-auto px-4 py-16">
-  <!-- Welcome Section -->
   <section class="text-center mb-16">
     <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
       <%= t('home.welcome') %>
@@ -14,13 +11,11 @@
       <%= t('home.current_locale') %>: <%= I18n.locale.upcase %>
     </div>
   </section>
-  <!-- Featured Categories -->
   <section class="mb-16">
     <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">
       <%= t('home.featured_categories') %>
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Category cards will go here -->
       <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
         <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg class="w-8 h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,7 +1,5 @@
 <div class="header-wrapper" data-controller="header">
-  <!-- Fixed Header Bar -->
   <header class="fixed top-0 left-0 right-0 z-[100] transition-all duration-300" data-header-target="header">
-    <!-- Header Bar -->
     <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
       <!-- Left Side: Location + Language (hidden on mobile) -->
       <div class="hidden md:flex items-center space-x-4">
@@ -32,38 +30,33 @@
       </div>
       <!-- Right Side: Action Icons -->
       <div class="flex items-center space-x-2 md:space-x-4">
-        <!-- Search (hidden on mobile, will be in mobile menu) -->
         <div class="hidden md:block">
-          <%= render 'shared/header_action_button',
+          <%= render HeaderActionButtonComponent.new(
               icon: 'search',
               action: 'openSearch',
-              aria_label: t('header.actions.search') %>
+              aria_label: t('header.actions.search')) %>
         </div>
-        <!-- Heart (hidden on mobile, will be in mobile menu) -->
         <div class="hidden md:block">
-          <%= render 'shared/header_action_button',
+          <%= render HeaderActionButtonComponent.new(
               icon: 'heart',
               action: 'openFavorites',
               aria_label: t('header.actions.favorites'),
-              badge: 3 %>
+              badge: 3) %>
         </div>
-        <!-- User (hidden on mobile, will be in mobile menu) -->
         <div class="hidden md:block">
-          <%= render 'shared/header_action_button',
+          <%= render HeaderActionButtonComponent.new(
               icon: 'user',
               action: 'openProfile',
-              aria_label: t('header.actions.profile') %>
+              aria_label: t('header.actions.profile')) %>
         </div>
-        <!-- Shopping Cart (visible on all devices) -->
-        <%= render 'shared/header_action_button',
+        <%= render HeaderActionButtonComponent.new(
             icon: 'shopping_cart',
             action: 'openCart',
             aria_label: t('header.actions.cart'),
-            badge: 2 %>
+            badge: 2) %>
       </div>
     </div>
   </header>
-  <!-- Navigation Menu (hidden on mobile) -->
   <nav class="navigation-wrapper hidden md:block transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-header-target="nav">
     <div class="container mx-auto px-4">
       <ul class="flex items-center justify-center space-x-8 py-3" role="list">
@@ -153,7 +146,6 @@
       </div>
     </div>
   </div>
-
   <!-- Authentication Popup -->
-  <%= render 'shared/auth_popup' %>
+  <%= render AuthPopupComponent.new(current_user: Current.user) %>
 </div>
