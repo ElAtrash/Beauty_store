@@ -3,9 +3,9 @@
   aria-label="<%= aria_label %>"
   type="button">
   <%= render "shared/icons/#{icon}", class: "w-5 h-5 text-gray-600 group-hover:text-cyan-600" %>
-  <% if defined?(badge) && badge && badge > 0 %>
+  <% if has_badge? %>
     <span class="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-          aria-label="<%= t('header.badge_count', count: badge) %>">
+          aria-label="<%= badge_aria_label %>">
       <%= badge %>
     </span>
   <% end %>
