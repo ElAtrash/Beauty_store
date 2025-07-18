@@ -10,9 +10,222 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_08_014500) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_14_161500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "brands", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.string "logo_url"
+    t.boolean "featured", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_brands_on_slug", unique: true
+  end
+
+  create_table "cart_items", force: :cascade do |t|
+    t.bigint "cart_id", null: false
+    t.bigint "product_variant_id", null: false
+    t.integer "quantity", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cart_id", "product_variant_id"], name: "index_cart_items_on_cart_id_and_product_variant_id", unique: true
+    t.index ["cart_id"], name: "index_cart_items_on_cart_id"
+    t.index ["product_variant_id"], name: "index_cart_items_on_product_variant_id"
+  end
+
+  create_table "carts", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "session_id"
+    t.datetime "abandoned_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_carts_on_session_id"
+    t.index ["user_id"], name: "index_carts_on_user_id"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.bigint "parent_id"
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id", "position"], name: "index_categories_on_parent_id_and_position"
+    t.index ["parent_id"], name: "index_categories_on_parent_id"
+    t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
+
+  create_table "categorizations", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_categorizations_on_category_id"
+    t.index ["product_id", "category_id"], name: "index_categorizations_on_product_id_and_category_id", unique: true
+    t.index ["product_id"], name: "index_categorizations_on_product_id"
+  end
+
+  create_table "collection_products", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_id", "position"], name: "index_collection_products_on_collection_id_and_position"
+    t.index ["collection_id", "product_id"], name: "index_collection_products_on_collection_id_and_product_id", unique: true
+    t.index ["collection_id"], name: "index_collection_products_on_collection_id"
+    t.index ["product_id"], name: "index_collection_products_on_product_id"
+  end
+
+  create_table "collections", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_collections_on_slug", unique: true
+  end
+
+  create_table "customer_profiles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "skin_type"
+    t.text "skin_concerns", default: [], array: true
+    t.jsonb "tags", default: []
+    t.integer "total_spent_cents", default: 0, null: false
+    t.string "total_spent_currency", default: "USD", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_customer_profiles_on_user_id"
+  end
+
+  create_table "discounts", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "discount_type", null: false
+    t.integer "value_cents", default: 0, null: false
+    t.string "value_currency", default: "USD", null: false
+    t.integer "usage_limit"
+    t.integer "usage_count", default: 0, null: false
+    t.datetime "valid_from"
+    t.datetime "valid_until"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "valid_from", "valid_until"], name: "index_discounts_on_active_and_valid_from_and_valid_until"
+    t.index ["code"], name: "index_discounts_on_code", unique: true
+  end
+
+  create_table "order_items", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "product_id", null: false
+    t.bigint "product_variant_id", null: false
+    t.string "product_name", null: false
+    t.string "variant_name"
+    t.integer "quantity", null: false
+    t.integer "unit_price_cents", default: 0, null: false
+    t.string "unit_price_currency", default: "USD", null: false
+    t.integer "total_price_cents", default: 0, null: false
+    t.string "total_price_currency", default: "USD", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_items_on_order_id"
+    t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["product_variant_id"], name: "index_order_items_on_product_variant_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "number", null: false
+    t.bigint "user_id"
+    t.string "email", null: false
+    t.string "status", default: "pending"
+    t.string "payment_status", default: "pending"
+    t.string "fulfillment_status"
+    t.integer "subtotal_cents", default: 0, null: false
+    t.string "subtotal_currency", default: "USD", null: false
+    t.integer "tax_total_cents", default: 0, null: false
+    t.string "tax_total_currency", default: "USD", null: false
+    t.integer "shipping_total_cents", default: 0, null: false
+    t.string "shipping_total_currency", default: "USD", null: false
+    t.integer "discount_total_cents", default: 0, null: false
+    t.string "discount_total_currency", default: "USD", null: false
+    t.integer "total_cents", default: 0, null: false
+    t.string "total_currency", default: "USD", null: false
+    t.jsonb "billing_address", default: {}
+    t.jsonb "shipping_address", default: {}
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["number"], name: "index_orders_on_number", unique: true
+    t.index ["status"], name: "index_orders_on_status"
+    t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
+  create_table "product_variants", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "name", null: false
+    t.string "sku", null: false
+    t.string "barcode"
+    t.integer "price_cents", default: 0, null: false
+    t.string "price_currency", default: "USD", null: false
+    t.integer "compare_at_price_cents", default: 0, null: false
+    t.string "compare_at_price_currency", default: "USD", null: false
+    t.integer "cost_cents", default: 0, null: false
+    t.string "cost_currency", default: "USD", null: false
+    t.string "color"
+    t.string "size"
+    t.string "volume"
+    t.integer "stock_quantity", default: 0
+    t.boolean "track_inventory", default: true, null: false
+    t.boolean "allow_backorder", default: false, null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "position"], name: "index_product_variants_on_product_id_and_position"
+    t.index ["product_id"], name: "index_product_variants_on_product_id"
+    t.index ["sku"], name: "index_product_variants_on_sku", unique: true
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.string "product_type"
+    t.bigint "brand_id"
+    t.text "ingredients"
+    t.text "how_to_use"
+    t.string "skin_types", default: [], array: true
+    t.boolean "active", default: true, null: false
+    t.datetime "published_at"
+    t.string "meta_title"
+    t.text "meta_description"
+    t.integer "reviews_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "published_at"], name: "index_products_on_active_and_published_at"
+    t.index ["brand_id"], name: "index_products_on_brand_id"
+    t.index ["slug"], name: "index_products_on_slug", unique: true
+  end
+
+  create_table "reviews", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "rating", null: false
+    t.string "title"
+    t.text "body"
+    t.boolean "verified_purchase", default: false, null: false
+    t.string "status", default: "pending"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "status"], name: "index_reviews_on_product_id_and_status"
+    t.index ["product_id"], name: "index_reviews_on_product_id"
+    t.index ["rating"], name: "index_reviews_on_rating"
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+    t.check_constraint "rating >= 1 AND rating <= 5", name: "rating_range"
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -36,6 +249,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_08_014500) do
     t.string "city"
     t.date "date_of_birth"
     t.boolean "admin", default: false
+    t.integer "orders_count", default: 0, null: false
     t.index ["admin", "created_at"], name: "index_users_on_admin_and_created_at"
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["date_of_birth"], name: "index_users_on_date_of_birth"
@@ -50,5 +264,34 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_08_014500) do
     t.check_constraint "preferred_language IS NULL OR (preferred_language::text = ANY (ARRAY['ar'::character varying, 'en'::character varying]::text[]))", name: "valid_language"
   end
 
+  create_table "wishlists", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "product_variant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_variant_id"], name: "index_wishlists_on_product_variant_id"
+    t.index ["user_id", "product_variant_id"], name: "index_wishlists_on_user_id_and_product_variant_id", unique: true
+    t.index ["user_id"], name: "index_wishlists_on_user_id"
+  end
+
+  add_foreign_key "cart_items", "carts"
+  add_foreign_key "cart_items", "product_variants"
+  add_foreign_key "carts", "users"
+  add_foreign_key "categories", "categories", column: "parent_id"
+  add_foreign_key "categorizations", "categories"
+  add_foreign_key "categorizations", "products"
+  add_foreign_key "collection_products", "collections"
+  add_foreign_key "collection_products", "products"
+  add_foreign_key "customer_profiles", "users"
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "product_variants"
+  add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "users"
+  add_foreign_key "product_variants", "products"
+  add_foreign_key "products", "brands"
+  add_foreign_key "reviews", "products"
+  add_foreign_key "reviews", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "wishlists", "product_variants"
+  add_foreign_key "wishlists", "users"
 end
