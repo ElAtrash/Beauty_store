@@ -3,11 +3,16 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -24,6 +29,7 @@ jobs:
 
   scan_js:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -40,6 +46,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,22 +63,24 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     services:
       postgres:
-        image: postgres
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: beauty_store_test
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Install packages
@@ -85,12 +95,27 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Run tests
+      - name: Precompile assets
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/beauty_store_test
+          REDIS_URL: redis://localhost:6379/0
+        run: bin/rails assets:precompile
+
+      - name: Setup test database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/beauty_store_test
+          REDIS_URL: redis://localhost:6379/0
+        run: bin/rails db:prepare
+
+      - name: Run RSpec tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/beauty_store_test
+          REDIS_URL: redis://localhost:6379/0
+          COVERAGE: true
+        run: bundle exec rspec --format progress
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4

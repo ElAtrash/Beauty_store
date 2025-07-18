@@ -13,6 +13,34 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+# Start SimpleCov before loading any application code
+if ENV['COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.start 'rails' do
+    # Exclude test files and configuration files from coverage
+    add_filter '/spec/'
+    add_filter '/config/'
+    add_filter '/db/'
+    add_filter '/bin/'
+    add_filter '/vendor/'
+
+    # Include only your application code
+    add_group 'Models', 'app/models'
+    add_group 'Controllers', 'app/controllers'
+    add_group 'Views', 'app/views'
+    add_group 'Helpers', 'app/helpers'
+    add_group 'Components', 'app/components'
+    add_group 'Jobs', 'app/jobs'
+    add_group 'Mailers', 'app/mailers'
+
+    # Set minimum coverage percentage (optional)
+    # minimum_coverage 35
+
+    # Refuse coverage drop (optional - prevents coverage regression)
+    # refuse_coverage_drop
+  end
+end
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
