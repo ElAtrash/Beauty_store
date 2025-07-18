@@ -25,8 +25,8 @@ RSpec.describe Category, type: :model do
       end
 
       context 'with same positions' do
-        let!(:category_same_pos_a) { create(:category, position: 5) }
-        let!(:category_same_pos_b) { create(:category, position: 5) }
+        let!(:category_same_pos_a) { create(:category, name: 'Same Position A', position: 5) }
+        let!(:category_same_pos_b) { create(:category, name: 'Same Position B', position: 5) }
 
         it 'maintains consistent ordering for same positions' do
           result = Category.where(position: 5).ordered

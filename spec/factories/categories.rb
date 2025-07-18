@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :category do
-    name { Faker::Commerce.department }
+    sequence(:name) { |n| "#{Faker::Commerce.department} #{n}" }
     slug { name.parameterize }
     description { Faker::Lorem.paragraph }
     position { rand(1..10) }
