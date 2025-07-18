@@ -11,7 +11,7 @@ class Order < ApplicationRecord
   validates :number, presence: true, uniqueness: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  enum status: {
+  enum :status, {
     pending: "pending",
     processing: "processing",
     shipped: "shipped",
@@ -19,8 +19,8 @@ class Order < ApplicationRecord
     cancelled: "cancelled"
   }
 
-  enum payment_status: {
-    pending: "pending",
+  enum :payment_status, {
+    payment_pending: "pending",
     paid: "paid",
     partially_paid: "partially_paid",
     refunded: "refunded"

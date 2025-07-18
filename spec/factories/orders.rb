@@ -1,11 +1,11 @@
 FactoryBot.define do
   factory :order do
     user
-    email { user&.email || Faker::Internet.email }
+    email { user&.email_address || Faker::Internet.email }
     status { "pending" }
     payment_status { "pending" }
     fulfillment_status { nil }
-    subtotal { Money.new(10000) } # $100
+    subtotal { Money.new(10000) }
     tax_total { Money.new(800) }
     shipping_total { Money.new(500) }
     discount_total { Money.new(0) }

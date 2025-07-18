@@ -4,9 +4,9 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
     email_address { Faker::Internet.unique.email }
     password { "password123" }
-    phone_number { Faker::PhoneNumber.cell_phone }
-    preferred_language { "ar" }
-    governorate { Faker::Address.state }
+    phone_number { "+961#{rand(70000000..79999999)}" }
+    preferred_language { nil }
+    governorate { User::LEBANESE_GOVERNORATES.sample }
     city { Faker::Address.city }
     date_of_birth { Faker::Date.birthday(min_age: 18, max_age: 65) }
     admin { false }
@@ -14,6 +14,14 @@ FactoryBot.define do
 
     trait :admin do
       admin { true }
+    end
+
+    trait :arabic_speaker do
+      preferred_language { 'ar' }
+    end
+
+    trait :english_speaker do
+      preferred_language { 'en' }
     end
 
     trait :with_customer_profile do

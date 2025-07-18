@@ -5,7 +5,7 @@ class Review < ApplicationRecord
   validates :rating, presence: true, inclusion: { in: 1..5 }
   validates :user_id, uniqueness: { scope: :product_id }
 
-  enum status: {
+  enum :status, {
     pending: "pending",
     approved: "approved",
     rejected: "rejected"

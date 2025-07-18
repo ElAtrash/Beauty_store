@@ -5,7 +5,7 @@ FactoryBot.define do
     sku { "SKU-#{Faker::Alphanumeric.alphanumeric(number: 8).upcase}" }
     barcode { Faker::Code.ean }
     price { Money.new(rand(2000..15000)) }
-    compare_at_price { nil }
+    compare_at_price { Money.new(0) }
     cost { Money.new(price.cents * 0.6) } # 60% of price
     color { nil }
     size { [ "Small", "Medium", "Large" ].sample }

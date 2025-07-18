@@ -3,7 +3,7 @@ class CustomerProfile < ApplicationRecord
 
   monetize :total_spent_cents, allow_nil: true
 
-  enum skin_type: {
+  enum :skin_type, {
     oily: "oily",
     dry: "dry",
     combination: "combination",
@@ -11,7 +11,7 @@ class CustomerProfile < ApplicationRecord
     normal: "normal"
   }
 
-  enum skin_concerns: {
+  enum :skin_concerns, {
     acne: "acne",
     aging: "aging",
     dark_spots: "dark_spots",

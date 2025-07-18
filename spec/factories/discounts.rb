@@ -14,7 +14,7 @@ FactoryBot.define do
       value { Money.new(rand(500..2500)) } # 5-25%
     end
 
-    trait :fixed_amount do
+    trait :fixed do
       discount_type { "fixed" }
       value { Money.new(rand(1000..5000)) } # $10-50
     end

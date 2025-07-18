@@ -14,13 +14,15 @@ class Product < ApplicationRecord
   validates :name, presence: true, uniqueness: true
   validates :slug, presence: true, uniqueness: true
 
-  enum skin_types: {
-    oily: "oily",
-    dry: "dry",
-    combination: "combination",
-    sensitive: "sensitive",
-    normal: "normal"
-  }, _multiple: true
+  SKIN_TYPES = %w[oily dry combination sensitive normal].freeze
+
+  validates :skin_types, inclusion: { in: SKIN_TYPES }, allow_blank: true
+
+  SKIN_TYPES.each do |skin_type|
+    define_method "#{skin_type}_skin?" do
+      skin_types&.include?(skin_type)
+    end
+  end
 
   scope :active, -> { where(active: true) }
   scope :published, -> { where("published_at IS NOT NULL AND published_at <= ?", Time.current) }

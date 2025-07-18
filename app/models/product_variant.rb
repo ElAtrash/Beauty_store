@@ -27,7 +27,7 @@ class ProductVariant < ApplicationRecord
   end
 
   def on_sale?
-    compare_at_price.present? && compare_at_price > price
+    compare_at_price.present? && compare_at_price > Money.new(0) && compare_at_price > price
   end
 
   def discount_amount

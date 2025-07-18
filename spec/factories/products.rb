@@ -7,7 +7,7 @@ FactoryBot.define do
     brand
     ingredients { Faker::Lorem.paragraph }
     how_to_use { Faker::Lorem.paragraph }
-    skin_types { Product.skin_types.keys.sample(rand(1..3)) }
+    skin_types { Product::SKIN_TYPES.sample(rand(1..3)) }
     active { true }
     published_at { 1.week.ago }
     meta_title { Faker::Lorem.sentence }

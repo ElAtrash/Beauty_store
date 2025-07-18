@@ -20,7 +20,7 @@ class OrderItem < ApplicationRecord
     return unless product_variant
 
     self.product = product_variant.product
-    self.product_name = product.name
+    self.product_name = product_variant.product.name
     self.variant_name = product_variant.name
     self.unit_price = product_variant.price
   end
