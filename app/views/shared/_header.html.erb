@@ -1,5 +1,5 @@
 <div class="header-wrapper" data-controller="header">
-  <header class="fixed top-0 left-0 right-0 z-[100] transition-all duration-300" data-header-target="header">
+  <header class="site-header" data-header-target="header">
     <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
       <!-- Left Side: Location + Language (hidden on mobile) -->
       <div class="hidden md:flex items-center space-x-4">
@@ -71,20 +71,20 @@
     </div>
   </nav>
   <!-- Mobile Menu Toggle -->
-  <button class="md:hidden fixed top-4 left-4 z-[110] p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md transition-all duration-300"
+  <button class="md:hidden fixed top-4 left-4 z-[110] mobile-menu-toggle"
           data-action="click->header#toggleMobileMenu"
-    data-header-target="mobileMenuToggle"
-    aria-label="<%= t('header.mobile_menu_toggle') %>"
-    aria-expanded="false">
+          data-header-target="mobileMenuToggle"
+          aria-label="<%= t('header.mobile_menu_toggle') %>"
+          aria-expanded="false">
     <%= render 'shared/icons/menu', class: "w-5 h-5" %>
   </button>
   <!-- Mobile Menu Overlay -->
-  <div class="md:hidden fixed inset-0 bg-black/50 z-[105] transition-opacity duration-300 opacity-0 pointer-events-none"
+  <div class="md:hidden mobile-menu-overlay opacity-0 pointer-events-none z-[105]"
        data-header-target="mobileMenuOverlay"
        data-action="click->header#closeMobileMenu">
   </div>
   <!-- Mobile Menu Panel -->
-  <div class="md:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-xl z-[110] transform -translate-x-full transition-transform duration-300"
+  <div class="md:hidden mobile-menu-panel -translate-x-full z-[110]"
        data-header-target="mobileMenuPanel">
     <div class="flex flex-col h-full">
       <!-- Mobile Menu Header -->
@@ -92,7 +92,7 @@
         <h2 class="text-lg font-semibold text-gray-900"><%= t('header.mobile_menu_title') %></h2>
         <button class="p-2 text-gray-500 hover:text-gray-700"
                 data-action="click->header#closeMobileMenu"
-          aria-label="<%= t('header.close_menu') %>">
+                aria-label="<%= t('header.close_menu') %>">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -125,18 +125,18 @@
         <!-- Action Buttons -->
         <div class="p-4 border-t">
           <div class="space-y-3">
-            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            <button class="mobile-menu-item"
                     data-action="click->header#openSearch">
               <%= render 'shared/icons/search', class: "w-5 h-5" %>
               <span><%= t('header.actions.search') %></span>
             </button>
-            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            <button class="mobile-menu-item"
                     data-action="click->header#openFavorites">
               <%= render 'shared/icons/heart', class: "w-5 h-5" %>
               <span><%= t('header.actions.favorites') %></span>
               <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
             </button>
-            <button class="w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            <button class="mobile-menu-item"
                     data-action="click->header#openProfile">
               <%= render 'shared/icons/user', class: "w-5 h-5" %>
               <span><%= t('header.actions.profile') %></span>

@@ -1,0 +1,41 @@
+<section class="product-grid-section py-12 md:py-16 bg-white" data-controller="product-grid" data-product-grid-pagy-url-value="<%= products_path %>">
+  <div class="container mx-auto px-4">
+    <!-- Section Title -->
+    <h1 class="section-title">
+      You might be interested
+    </h1>
+    <!-- Products Grid -->
+    <div class="products-grid"
+         data-product-grid-target="container"
+         id="products-container">
+      <!-- Initial Products -->
+      <% @products.each do |product| %>
+        <div data-product-grid-target="product">
+          <%= render ProductCardComponent.new(product: product) %>
+        </div>
+      <% end %>
+    </div>
+    <!-- Show More Button -->
+    <% if @pagy.next %>
+      <div class="text-center mt-8 md:mt-12">
+        <button class="btn-show-more"
+                data-action="click->product-grid#loadMore"
+                data-product-grid-target="loadMoreBtn"
+                data-product-grid-next-page-value="<%= @pagy.next %>"
+                id="load-more-button">
+          Show more
+        </button>
+      </div>
+    <% end %>
+    <!-- Loading indicator -->
+    <div class="hidden text-center mt-8" data-product-grid-target="loading">
+      <div class="inline-flex items-center px-6 py-3 text-gray-600">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Loading more products...
+      </div>
+    </div>
+  </div>
+</section>
