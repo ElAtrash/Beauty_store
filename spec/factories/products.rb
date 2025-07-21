@@ -14,6 +14,11 @@ FactoryBot.define do
     meta_description { Faker::Lorem.paragraph }
     reviews_count { 0 }
 
+    trait :published do
+      published_at { 1.week.ago }
+      active { true }
+    end
+
     trait :unpublished do
       published_at { nil }
     end

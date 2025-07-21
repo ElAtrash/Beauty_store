@@ -1,9 +1,9 @@
 <!-- Authentication Popup -->
-<div class="fixed inset-0 bg-black/50 z-[120] transition-opacity duration-300 opacity-0 pointer-events-none"
+<div class="modal-overlay opacity-0 pointer-events-none"
      data-header-target="authPopupOverlay"
      data-action="click->header#closeAuthPopup">
 </div>
-<div class="fixed top-0 right-0 w-full sm:w-[35%] h-full bg-white shadow-xl z-[130] transform translate-x-full transition-transform duration-300"
+<div class="auth-sidebar translate-x-full"
      data-header-target="authPopupPanel">
   <div class="flex flex-col h-full">
     <!-- Header -->
@@ -21,7 +21,7 @@
           <!-- Signed In State -->
           <div class="space-y-6">
             <div class="text-center">
-              <div class="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div class="category-icon-container bg-cyan-100">
                 <%= render 'shared/icons/user', class: "w-8 h-8 text-cyan-600" %>
               </div>
               <h3 class="text-lg font-medium text-gray-900"><%= t('auth.welcome_back') %></h3>
@@ -30,7 +30,7 @@
             <!-- User Menu -->
             <div class="space-y-2">
               <% user_menu_items.each do |item| %>
-                <%= link_to item[:path], class: "w-full flex items-center space-x-3 p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors" do %>
+                <%= link_to item[:path], class: "mobile-menu-item" do %>
                   <%= raw item[:icon] %>
                   <span><%= item[:text] %></span>
                 <% end %>
@@ -69,12 +69,12 @@
             </div>
             <!-- Toggle Buttons -->
             <div class="flex bg-gray-100 p-1 rounded-lg mb-6">
-              <button class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors auth-tab-btn active"
+              <button class="auth-tab-button auth-tab-btn active"
                       data-action="click->header#switchAuthTab"
                 data-tab="signin">
                 <%= t('auth.sign_in') %>
               </button>
-              <button class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors auth-tab-btn"
+              <button class="auth-tab-button auth-tab-btn"
                       data-action="click->header#switchAuthTab"
                 data-tab="signup">
                 <%= t('auth.sign_up') %>
@@ -92,7 +92,7 @@
                       autocomplete: "username",
                       placeholder: t('auth.email_placeholder'),
                       'data-auth-form-target': 'email',
-                      class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors" %>
+                      class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden">
                     <%= raw error_icon_svg %>
                     <span></span>
@@ -107,8 +107,9 @@
                         autocomplete: "current-password",
                         placeholder: t('auth.password_placeholder'),
                         'data-auth-form-target': 'password',
-                        class: "w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors" %>
-                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        class: "form-input pr-12" %>
+                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            data-action="click->auth-form#togglePasswordVisibility">
                       <%= raw password_visibility_icon_svg %>
                     </button>
                   </div>
@@ -119,7 +120,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
-                    <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
+                    <input id="remember_me" name="remember_me" type="checkbox" class="form-checkbox">
                     <label for="remember_me" class="ml-2 block text-sm text-gray-700">
                       <%= t('auth.remember_me') %>
                     </label>
@@ -142,7 +143,7 @@
                       autocomplete: "email",
                       placeholder: t('auth.email_placeholder'),
                       'data-auth-form-target': 'email',
-                      class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors" %>
+                      class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden">
                     <%= raw error_icon_svg %>
                     <span></span>
@@ -157,8 +158,9 @@
                         autocomplete: "new-password",
                         placeholder: t('auth.password_placeholder'),
                         'data-auth-form-target': 'password',
-                        class: "w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors" %>
-                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        class: "form-input pr-12" %>
+                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            data-action="click->auth-form#togglePasswordVisibility">
                       <%= raw password_visibility_icon_svg %>
                     </button>
                   </div>
@@ -176,8 +178,9 @@
                         autocomplete: "new-password",
                         placeholder: t('auth.password_confirmation_placeholder'),
                         'data-auth-form-target': 'passwordConfirmation',
-                        class: "w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors" %>
-                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        class: "form-input pr-12" %>
+                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            data-action="click->auth-form#togglePasswordVisibility">
                       <%= raw password_visibility_icon_svg %>
                     </button>
                   </div>

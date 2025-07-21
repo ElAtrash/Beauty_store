@@ -1,0 +1,60 @@
+<div class="product-card-base"
+     data-product-id="<%= product.id %>"
+     data-product-slug="<%= product.slug %>">
+  <!-- Product Image Container -->
+  <div class="relative aspect-square bg-gray-100 overflow-hidden">
+    <%= image_tag product_image_url,
+        alt: product.name,
+        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
+        loading: "lazy" %>
+    <!-- Discount & Hit Labels -->
+    <% if show_labels %>
+      <div class="absolute top-3 left-3 flex gap-2">
+        <% if has_discount? %>
+          <span class="bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded">
+            <%= discount_percentage %>
+          </span>
+        <% end %>
+        <% if is_hit_product? %>
+          <span class="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
+            HIT
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+    <!-- Wishlist Button -->
+    <button class="product-wishlist-button"
+            data-action="click->wishlist#toggle"
+            data-product-id="<%= product.id %>"
+            aria-label="Add to wishlist">
+      <%= raw heart_icon_svg %>
+    </button>
+  </div>
+  <!-- Product Info -->
+  <div class="p-4">
+    <!-- Category -->
+    <div class="text-xs text-gray-500 uppercase tracking-wide mb-2">
+      <%= category_label %>
+    </div>
+    <!-- Product Name -->
+    <h3 class="font-medium text-gray-900 mb-2 line-clamp-2 leading-tight">
+      <%= link_to product.name, product_path,
+          class: "hover:text-pink-600 transition-colors duration-200" %>
+    </h3>
+    <!-- Brand Name -->
+    <p class="text-sm text-gray-600 mb-3">
+      <%= product.brand&.name || "Not specified" %>
+    </p>
+    <!-- Price -->
+    <div class="flex items-center gap-2">
+      <span class="font-bold text-gray-900">
+        <%= price_display %>
+      </span>
+      <% if original_price_display %>
+        <span class="text-sm text-gray-500 line-through">
+          <%= original_price_display %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>

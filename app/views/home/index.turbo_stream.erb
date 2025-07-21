@@ -1,0 +1,15 @@
+<%= turbo_stream.append "products-container" do %>
+  <% @products.each do |product| %>
+    <div data-product-grid-target="product">
+      <%= render ProductCardComponent.new(product: product) %>
+    </div>
+  <% end %>
+<% end %>
+
+<% if @pagy.next %>
+  <%= turbo_stream.update "load-more-button" do %>
+    <%= render "shared/show_more_button", next_page: @pagy.next %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.remove "load-more-button" %>
+<% end %>

@@ -14,6 +14,16 @@ Rails.application.routes.draw do
 
   root "home#index"
 
+  # Product routes
+  resources :products, only: [ :show ]
+  resources :categories, only: [ :index, :show ] do
+    resources :products, only: [ :index ]
+  end
+  resources :brands, only: [ :index, :show ] do
+    resources :products, only: [ :index ]
+  end
+
+  # Authentication routes
   resource :session
   resources :passwords, param: :token
   resources :registrations, only: [ :new, :create ]
