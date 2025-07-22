@@ -32,5 +32,4 @@ class AuthPopupComponent < ViewComponent::Base
       }
     ]
   end
-
 end
