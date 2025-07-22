@@ -27,7 +27,7 @@
             data-action="click->wishlist#toggle"
             data-product-id="<%= product.id %>"
             aria-label="Add to wishlist">
-      <%= raw heart_icon_svg %>
+      <%= render IconComponent.new(name: :heart, class: "w-5 h-5") %>
     </button>
   </div>
   <!-- Product Info -->

@@ -42,19 +42,9 @@ class HeroCarouselComponent < ViewComponent::Base
     ]
   end
 
-  def navigation_arrow_svg(direction)
-    path = case direction
-    when :left
-             "M15 19l-7-7 7-7"
-    when :right
-             "M9 5l7 7-7 7"
-    end
-
-    <<~SVG
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="#{path}"></path>
-      </svg>
-    SVG
+  def navigation_arrow_icon(direction)
+    icon_name = direction == :left ? :arrow_left : :arrow_right
+    render(IconComponent.new(name: icon_name, class: "w-6 h-6"))
   end
 
   def slide_animation_classes(slide)
