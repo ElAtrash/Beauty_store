@@ -11,7 +11,7 @@
       <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
               data-action="click->header#closeAuthPopup"
         aria-label="<%= t('auth.close') %>">
-        <%= raw close_icon_svg %>
+        <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
       </button>
     </div>
     <!-- Content -->
@@ -22,7 +22,7 @@
           <div class="space-y-6">
             <div class="text-center">
               <div class="category-icon-container bg-cyan-100">
-                <%= render 'shared/icons/user', class: "w-8 h-8 text-cyan-600" %>
+                <%= render IconComponent.new(name: :user, class: "w-8 h-8 text-cyan-600") %>
               </div>
               <h3 class="text-lg font-medium text-gray-900"><%= t('auth.welcome_back') %></h3>
               <p class="text-gray-600 mt-1"><%= current_user.email_address %></p>
@@ -39,7 +39,7 @@
             <!-- Sign Out -->
             <div class="border-t border-gray-200 pt-6">
               <%= link_to logout_path, data: { turbo_method: :delete }, class: "w-full flex items-center justify-center space-x-2 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors" do %>
-                <%= raw signout_icon_svg %>
+                <%= render IconComponent.new(name: :signout, class: "w-5 h-5") %>
                 <span><%= t('auth.sign_out') %></span>
               <% end %>
             </div>
@@ -94,7 +94,7 @@
                       'data-auth-form-target': 'email',
                       class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden">
-                    <%= raw error_icon_svg %>
+                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -110,11 +110,11 @@
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->auth-form#togglePasswordVisibility">
-                      <%= raw password_visibility_icon_svg %>
+                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-gray-400") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden">
-                    <%= raw error_icon_svg %>
+                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -145,7 +145,7 @@
                       'data-auth-form-target': 'email',
                       class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden">
-                    <%= raw error_icon_svg %>
+                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -161,11 +161,11 @@
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->auth-form#togglePasswordVisibility">
-                      <%= raw password_visibility_icon_svg %>
+                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-gray-400") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden">
-                    <%= raw error_icon_svg %>
+                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -181,11 +181,11 @@
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->auth-form#togglePasswordVisibility">
-                      <%= raw password_visibility_icon_svg %>
+                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-gray-400") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden">
-                    <%= raw error_icon_svg %>
+                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
