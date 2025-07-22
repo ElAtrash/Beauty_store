@@ -1,5 +1,8 @@
 class ProductVariant < ApplicationRecord
   belongs_to :product
+
+  has_many_attached :images
+  has_one_attached :featured_image
   has_many :cart_items, dependent: :destroy
   has_many :wishlists, dependent: :destroy
 

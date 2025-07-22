@@ -3,6 +3,9 @@ class Product < ApplicationRecord
   friendly_id :name, use: :slugged
 
   belongs_to :brand, optional: true
+
+  has_many_attached :images
+  has_one_attached :featured_image
   has_many :product_variants, dependent: :destroy
   has_many :categorizations, dependent: :destroy
   has_many :categories, through: :categorizations

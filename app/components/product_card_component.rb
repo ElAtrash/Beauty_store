@@ -13,15 +13,39 @@ class ProductCardComponent < ViewComponent::Base
 
   def product_image_url
     @product_image_url ||= begin
-      # Extract image URL from meta_description field (temporary solution)
-      if product.meta_description&.start_with?("IMAGE_URL:")
-        product.meta_description.sub("IMAGE_URL:", "")
+      image_attachment = find_image_attachment
+
+      if image_attachment
+        # Use image variant for product cards (300x300 optimized)
+        begin
+          Rails.application.routes.url_helpers.rails_blob_url(
+            image_attachment.variant(resize_to_fill: [ 300, 300, { gravity: :center } ]),
+            only_path: false
+          )
+        rescue ArgumentError => e
+          if e.message.include?("Missing host")
+            Rails.application.routes.url_helpers.rails_blob_path(
+              image_attachment.variant(resize_to_fill: [ 300, 300, { gravity: :center } ])
+            )
+          else
+            raise e
+          end
+        end
       else
-        # Fallback to placeholder
+        # Fallback to local placeholder (avoiding external DNS issues)
         encoded_name = CGI.escape(product.name.truncate(20))
-        "https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=#{encoded_name}"
+        "data:image/svg+xml;base64,#{Base64.strict_encode64(generate_placeholder_svg(encoded_name))}"
       end
     end
+  end
+
+  def find_image_attachment
+    return default_variant.featured_image if default_variant&.featured_image&.attached?
+    return default_variant.images.first if default_variant&.images&.attached?
+    return product.featured_image if product.featured_image&.attached?
+    return product.images.first if product.images&.attached?
+
+    nil
   end
 
   def discount_percentage
@@ -77,6 +101,15 @@ class ProductCardComponent < ViewComponent::Base
     Rails.application.routes.url_helpers.product_path(product)
   rescue
     "/products/#{product.to_param}"
+  end
+
+  def generate_placeholder_svg(text)
+    <<~SVG
+      <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="300" fill="#f3f4f6"/>
+        <text x="150" y="150" font-family="Arial, sans-serif" font-size="14" fill="#9ca3af" text-anchor="middle" dominant-baseline="middle">#{CGI.unescapeHTML(text)}</text>
+      </svg>
+    SVG
   end
 
   def heart_icon_svg

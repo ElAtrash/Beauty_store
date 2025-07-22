@@ -28,6 +28,10 @@ Rails.application.configure do
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
 
+  # Configure default URL options for Active Storage
+  config.action_controller.default_url_options = { host: "localhost", port: 3000 }
+  Rails.application.routes.default_url_options[:host] = "localhost:3000"
+
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 

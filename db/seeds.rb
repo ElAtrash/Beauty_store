@@ -74,9 +74,9 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1631730486651-2057b2427c8e?w=400&h=400&fit=crop",
     variants: [
-      { name: "110 (Fair with cool undertones)", sku: "FENTY-FOUND-110", price: 34.00, stock: 50, compare_at_price: 40.00 },
-      { name: "150 (Light with cool undertones)", sku: "FENTY-FOUND-150", price: 34.00, stock: 45 },
-      { name: "200 (Light with warm undertones)", sku: "FENTY-FOUND-200", price: 34.00, stock: 30 }
+      { name: "110 (Fair with cool undertones)", sku: "FENTY-FOUND-110", price: 34.00, stock: 50, compare_at_price: 40.00, image_url: "https://images.unsplash.com/photo-1631730486651-2057b2427c8e?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "150 (Light with cool undertones)", sku: "FENTY-FOUND-150", price: 34.00, stock: 45, image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "200 (Light with warm undertones)", sku: "FENTY-FOUND-200", price: 34.00, stock: 30, image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
     ]
   },
   {
@@ -103,9 +103,9 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop",
     variants: [
-      { name: "Joy (Warm berry)", sku: "RARE-BLUSH-JOY", price: 20.00, stock: 25 },
-      { name: "Bliss (Soft pink)", sku: "RARE-BLUSH-BLISS", price: 20.00, stock: 30 },
-      { name: "Hope (Dusty rose)", sku: "RARE-BLUSH-HOPE", price: 20.00, stock: 20, compare_at_price: 25.00 }
+      { name: "Joy (Warm berry)", sku: "RARE-BLUSH-JOY", price: 20.00, stock: 25, image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "Bliss (Soft pink)", sku: "RARE-BLUSH-BLISS", price: 20.00, stock: 30, image_url: "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "Hope (Dusty rose)", sku: "RARE-BLUSH-HOPE", price: 20.00, stock: 20, compare_at_price: 25.00, image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
     ]
   },
 
@@ -769,10 +769,26 @@ products_data.each do |product_data|
     p.active = product_data[:active]
   end
 
-  # Store the image URL in a simple way (we'll enhance this later with Active Storage)
-  if product_data[:image_url] && !product.respond_to?(:image_url)
-    # For now, we'll add this as a custom attribute - in a real app you'd use Active Storage
-    product.update_column(:meta_description, "IMAGE_URL:#{product_data[:image_url]}")
+  # Attach images using Active Storage
+  if product_data[:image_url] && !product.featured_image.attached?
+    begin
+      # Download and attach the image from URL
+      require 'open-uri'
+      image_data = URI.open(product_data[:image_url])
+      filename = "#{product.slug}-featured.jpg"
+
+      product.featured_image.attach(
+        io: image_data,
+        filename: filename,
+        content_type: 'image/jpeg'
+      )
+
+      puts "  ✅ Attached image for #{product.name}"
+    rescue => e
+      puts "  ⚠️  Failed to attach image for #{product.name}: #{e.message}"
+      # Fallback: keep the old meta_description approach for failed downloads
+      product.update_column(:meta_description, "IMAGE_URL:#{product_data[:image_url]}")
+    end
   end
 
   # Add categories
@@ -782,16 +798,35 @@ products_data.each do |product_data|
   end
 
   # Create variants
-  product_data[:variants].each do |variant_data|
-    ProductVariant.find_or_create_by!(product: product, name: variant_data[:name]) do |variant|
-      variant.sku = variant_data[:sku]
-      variant.price = Money.new(variant_data[:price] * 100) # Convert to cents
-      variant.stock_quantity = variant_data[:stock]
-      variant.position = product.product_variants.count + 1
+  product_data[:variants].each_with_index do |variant_data, index|
+    variant = ProductVariant.find_or_create_by!(product: product, name: variant_data[:name]) do |v|
+      v.sku = variant_data[:sku]
+      v.price = Money.new(variant_data[:price] * 100) # Convert to cents
+      v.stock_quantity = variant_data[:stock]
+      v.position = index + 1
 
       # Add compare_at_price if provided
       if variant_data[:compare_at_price]
-        variant.compare_at_price = Money.new(variant_data[:compare_at_price] * 100)
+        v.compare_at_price = Money.new(variant_data[:compare_at_price] * 100)
+      end
+    end
+
+    # Attach variant-specific images if provided
+    if variant_data[:image_url] && !variant.featured_image.attached?
+      begin
+        require 'open-uri'
+        image_data = URI.open(variant_data[:image_url])
+        filename = "#{product.slug}-#{variant.sku.downcase}-variant.jpg"
+
+        variant.featured_image.attach(
+          io: image_data,
+          filename: filename,
+          content_type: 'image/jpeg'
+        )
+
+        puts "    ✅ Attached variant image for #{variant.name}"
+      rescue => e
+        puts "    ⚠️  Failed to attach variant image for #{variant.name}: #{e.message}"
       end
     end
   end
@@ -833,7 +868,18 @@ end
 
 puts "✅ Created #{Review.count} reviews"
 
-puts "🎉 Seeding completed successfully!"
+# Image attachment summary
+puts "\n📷 Image Attachment Summary:"
+products_with_images = Product.joins(:featured_image_attachment).count
+products_with_multiple_images = Product.joins(:images_attachments).group('products.id').having('count(active_storage_attachments.id) > 1').count.size
+variants_with_images = ProductVariant.joins(:featured_image_attachment).count
+
+puts "- #{products_with_images} products have featured images attached"
+puts "- #{products_with_multiple_images} products have multiple images"
+puts "- #{variants_with_images} product variants have featured images attached"
+puts "- Total Active Storage attachments: #{ActiveStorage::Attachment.count}"
+
+puts "\n🎉 Seeding completed successfully!"
 puts ""
 puts "Summary:"
 puts "- #{Brand.count} brands"
@@ -841,3 +887,4 @@ puts "- #{Category.count} categories"
 puts "- #{Product.count} products"
 puts "- #{ProductVariant.count} product variants"
 puts "- #{Review.count} reviews"
+puts "- #{ActiveStorage::Attachment.count} image attachments"
