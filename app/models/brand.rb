@@ -8,4 +8,12 @@ class Brand < ApplicationRecord
   validates :slug, presence: true, uniqueness: true
 
   scope :featured, -> { where(featured: true) }
+
+  after_commit :expire_navigation_cache
+
+  private
+
+  def expire_navigation_cache
+    Rails.cache.delete("brands_alphabet_navigation")
+  end
 end

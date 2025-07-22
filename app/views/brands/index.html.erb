@@ -1,0 +1,52 @@
+<div class="brands-page">
+
+  <!-- Alphabet Navigation -->
+  <%= render AlphabetNavigationComponent.new(
+    navigation_items: @brands_service.alphabet_navigation,
+    selected_letter: @letter
+  ) %>
+
+  <!-- Brands Content -->
+  <turbo-frame id="brands-content">
+    <% if (@letter || @brands_service.searching?) && @brands_service.has_brands? %>
+      <% @brands_service.brands_by_letter.each do |letter, brands| %>
+        <%= render BrandSectionComponent.new(letter: letter, brands: brands) %>
+      <% end %>
+    <% elsif @letter || @brands_service.searching? %>
+      <!-- No brands found message -->
+      <div class="container mx-auto px-4 py-16 text-center">
+        <div class="max-w-md mx-auto">
+          <%= render IconComponent.new(name: :search, class: "w-16 h-16 text-gray-300 mx-auto mb-4") %>
+          <% if @brands_service.searching? %>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              No brands found for "<%= @search %>"
+            </h3>
+            <p class="text-gray-600">
+              Try a different search term or browse by letter above.
+            </p>
+          <% else %>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              No brands found for "<%= @letter %>"
+            </h3>
+            <p class="text-gray-600">
+              Try selecting a different letter or check back later for new brands.
+            </p>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <!-- Default state - select a letter -->
+      <div class="container mx-auto px-4 py-16 text-center">
+        <div class="max-w-md mx-auto">
+          <%= render IconComponent.new(name: :book_open, class: "w-16 h-16 text-gray-300 mx-auto mb-4") %>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">
+            Select a letter to browse brands
+          </h3>
+          <p class="text-gray-600">
+            Click on any letter above to see brands starting with that letter.
+          </p>
+        </div>
+      </div>
+    <% end %>
+  </turbo-frame>
+</div>

@@ -2,7 +2,7 @@ class Product < ApplicationRecord
   extend FriendlyId
   friendly_id :name, use: :slugged
 
-  belongs_to :brand, optional: true
+  belongs_to :brand, optional: true, counter_cache: true
 
   has_many_attached :images
   has_one_attached :featured_image

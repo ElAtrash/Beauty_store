@@ -22,7 +22,7 @@ module HeaderHelper
   def header_navigation_items
     [
       { key: "catalog", path: "#", highlight: false },
-      { key: "brands", path: "#", highlight: false },
+      { key: "brands", path: brands_path, highlight: false },
       { key: "new_in", path: "#", highlight: false },
       { key: "sale", path: "#", highlight: true },
       { key: "skincare", path: "#", highlight: false },

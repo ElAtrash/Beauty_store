@@ -1,0 +1,19 @@
+<%= turbo_stream.replace "brands-content" do %>
+  <% if @brands_service.has_brands? %>
+    <% @brands_service.brands_by_letter.each do |letter, brands| %>
+      <%= render BrandSectionComponent.new(letter: letter, brands: brands) %>
+    <% end %>
+  <% else %>
+    <div class="container mx-auto px-4 py-16 text-center">
+      <div class="max-w-md mx-auto">
+        <%= render IconComponent.new(name: :search, class: "w-16 h-16 text-gray-300 mx-auto mb-4") %>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          No brands found for "<%= @letter %>"
+        </h3>
+        <p class="text-gray-600">
+          Try selecting a different letter or check back later for new brands.
+        </p>
+      </div>
+    </div>
+  <% end %>
+<% end %>

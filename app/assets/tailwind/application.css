@@ -416,6 +416,88 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Alphabet Navigation */
+  .alphabet-navigation {
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafafa;
+  }
+
+  .alphabet-letter-btn {
+    @apply relative inline-flex flex-col items-center justify-center w-8 h-8 rounded-md font-medium text-xs transition-all duration-200;
+    @apply border border-transparent bg-white text-gray-600;
+    @apply hover:bg-gray-50 hover:border-gray-200;
+  }
+
+  .alphabet-letter-btn.active {
+    @apply bg-gradient-to-r from-teal-500 to-cyan-600 text-white border-transparent;
+    @apply shadow-md;
+  }
+
+  .alphabet-letter-btn.available {
+    @apply hover:text-cyan-600 hover:border-cyan-200;
+  }
+
+  .alphabet-letter-btn.disabled {
+    @apply text-gray-300 cursor-not-allowed;
+    @apply hover:bg-white hover:border-transparent hover:text-gray-300;
+  }
+
+  .brand-count {
+    @apply absolute -top-1 -right-1 text-xs bg-gray-100 text-gray-600 rounded-full px-1 min-w-4 h-4 flex items-center justify-center;
+    @apply leading-none;
+  }
+
+  .alphabet-letter-btn.active .brand-count {
+    @apply bg-white text-cyan-600;
+  }
+
+  .alphabet-letter-btn.disabled .brand-count {
+    @apply bg-gray-50 text-gray-300;
+  }
+
+  /* Brand Section */
+  .brand-section {
+    @apply min-h-32;
+  }
+
+  .letter-heading {
+    @apply text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-600;
+  }
+
+  /* Brand Cards */
+  .brand-card {
+    @apply bg-white border border-gray-200 rounded-lg p-6 transition-all duration-200;
+    @apply hover:shadow-lg hover:border-cyan-200 hover:-translate-y-1;
+  }
+
+  .brand-link {
+    @apply block h-full;
+  }
+
+  .brand-card-content {
+    @apply flex-1;
+  }
+
+  .brand-name {
+    @apply text-lg font-semibold text-gray-900 mb-2;
+  }
+
+  .brand-products-count {
+    @apply text-sm text-gray-600 mb-2;
+  }
+
+  .brand-description {
+    @apply text-sm text-gray-500 leading-relaxed;
+  }
+
+  .brand-card-arrow {
+    @apply flex justify-end mt-4 text-gray-400 transition-colors duration-200;
+  }
+
+  .brand-card:hover .brand-card-arrow {
+    @apply text-cyan-500;
+  }
 }
 
 @keyframes fadeInUp {

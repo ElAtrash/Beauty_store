@@ -1,0 +1,35 @@
+<section class="brand-section" id="<%= section_id %>">
+  <div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+      <span class="letter-heading"><%= letter %></span>
+      <span class="ml-4 text-lg font-normal text-gray-600">
+        <%= brands.count %> <%= brands.count == 1 ? "brand" : "brands" %>
+      </span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% brands.each do |brand| %>
+        <div class="brand-card">
+          <%= link_to brand_path(brand),
+              class: "brand-link",
+              data: { turbo: true } do %>
+            <div class="brand-card-content">
+              <h3 class="brand-name"><%= brand.name %></h3>
+              <p class="brand-products-count">
+                <%= brand_products_count(brand) %> <%= pluralize_products(brand_products_count(brand)) %>
+              </p>
+              <% if brand.description.present? %>
+                <p class="brand-description">
+                  <%= truncate(brand.description, length: 100) %>
+                </p>
+              <% end %>
+            </div>
+            <div class="brand-card-arrow">
+              <%= render IconComponent.new(name: :arrow_right, class: "w-4 h-4") %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
