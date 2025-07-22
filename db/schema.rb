@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_130216) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_22_160308) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,6 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_130216) do
     t.boolean "featured", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "products_count", default: 0, null: false
     t.index ["slug"], name: "index_brands_on_slug", unique: true
   end
 
@@ -289,7 +290,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_130216) do
     t.check_constraint "date_of_birth IS NULL OR date_of_birth < CURRENT_DATE", name: "date_of_birth_in_past"
     t.check_constraint "first_name IS NULL OR length(first_name::text) >= 2", name: "first_name_min_length"
     t.check_constraint "last_name IS NULL OR length(last_name::text) >= 2", name: "last_name_min_length"
-    t.check_constraint "preferred_language IS NULL OR (preferred_language::text = ANY (ARRAY['ar'::character varying, 'en'::character varying]::text[]))", name: "valid_language"
+    t.check_constraint "preferred_language IS NULL OR (preferred_language::text = ANY (ARRAY['ar'::character varying::text, 'en'::character varying::text]))", name: "valid_language"
   end
 
   create_table "wishlists", force: :cascade do |t|
