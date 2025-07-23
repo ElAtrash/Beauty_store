@@ -468,7 +468,7 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
-    view_component (4.0.0.rc3)
+    view_component (4.0.0.rc5)
       activesupport (>= 7.1.0, < 8.1)
       concurrent-ruby (~> 1)
     web-console (4.2.1)
@@ -543,7 +543,7 @@ DEPENDENCIES
   twitter_cldr
   tzinfo-data
   vcr
-  view_component (= 4.0.0.rc3)
+  view_component (= 4.0.0.rc5)
   web-console
   webmock
 
