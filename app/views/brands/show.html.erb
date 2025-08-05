@@ -1,0 +1,10 @@
+<div class="brand-detail-page">
+  <!-- Brand Banner -->
+  <%= render Brands::BrandBannerComponent.new(brand: @brand) %>
+
+  <!-- Brand Filters -->
+  <%= render Brands::BrandFilterComponent.new(brand: @brand, total_products: @pagy.count) %>
+
+  <!-- Brand Products -->
+  <%= render Brands::BrandProductListComponent.new(brand: @brand, products: @products, pagy: @pagy) %>
+</div>

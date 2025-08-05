@@ -1,14 +1,14 @@
 <%= turbo_stream.append "products-container" do %>
-  <% @products.each do |product| %>
+  <%= render ProductCardComponent.with_collection(@products) do |component| %>
     <div data-product-grid-target="product">
-      <%= render ProductCardComponent.new(product: product) %>
+      <%= component %>
     </div>
   <% end %>
 <% end %>
 
 <% if @pagy.next %>
   <%= turbo_stream.replace "load-more-button" do %>
-    <button class="bg-black text-white px-8 py-3 md:px-12 md:py-4 font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors duration-300"
+    <button class="btn-show-more"
             data-action="click->product-grid#loadMore"
             data-product-grid-target="loadMoreBtn"
             data-product-grid-next-page-value="<%= @pagy.next %>"

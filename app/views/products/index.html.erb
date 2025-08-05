@@ -9,9 +9,9 @@
          data-product-grid-target="container"
          id="products-container">
       <!-- Initial Products -->
-      <% @products.each do |product| %>
+      <%= render ProductCardComponent.with_collection(@products) do |component| %>
         <div data-product-grid-target="product">
-          <%= render ProductCardComponent.new(product: product) %>
+          <%= component %>
         </div>
       <% end %>
     </div>

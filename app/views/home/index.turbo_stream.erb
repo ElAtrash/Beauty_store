@@ -1,7 +1,7 @@
 <%= turbo_stream.append "products-container" do %>
-  <% @products.each do |product| %>
+  <%= render ProductCardComponent.with_collection(@products) do |component| %>
     <div data-product-grid-target="product">
-      <%= render ProductCardComponent.new(product: product) %>
+      <%= component %>
     </div>
   <% end %>
 <% end %>

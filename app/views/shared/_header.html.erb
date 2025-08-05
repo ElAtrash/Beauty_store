@@ -1,4 +1,4 @@
-<div class="header-wrapper" data-controller="header">
+<div class="header-wrapper" data-controller="header" data-header-page-type-value="<%= controller_name == 'brands' && action_name == 'show' ? 'brand' : 'home' %>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
   <header class="site-header" data-header-target="header">
     <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
       <!-- Left Side: Location + Language (hidden on mobile) -->

@@ -12,7 +12,10 @@
         <div class="brand-card">
           <%= link_to brand_path(brand),
               class: "brand-link",
-              data: { turbo: true } do %>
+              data: { 
+                turbo: true,
+                turbo_frame: "_top" 
+              } do %>
             <div class="brand-card-content">
               <h3 class="brand-name"><%= brand.name %></h3>
               <p class="brand-products-count">

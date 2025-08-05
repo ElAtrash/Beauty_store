@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ProductCardComponent < ViewComponent::Base
+  with_collection_parameter :product
+
   def initialize(product:, show_discount: true, show_labels: true)
     @product = product
     @show_discount = show_discount

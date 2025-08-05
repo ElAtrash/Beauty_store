@@ -7,18 +7,73 @@ puts "🌱 Starting to seed the beauty store database..."
 # Create Brands
 puts "Creating brands..."
 brands = [
-  { name: "Fenty Beauty", slug: "fenty-beauty", description: "Beauty for all" },
-  { name: "Rare Beauty", slug: "rare-beauty", description: "Find comfort in your own skin" },
-  { name: "Charlotte Tilbury", slug: "charlotte-tilbury", description: "Luxury makeup and skincare" },
-  { name: "The Ordinary", slug: "the-ordinary", description: "Clinical formulations with integrity" },
-  { name: "Glossier", slug: "glossier", description: "Beauty inspired by real life" },
-  { name: "Drunk Elephant", slug: "drunk-elephant", description: "Biocompatible skincare" }
+  {
+    name: "Fenty Beauty",
+    slug: "fenty-beauty",
+    description: "Beauty for all. Fenty Beauty was founded with the vision of inclusion for all women.",
+    banner_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=675&fit=crop&auto=format&q=80"
+  },
+  {
+    name: "Rare Beauty",
+    slug: "rare-beauty",
+    description: "Find comfort in your own skin. Mental health and self-acceptance at the core.",
+    banner_url: "https://images.unsplash.com/photo-1522338242992-e1633a1bef4b?w=1200&h=675&fit=crop&auto=format&q=80"
+  },
+  {
+    name: "Charlotte Tilbury",
+    slug: "charlotte-tilbury",
+    description: "Luxury makeup and skincare inspired by iconic beauty looks from the red carpet.",
+    banner_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&h=675&fit=crop&auto=format&q=80"
+  },
+  {
+    name: "The Ordinary",
+    slug: "the-ordinary",
+    description: "Clinical formulations with integrity. Honest pricing and functional beauty.",
+    banner_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1200&h=675&fit=crop&auto=format&q=80"
+  },
+  {
+    name: "Glossier",
+    slug: "glossier",
+    description: "Beauty inspired by real life. Skin first, makeup second, smile always.",
+    banner_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=1200&h=675&fit=crop&auto=format&q=80"
+  },
+  {
+    name: "Drunk Elephant",
+    slug: "drunk-elephant",
+    description: "Biocompatible skincare that supports your skin's acid mantle.",
+    banner_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1200&h=675&fit=crop&auto=format&q=80"
+  }
 ]
 
 created_brands = brands.map do |brand_attrs|
   Brand.find_or_create_by!(slug: brand_attrs[:slug]) do |brand|
     brand.name = brand_attrs[:name]
     brand.description = brand_attrs[:description]
+  end
+end
+
+# Attach banner images for brands
+puts "Attaching brand banner images..."
+brands.each do |brand_data|
+  next unless brand_data[:banner_url]
+
+  brand = Brand.find_by!(slug: brand_data[:slug])
+  next if brand.banner_image.attached?
+
+  begin
+    require 'open-uri'
+    banner_data = URI.open(brand_data[:banner_url])
+    filename = "#{brand.slug}-banner.jpg"
+
+    brand.banner_image.attach(
+      io: banner_data,
+      filename: filename,
+      content_type: 'image/jpeg'
+    )
+
+    puts "  ✅ Attached banner for #{brand.name}"
+  rescue => e
+    puts "  ⚠️  Failed to attach banner for #{brand.name}: #{e.message}"
   end
 end
 

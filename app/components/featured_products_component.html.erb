@@ -7,13 +7,13 @@
       You might be interested
     </h2>
     <!-- Products Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+    <div class="products-grid"
          data-product-grid-target="container"
          id="products-container">
       <!-- Initial Products -->
-      <% products.each do |product| %>
+      <%= render ProductCardComponent.with_collection(products) do |component| %>
         <div data-product-grid-target="product">
-          <%= render ProductCardComponent.new(product: product) %>
+          <%= component %>
         </div>
       <% end %>
     </div>

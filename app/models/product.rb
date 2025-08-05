@@ -30,6 +30,7 @@ class Product < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :published, -> { where("published_at IS NOT NULL AND published_at <= ?", Time.current) }
   scope :available, -> { active.published }
+  scope :displayable, -> { available.includes(:brand, :featured_image_attachment) }
   scope :by_skin_type, ->(skin_type) { where("skin_types @> ARRAY[?]::varchar[]", skin_type) }
 
   def published?

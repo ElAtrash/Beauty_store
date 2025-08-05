@@ -7,21 +7,19 @@ class BrandsController < ApplicationController
     @letter = params[:letter]&.upcase
     @search = params[:search]
     @brands_service = BrandsService.new(letter: @letter, search: @search)
-
-    respond_to do |format|
-      format.html do
-        if turbo_frame_request?
-          render "brands_frame"
-        else
-          render "index"
-        end
-      end
-      format.turbo_stream
-    end
   end
 
   def show
     @brand = Brand.friendly.find(params[:id])
-    redirect_to brand_products_path(@brand)
+    @pagy, @products = pagy(@brand.products.displayable, items: 40)
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.append("products-container",
+          component: ProductGridComponent.new(products: @products)
+        )
+      end
+    end
   end
 end

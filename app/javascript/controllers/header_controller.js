@@ -2,33 +2,32 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["header", "nav", "locationSelector", "searchBtn", "favoritesBtn", "profileBtn", "cartBtn", "mobileMenuToggle", "mobileMenuOverlay", "mobileMenuPanel", "authPopupOverlay", "authPopupPanel"]
+  static values = {
+    pageType: String,
+    bannerUrl: String
+  }
 
   connect() {
     this.scrollThreshold = 10
     this.isScrolled = false
+    this.isHovered = false
     this.isMobileMenuOpen = false
     this.isAuthPopupOpen = false
     this.activeAuthTab = 'signin'
+
     this.setupScrollListener()
     this.setupHoverEffects()
 
-    this.initializeHeaderState()
+    if (this.pageTypeValue === 'brand') {
+      this.extractBannerImage()
+    } else {
+      this.initializeHeaderState()
+    }
   }
 
   disconnect() {
     this.removeScrollListener()
     this.removeHoverEffects()
-  }
-
-  initializeHeaderState() {
-    if (this.headerTarget && this.navTarget) {
-      this.headerTarget.classList.add('bg-transparent')
-      this.navTarget.classList.add('bg-transparent')
-      this.headerTarget.classList.remove('bg-white')
-      this.navTarget.classList.remove('bg-white')
-    } else {
-      console.error("Header or nav targets not found")
-    }
   }
 
   setupScrollListener() {
@@ -43,13 +42,15 @@ export default class extends Controller {
   }
 
   setupHoverEffects() {
-    if (!this.headerTarget) return
+    if (!this.headerTarget || !this.navTarget) return
 
     this.handleMouseEnter = this.handleMouseEnter.bind(this)
     this.handleMouseLeave = this.handleMouseLeave.bind(this)
 
     this.headerTarget.addEventListener('mouseenter', this.handleMouseEnter)
     this.headerTarget.addEventListener('mouseleave', this.handleMouseLeave)
+    this.navTarget.addEventListener('mouseenter', this.handleMouseEnter)
+    this.navTarget.addEventListener('mouseleave', this.handleMouseLeave)
   }
 
   removeHoverEffects() {
@@ -57,16 +58,22 @@ export default class extends Controller {
       this.headerTarget.removeEventListener('mouseenter', this.handleMouseEnter)
       this.headerTarget.removeEventListener('mouseleave', this.handleMouseLeave)
     }
+    if (this.navTarget) {
+      this.navTarget.removeEventListener('mouseenter', this.handleMouseEnter)
+      this.navTarget.removeEventListener('mouseleave', this.handleMouseLeave)
+    }
   }
 
   handleMouseEnter() {
     if (window.scrollY <= this.scrollThreshold) {
+      this.isHovered = true
       this.updateHeaderBackground(true)
     }
   }
 
   handleMouseLeave() {
     if (window.scrollY <= this.scrollThreshold) {
+      this.isHovered = false
       this.updateHeaderBackground(false)
     }
   }
@@ -76,31 +83,109 @@ export default class extends Controller {
 
     if (shouldBeScrolled !== this.isScrolled) {
       this.isScrolled = shouldBeScrolled
-      this.updateHeaderBackground(shouldBeScrolled)
+
+      if (!this.isHovered || shouldBeScrolled) {
+        this.updateHeaderBackground(shouldBeScrolled)
+      }
     }
   }
 
-  updateHeaderBackground(isScrolled) {
-    if (!this.headerTarget || !this.navTarget) return
+  extractBannerImage() {
+    if (this.hasBannerUrlValue && this.bannerUrlValue) {
+      this.bannerImageUrl = this.bannerUrlValue
+    } else {
+      this.bannerImageUrl = null
+    }
 
-    const method = isScrolled ? 'add' : 'remove'
-    const oppositeMethod = isScrolled ? 'remove' : 'add'
-
-    this.headerTarget.classList[method]('bg-white')
-    this.navTarget.classList[method]('bg-white')
-    this.headerTarget.classList[oppositeMethod]('bg-transparent')
-    this.navTarget.classList[oppositeMethod]('bg-transparent')
+    this.initializeBrandHeaderState()
   }
 
-  throttle(func, limit) {
-    let inThrottle
-    return function () {
-      const args = arguments
-      const context = this
-      if (!inThrottle) {
-        func.apply(context, args)
-        inThrottle = true
-        setTimeout(() => inThrottle = false, limit)
+  initializeBrandHeaderState() {
+    if (this.headerTarget && this.navTarget) {
+      if (this.bannerImageUrl) {
+        this.setMatchingBackground('image', this.bannerImageUrl)
+      } else {
+        this.setMatchingBackground('gradient')
+      }
+    }
+  }
+
+  setMatchingBackground(type, imageUrl = null) {
+    this.clearElementStyles(this.headerTarget)
+    this.clearElementStyles(this.navTarget)
+
+    if (type === 'image' && imageUrl) {
+      this.applyImageBackground(this.headerTarget, imageUrl)
+      this.applyImageBackground(this.navTarget, imageUrl)
+    } else if (type === 'gradient') {
+      const gradient = 'linear-gradient(to right, rgb(249, 250, 251), rgb(243, 244, 246))'
+      this.headerTarget.style.background = gradient
+      this.navTarget.style.background = gradient
+    } else {
+      this.headerTarget.style.transition = 'none'
+      this.navTarget.style.transition = 'none'
+      this.headerTarget.classList.add('bg-transparent')
+      this.navTarget.classList.add('bg-transparent')
+      setTimeout(() => {
+        this.headerTarget.style.transition = ''
+        this.navTarget.style.transition = ''
+      }, 50)
+    }
+  }
+
+  clearElementStyles(element) {
+    element.classList.remove('bg-white', 'bg-transparent', 'bg-black/30')
+    element.style.backgroundImage = 'none'
+    element.style.background = ''
+    element.style.backgroundColor = ''
+    element.style.backdropFilter = 'none'
+    element.style.webkitBackdropFilter = 'none'
+    element.style.opacity = ''
+    element.style.filter = ''
+  }
+
+  applyImageBackground(element, imageUrl) {
+    element.style.backgroundImage = `url('${imageUrl}')`
+    element.style.backgroundSize = 'cover'
+    element.style.backgroundPosition = 'center center'
+    element.style.backgroundRepeat = 'no-repeat'
+    element.style.backgroundAttachment = 'fixed'
+    element.style.transition = 'none'
+  }
+
+  initializeHeaderState() {
+    if (this.headerTarget && this.navTarget) {
+      this.headerTarget.classList.add('bg-transparent')
+      this.navTarget.classList.add('bg-transparent')
+      this.headerTarget.classList.remove('bg-white')
+      this.navTarget.classList.remove('bg-white')
+    }
+  }
+
+
+  updateHeaderBackground(shouldShowWhite) {
+    if (!this.headerTarget || !this.navTarget) return
+
+    if (shouldShowWhite) {
+      this.headerTarget.style.transition = 'none'
+      this.navTarget.style.transition = 'none'
+      this.clearElementStyles(this.headerTarget)
+      this.clearElementStyles(this.navTarget)
+      this.headerTarget.classList.add('bg-white')
+      this.navTarget.classList.add('bg-white')
+      setTimeout(() => {
+        this.headerTarget.style.transition = ''
+        this.navTarget.style.transition = ''
+      }, 50)
+    } else {
+      this.headerTarget.classList.remove('bg-white')
+      this.navTarget.classList.remove('bg-white')
+
+      if (this.pageTypeValue === 'brand') {
+        const backgroundType = this.bannerImageUrl ? 'image' : 'gradient'
+        this.setMatchingBackground(backgroundType, this.bannerImageUrl)
+      } else {
+        this.setMatchingBackground('transparent')
       }
     }
   }
@@ -302,5 +387,18 @@ export default class extends Controller {
         controller.hasInteracted = {};
       }
     });
+  }
+
+  throttle(func, limit) {
+    let inThrottle
+    return function () {
+      const args = arguments
+      const context = this
+      if (!inThrottle) {
+        func.apply(context, args)
+        inThrottle = true
+        setTimeout(() => inThrottle = false, limit)
+      }
+    }
   }
 }
