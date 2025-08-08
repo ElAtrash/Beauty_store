@@ -70,6 +70,8 @@ class Product < ApplicationRecord
   }
 
   scope :by_price, ->(direction = :asc) {
+    direction = direction.to_s.downcase == "desc" ? "DESC" : "ASC"
+
     joins(:product_variants)
       .group("products.id")
       .order(Arel.sql("MIN(product_variants.price_cents) #{direction}"))
