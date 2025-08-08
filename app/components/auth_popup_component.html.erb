@@ -1,15 +1,15 @@
 <!-- Authentication Popup -->
 <div class="modal-overlay opacity-0 pointer-events-none"
-     data-header-target="authPopupOverlay"
-     data-action="click->header#closeAuthPopup">
+     data-navigation--header-target="authPopupOverlay"
+     data-action="click->navigation--header#closeAuthPopup">
 </div>
 <div class="auth-sidebar translate-x-full"
-     data-header-target="authPopupPanel">
+     data-navigation--header-target="authPopupPanel">
   <div class="flex flex-col h-full">
     <!-- Header -->
     <div class="flex items-center justify-end p-6">
       <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              data-action="click->header#closeAuthPopup"
+              data-action="click->navigation--header#closeAuthPopup"
         aria-label="<%= t('auth.close') %>">
         <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
       </button>
@@ -70,12 +70,12 @@
             <!-- Toggle Buttons -->
             <div class="flex bg-gray-100 p-1 rounded-lg mb-6">
               <button class="auth-tab-button auth-tab-btn active"
-                      data-action="click->header#switchAuthTab"
+                      data-action="click->navigation--header#switchAuthTab"
                 data-tab="signin">
                 <%= t('auth.sign_in') %>
               </button>
               <button class="auth-tab-button auth-tab-btn"
-                      data-action="click->header#switchAuthTab"
+                      data-action="click->navigation--header#switchAuthTab"
                 data-tab="signup">
                 <%= t('auth.sign_up') %>
               </button>

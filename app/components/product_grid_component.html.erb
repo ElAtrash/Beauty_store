@@ -1,0 +1,7 @@
+<% if products? %>
+  <%= render ProductCardComponent.with_collection(products) do |component| %>
+    <div class="<%= grid_wrapper_classes %>">
+      <%= component %>
+    </div>
+  <% end %>
+<% end %>

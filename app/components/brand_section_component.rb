@@ -11,7 +11,7 @@ class BrandSectionComponent < ViewComponent::Base
   attr_reader :letter, :brands
 
   def section_id
-    "section-#{letter.downcase}"
+    @section_id ||= "section-#{letter.downcase}"
   end
 
   def brand_path(brand)
@@ -24,5 +24,13 @@ class BrandSectionComponent < ViewComponent::Base
 
   def pluralize_products(count)
     count == 1 ? "product" : "products"
+  end
+
+  def brands_count
+    @brands_count ||= brands.count
+  end
+
+  def brands_count_text
+    @brands_count_text ||= "#{brands_count} #{brands_count == 1 ? 'brand' : 'brands'}"
   end
 end

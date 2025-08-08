@@ -18,6 +18,7 @@ class Product < ApplicationRecord
   validates :slug, presence: true, uniqueness: true
 
   SKIN_TYPES = %w[oily dry combination sensitive normal].freeze
+  HAIR_TYPES = %w[straight wavy curly coily fine thick damaged colored].freeze
 
   validates :skin_types, inclusion: { in: SKIN_TYPES }, allow_blank: true
 
@@ -30,7 +31,86 @@ class Product < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :published, -> { where("published_at IS NOT NULL AND published_at <= ?", Time.current) }
   scope :available, -> { active.published }
-  scope :by_skin_type, ->(skin_type) { where("skin_types @> ARRAY[?]::varchar[]", skin_type) }
+  scope :displayable, -> { available.includes(:brand, :featured_image_attachment) }
+  scope :in_stock, -> {
+    joins(:product_variants)
+      .where("product_variants.stock_quantity > 0")
+      .distinct
+  }
+
+  scope :by_brand, ->(brand_ids) { where(brand_id: Array(brand_ids).compact.reject(&:blank?)) if Array(brand_ids).any?(&:present?) }
+  scope :by_price_range, ->(min, max) {
+    return all unless min.present? || max.present?
+    rel = joins(:product_variants)
+    rel = rel.where("product_variants.price_cents >= ?", (min.to_f * 100).to_i) if min.present?
+    rel = rel.where("product_variants.price_cents <= ?", (max.to_f * 100).to_i) if max.present?
+    rel.distinct
+  }
+  scope :by_categories, ->(category_ids) {
+    ids = Array(category_ids).compact.reject(&:blank?)
+    joins(:categories).where(categories: { id: ids }).distinct if ids.any?
+  }
+  scope :by_skin_types, ->(types) {
+    valid_types = Array(types).compact.reject(&:blank?) & SKIN_TYPES
+    valid_types.reduce(all) { |rel, type| rel.where("skin_types @> ARRAY[?]::varchar[]", type) } if valid_types.any?
+  }
+  scope :by_colors, ->(colors) {
+    valid_colors = Array(colors).compact.reject(&:blank?)
+    joins(:product_variants).where(product_variants: { color: valid_colors }).distinct if valid_colors.any?
+  }
+  scope :by_sizes, ->(sizes) {
+    valid_sizes = Array(sizes).compact.reject(&:blank?)
+    joins(:product_variants).where(product_variants: { size: valid_sizes }).distinct if valid_sizes.any?
+  }
+
+  scope :by_popularity, -> {
+    left_joins(:reviews)
+      .group("products.id")
+      .order(Arel.sql("COUNT(reviews.id) DESC"), :name)
+  }
+
+  scope :by_price, ->(direction = :asc) {
+    direction = direction.to_s.downcase == "desc" ? "DESC" : "ASC"
+
+    joins(:product_variants)
+      .group("products.id")
+      .order(Arel.sql("MIN(product_variants.price_cents) #{direction}"))
+  }
+
+  scope :by_rating, -> {
+    left_joins(:reviews)
+      .group("products.id")
+      .order(Arel.sql("AVG(COALESCE(reviews.rating, 0)) DESC"), :name)
+  }
+
+  scope :by_best_sellers, -> {
+    left_joins(:order_items)
+      .group("products.id")
+      .order(Arel.sql("SUM(COALESCE(order_items.quantity, 0)) DESC"), :name)
+  }
+
+  scope :sorted, ->(sort_option) {
+    case sort_option&.to_s
+    when "popularity" then by_popularity
+    when "price_asc" then by_price(:asc)
+    when "price_desc" then by_price(:desc)
+    when "rating" then by_rating
+    when "best_sellers" then by_best_sellers
+    else by_popularity
+    end
+  }
+
+  scope :filtered, ->(filters = {}) {
+    rel = all
+    rel = rel.in_stock if filters[:in_stock].to_s == "true"
+    rel = rel.by_brand(filters[:brands])
+    rel = rel.by_price_range(filters.dig(:price_range, :min), filters.dig(:price_range, :max))
+    rel = rel.by_categories(filters[:product_types])
+    rel = rel.by_skin_types(filters[:skin_types])
+    rel = rel.by_colors(filters[:colors])
+    rel = rel.by_sizes(filters[:sizes])
+    rel
+  }
 
   def published?
     published_at.present? && published_at <= Time.current

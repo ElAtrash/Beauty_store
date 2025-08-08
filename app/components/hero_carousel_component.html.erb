@@ -1,10 +1,10 @@
-<section class="hero-carousel relative w-full h-[550px] md:h-[600px]" data-controller="hero-carousel">
+<section class="hero-carousel relative w-full h-[550px] md:h-[600px]" data-controller="ui--hero-carousel">
   <!-- Carousel Container -->
   <div class="carousel-container relative w-full h-full overflow-hidden">
     <% slides.each do |slide| %>
       <!-- Slide <%#= slide[:index] + 1 %> -->
       <div class="carousel-slide-base <%= slide[:opacity] %>"
-           data-hero-carousel-target="slide"
+           data-ui--hero-carousel-target="slide"
            data-slide-index="<%= slide[:index] %>">
         <div class="absolute inset-0 bg-gradient-to-br <%= slide[:gradient] %>"></div>
         <div class="absolute inset-0 bg-black/20"></div>
@@ -31,12 +31,12 @@
   </div>
   <!-- Navigation Arrows (hidden on mobile) -->
   <button class="hidden md:block carousel-nav-button left-4"
-          data-action="click->hero-carousel#previousSlide"
+          data-action="click->ui--hero-carousel#previousSlide"
           aria-label="<%= t('hero.previous_slide') %>">
     <%= navigation_arrow_icon(:left) %>
   </button>
   <button class="hidden md:block carousel-nav-button right-4"
-          data-action="click->hero-carousel#nextSlide"
+          data-action="click->ui--hero-carousel#nextSlide"
           aria-label="<%= t('hero.next_slide') %>">
     <%= navigation_arrow_icon(:right) %>
   </button>
@@ -44,9 +44,9 @@
   <div class="carousel-dots-container">
     <% slides.each_with_index do |slide, index| %>
       <button class="w-2 h-2 md:w-3 md:h-3 rounded-full <%= index == 0 ? 'bg-white/60 hover:bg-white' : 'bg-white/30 hover:bg-white/60' %> transition-all duration-300"
-              data-action="click->hero-carousel#goToSlide"
+              data-action="click->ui--hero-carousel#goToSlide"
               data-slide-index="<%= index %>"
-              data-hero-carousel-target="dot"></button>
+              data-ui--hero-carousel-target="dot"></button>
     <% end %>
   </div>
   <!-- Scroll Indicator (hidden on mobile) -->
