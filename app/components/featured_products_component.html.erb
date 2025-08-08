@@ -1,6 +1,6 @@
 <section class="product-grid-section py-12 md:py-16 bg-white"
-         data-controller="product-grid"
-         data-product-grid-pagy-url-value="<%= root_path %>">
+         data-controller="catalog--product-grid"
+         data-catalog--product-grid-pagy-url-value="<%= root_path %>">
   <div class="container mx-auto px-4">
     <!-- Section Title -->
     <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-900">
@@ -8,11 +8,11 @@
     </h2>
     <!-- Products Grid -->
     <div class="products-grid"
-         data-product-grid-target="container"
+         data-catalog--product-grid-target="container"
          id="products-container">
       <!-- Initial Products -->
       <%= render ProductCardComponent.with_collection(products) do |component| %>
-        <div data-product-grid-target="product">
+        <div data-catalog--product-grid-target="product">
           <%= component %>
         </div>
       <% end %>
@@ -24,7 +24,7 @@
       </div>
     <% end %>
     <!-- Loading indicator -->
-    <div class="hidden text-center mt-8" data-product-grid-target="loading">
+    <div class="hidden text-center mt-8" data-catalog--product-grid-target="loading">
       <div class="inline-flex items-center px-6 py-3 text-gray-600">
         <%= render IconComponent.new(name: :loading, class: "animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600") %>
         Loading more products...

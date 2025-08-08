@@ -204,7 +204,7 @@ export default class extends Controller {
   togglePasswordVisibility(event) {
     const button = event.currentTarget;
     const passwordField = button.parentElement.querySelector('input[type="password"], input[type="text"]');
-    
+
     if (passwordField) {
       if (passwordField.type === "password") {
         passwordField.type = "text";

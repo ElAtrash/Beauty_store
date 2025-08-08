@@ -80,6 +80,7 @@
 }
 
 @layer components {
+
   /* Button Components */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 font-semibold text-sm rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
@@ -106,10 +107,39 @@
     @apply hover:text-cyan-600;
   }
 
-  .brand-filter-button {
-    @apply inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-full text-sm text-gray-700 bg-white transition-colors duration-200;
-    @apply hover:border-cyan-600 hover:text-cyan-600;
+  /* Sort Dropdown Components */
+  .sort-dropdown-button {
+    @apply inline-flex items-center gap-2 text-base font-bold text-gray-700 transition-colors duration-200;
+    @apply hover:text-cyan-600 cursor-pointer;
   }
+
+  .sort-dropdown-menu {
+    @apply absolute top-full mt-2 right-0 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50;
+    @apply opacity-0 invisible transform scale-95 transition-all duration-200;
+    @apply origin-top-right;
+  }
+
+  .sort-dropdown-menu.show {
+    @apply opacity-100 visible transform scale-100;
+  }
+
+  .sort-dropdown-item {
+    @apply w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150;
+    @apply flex items-center justify-between;
+  }
+
+  .sort-dropdown-item.active {
+    @apply bg-cyan-50 text-cyan-700 font-medium;
+  }
+
+  .sort-dropdown-item:first-child {
+    @apply rounded-t-lg;
+  }
+
+  .sort-dropdown-item:last-child {
+    @apply rounded-b-lg;
+  }
+
 
   .btn-icon-light {
     @apply p-2 rounded-full transition-colors duration-200 hover:bg-gray-100;
@@ -332,6 +362,110 @@
 
   .mobile-menu-panel {
     @apply fixed top-0 left-0 w-80 h-full bg-white shadow-xl z-[110] transform transition-transform duration-300;
+  }
+
+  /* Filter Popup Components */
+  .filter-popup-overlay {
+    @apply fixed inset-0 bg-black/50 z-[115] transition-opacity duration-300;
+  }
+
+  .filter-popup-panel {
+    @apply fixed top-0 left-0 w-full sm:w-96 h-full bg-white shadow-xl z-[120] transform transition-transform duration-300;
+  }
+
+  .filter-section {
+    @apply pb-3 last:pb-0;
+  }
+
+  .filter-section-header {
+    @apply w-full flex items-center justify-between text-left;
+  }
+
+  .filter-section-header[aria-expanded="true"] svg {
+    @apply rotate-180;
+  }
+
+  .filter-section-content {
+    @apply overflow-hidden transition-all duration-200;
+  }
+
+  /* Toggle Switch */
+  .filter-toggle-switch {
+    @apply relative;
+  }
+
+  .toggle-label {
+    @apply relative inline-block w-12 h-6 bg-gray-200 rounded-full cursor-pointer transition-colors duration-200;
+  }
+
+  .toggle-slider {
+    @apply absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200;
+  }
+
+  input:checked+.toggle-label {
+    @apply bg-cyan-600;
+  }
+
+  input:checked+.toggle-label .toggle-slider {
+    @apply transform translate-x-6;
+  }
+
+  /* Range Slider */
+  .filter-range-container {
+    @apply relative;
+  }
+
+  .range-slider-container {
+    @apply relative h-6 flex items-center;
+  }
+
+  .range-slider {
+    @apply relative w-full h-2;
+  }
+
+  .range-track {
+    @apply absolute inset-0 bg-gray-200 rounded-full;
+  }
+
+  .range-fill {
+    @apply absolute h-full bg-cyan-600 rounded-full;
+  }
+
+  .range-input {
+    @apply absolute inset-0 w-full h-2 bg-transparent appearance-none cursor-pointer;
+    pointer-events: none;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-white border-2 border-cyan-600 rounded-full cursor-pointer shadow-md;
+    pointer-events: all;
+    position: relative;
+    z-index: 2;
+  }
+
+  .range-input::-moz-range-thumb {
+    @apply w-4 h-4 bg-white border-2 border-cyan-600 rounded-full cursor-pointer shadow-md;
+    border: 2px solid #06b6d4;
+    background: white;
+    pointer-events: all;
+    position: relative;
+    z-index: 2;
+  }
+
+  .range-input.range-min {
+    z-index: 1;
+  }
+
+  .range-input.range-max {
+    z-index: 2;
+  }
+
+  .range-input.range-min::-webkit-slider-thumb {
+    z-index: 3;
+  }
+
+  .range-input.range-min::-moz-range-thumb {
+    z-index: 3;
   }
 
   /* Alert Components */

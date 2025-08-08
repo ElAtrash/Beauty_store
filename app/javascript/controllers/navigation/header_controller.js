@@ -193,19 +193,16 @@ export default class extends Controller {
   selectLocation(event) {
     event.preventDefault()
     // TODO: Open location selection modal
-    console.log('Location selector clicked')
   }
 
   openSearch(event) {
     event.preventDefault()
     // TODO: Open search modal
-    console.log('Search clicked')
   }
 
   openFavorites(event) {
     event.preventDefault()
     // TODO: Open favorites modal
-    console.log('Favorites clicked')
   }
 
   openProfile(event) {
@@ -227,7 +224,6 @@ export default class extends Controller {
   openCart(event) {
     event.preventDefault()
     // TODO: Open cart modal
-    console.log('Cart clicked')
   }
 
   toggleMobileMenu(event) {

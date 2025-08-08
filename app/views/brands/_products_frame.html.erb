@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "brand_products_#{brand.id}" do %>
+  <%= render Brands::BrandProductListComponent.new(brand: brand, products: products, pagy: pagy) %>
+<% end %>

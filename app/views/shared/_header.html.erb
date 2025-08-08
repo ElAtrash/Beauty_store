@@ -1,5 +1,5 @@
-<div class="header-wrapper" data-controller="header" data-header-page-type-value="<%= controller_name == 'brands' && action_name == 'show' ? 'brand' : 'home' %>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
-  <header class="site-header" data-header-target="header">
+<div class="header-wrapper" data-controller="navigation--header" data-navigation--header-page-type-value="<%= controller_name == 'brands' && action_name == 'show' ? 'brand' : 'home' %>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-navigation--header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
+  <header class="site-header" data-navigation--header-target="header">
     <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
       <!-- Left Side: Location + Language (hidden on mobile) -->
       <div class="hidden md:flex items-center space-x-4">
@@ -7,7 +7,7 @@
         <div class="flex items-center space-x-2 text-gray-600">
           <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
           <button class="hover:text-cyan-600 transition-colors text-sm"
-                  data-action="click->header#selectLocation">
+                  data-action="click->navigation--header#selectLocation">
             <%= t('header.location.beirut') %>
           </button>
         </div>
@@ -57,7 +57,7 @@
       </div>
     </div>
   </header>
-  <nav class="navigation-wrapper hidden md:block transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-header-target="nav">
+  <nav class="navigation-wrapper hidden md:block transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-navigation--header-target="nav">
     <div class="container mx-auto px-4">
       <ul class="flex items-center justify-center space-x-8 py-3" role="list">
         <% header_navigation_items.each do |item| %>
@@ -72,26 +72,26 @@
   </nav>
   <!-- Mobile Menu Toggle -->
   <button class="md:hidden fixed top-4 left-4 z-[110] mobile-menu-toggle"
-          data-action="click->header#toggleMobileMenu"
-          data-header-target="mobileMenuToggle"
+          data-action="click->navigation--header#toggleMobileMenu"
+          data-navigation--header-target="mobileMenuToggle"
           aria-label="<%= t('header.mobile_menu_toggle') %>"
           aria-expanded="false">
     <%= render IconComponent.new(name: :menu, class: "w-5 h-5") %>
   </button>
   <!-- Mobile Menu Overlay -->
   <div class="md:hidden mobile-menu-overlay opacity-0 pointer-events-none z-[105]"
-       data-header-target="mobileMenuOverlay"
-       data-action="click->header#closeMobileMenu">
+       data-navigation--header-target="mobileMenuOverlay"
+       data-action="click->navigation--header#closeMobileMenu">
   </div>
   <!-- Mobile Menu Panel -->
   <div class="md:hidden mobile-menu-panel -translate-x-full z-[110]"
-       data-header-target="mobileMenuPanel">
+       data-navigation--header-target="mobileMenuPanel">
     <div class="flex flex-col h-full">
       <!-- Mobile Menu Header -->
       <div class="flex items-center justify-between p-4 border-b">
         <h2 class="text-lg font-semibold text-gray-900"><%= t('header.mobile_menu_title') %></h2>
         <button class="p-2 text-gray-500 hover:text-gray-700"
-                data-action="click->header#closeMobileMenu"
+                data-action="click->navigation--header#closeMobileMenu"
                 aria-label="<%= t('header.close_menu') %>">
           <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
         </button>
@@ -103,7 +103,7 @@
           <div class="flex items-center space-x-2 text-gray-600">
             <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
             <button class="hover:text-cyan-600 transition-colors text-sm"
-                    data-action="click->header#selectLocation">
+                    data-action="click->navigation--header#selectLocation">
               <%= t('header.location.beirut') %>
             </button>
           </div>
@@ -115,7 +115,7 @@
               <li>
                 <%= link_to t("header.nav.#{item[:key]}"), item[:path],
                     class: "block py-2 text-gray-700 hover:text-cyan-600 transition-colors",
-                    data: { turbo: true, action: "click->header#closeMobileMenu" } %>
+                    data: { turbo: true, action: "click->navigation--header#closeMobileMenu" } %>
               </li>
             <% end %>
           </ul>
@@ -124,18 +124,18 @@
         <div class="p-4 border-t">
           <div class="space-y-3">
             <button class="mobile-menu-item"
-                    data-action="click->header#openSearch">
+                    data-action="click->navigation--header#openSearch">
               <%= render IconComponent.new(name: :search, class: "w-5 h-5") %>
               <span><%= t('header.actions.search') %></span>
             </button>
             <button class="mobile-menu-item"
-                    data-action="click->header#openFavorites">
+                    data-action="click->navigation--header#openFavorites">
               <%= render IconComponent.new(name: :heart, class: "w-5 h-5") %>
               <span><%= t('header.actions.favorites') %></span>
               <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
             </button>
             <button class="mobile-menu-item"
-                    data-action="click->header#openProfile">
+                    data-action="click->navigation--header#openProfile">
               <%= render IconComponent.new(name: :user, class: "w-5 h-5") %>
               <span><%= t('header.actions.profile') %></span>
             </button>

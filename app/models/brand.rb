@@ -3,7 +3,7 @@ class Brand < ApplicationRecord
   friendly_id :name, use: :slugged
 
   has_many :products, dependent: :destroy
-  has_many :categories, -> { distinct }, through: :products
+  has_many :categories, through: :products
   has_one_attached :banner_image
 
   validates :name, presence: true, uniqueness: true

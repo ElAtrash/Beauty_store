@@ -129,9 +129,9 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1631730486651-2057b2427c8e?w=400&h=400&fit=crop",
     variants: [
-      { name: "110 (Fair with cool undertones)", sku: "FENTY-FOUND-110", price: 34.00, stock: 50, compare_at_price: 40.00, image_url: "https://images.unsplash.com/photo-1631730486651-2057b2427c8e?w=400&h=400&fit=crop&auto=format&q=80" },
-      { name: "150 (Light with cool undertones)", sku: "FENTY-FOUND-150", price: 34.00, stock: 45, image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&auto=format&q=80" },
-      { name: "200 (Light with warm undertones)", sku: "FENTY-FOUND-200", price: 34.00, stock: 30, image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
+      { name: "110 (Fair with cool undertones)", sku: "FENTY-FOUND-110", price: 34.00, stock: 50, compare_at_price: 40.00, color: "Fair", size: "30ml", image_url: "https://images.unsplash.com/photo-1631730486651-2057b2427c8e?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "150 (Light with cool undertones)", sku: "FENTY-FOUND-150", price: 34.00, stock: 45, color: "Light", size: "30ml", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "200 (Light with warm undertones)", sku: "FENTY-FOUND-200", price: 34.00, stock: 30, color: "Medium", size: "30ml", image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
     ]
   },
   {
@@ -144,8 +144,8 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop",
     variants: [
-      { name: "30ml", sku: "TO-NIACIN-30ML", price: 7.00, stock: 100, compare_at_price: 9.00 },
-      { name: "60ml", sku: "TO-NIACIN-60ML", price: 12.00, stock: 80 }
+      { name: "30ml", sku: "TO-NIACIN-30ML", price: 7.00, stock: 100, compare_at_price: 9.00, size: "30ml" },
+      { name: "60ml", sku: "TO-NIACIN-60ML", price: 12.00, stock: 80, size: "60ml" }
     ]
   },
   {
@@ -158,9 +158,9 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop",
     variants: [
-      { name: "Joy (Warm berry)", sku: "RARE-BLUSH-JOY", price: 20.00, stock: 25, image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&auto=format&q=80" },
-      { name: "Bliss (Soft pink)", sku: "RARE-BLUSH-BLISS", price: 20.00, stock: 30, image_url: "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?w=400&h=400&fit=crop&auto=format&q=80" },
-      { name: "Hope (Dusty rose)", sku: "RARE-BLUSH-HOPE", price: 20.00, stock: 20, compare_at_price: 25.00, image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
+      { name: "Joy (Warm berry)", sku: "RARE-BLUSH-JOY", price: 20.00, stock: 25, color: "Berry", size: "4.2ml", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "Bliss (Soft pink)", sku: "RARE-BLUSH-BLISS", price: 20.00, stock: 30, color: "Pink", size: "4.2ml", image_url: "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?w=400&h=400&fit=crop&auto=format&q=80" },
+      { name: "Hope (Dusty rose)", sku: "RARE-BLUSH-HOPE", price: 20.00, stock: 20, compare_at_price: 25.00, color: "Rose", size: "4.2ml", image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop&auto=format&q=80" }
     ]
   },
 
@@ -256,7 +256,7 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop",
     variants: [
-      { name: "Ruby Woo", sku: "MAC-RUBY-WOO", price: 19.00, stock: 60, compare_at_price: 22.00 }
+      { name: "Ruby Woo", sku: "MAC-RUBY-WOO", price: 19.00, stock: 0, compare_at_price: 22.00, color: "Red", size: "3g" }
     ]
   },
   {
@@ -524,7 +524,7 @@ products_data = [
     active: true,
     image_url: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop",
     variants: [
-      { name: "Pillow Talk", sku: "CT-PILLOW-TALK", price: 34.00, stock: 45, compare_at_price: 40.00 }
+      { name: "Pillow Talk", sku: "CT-PILLOW-TALK", price: 34.00, stock: 0, compare_at_price: 40.00, color: "Nude Pink", size: "3.5g" }
     ]
   },
   {
@@ -859,6 +859,8 @@ products_data.each do |product_data|
       v.price = Money.new(variant_data[:price] * 100) # Convert to cents
       v.stock_quantity = variant_data[:stock]
       v.position = index + 1
+      v.color = variant_data[:color] if variant_data[:color]
+      v.size = variant_data[:size] if variant_data[:size]
 
       # Add compare_at_price if provided
       if variant_data[:compare_at_price]
@@ -922,6 +924,97 @@ sample_reviews.each do |review_data|
 end
 
 puts "✅ Created #{Review.count} reviews"
+
+# Create sample orders for testing best sellers sorting
+puts "Creating sample orders for sorting tests..."
+
+# Create more sample users
+additional_users = 3.times.map do |i|
+  User.find_or_create_by!(email_address: "user#{i+1}@example.com") do |user|
+    user.first_name = "Test"
+    user.last_name = "User#{i+1}"
+    user.password = "password123"
+    user.governorate = "Beirut"
+    user.preferred_language = "en"
+  end
+rescue ActiveRecord::RecordInvalid
+  User.find_by!(email_address: "user#{i+1}@example.com")
+end
+
+all_users = [ sample_user ] + additional_users
+
+# Create sample orders with realistic distribution
+sample_orders = []
+15.times do |_i|
+  user = all_users.sample
+  order = Order.create!(
+    user: user,
+    email: user.email_address,
+    status: 'delivered',
+    payment_status: 'paid',
+    subtotal: Money.new(rand(30..250) * 100),
+    tax_total: Money.new(0),
+    shipping_total: Money.new(0),
+    discount_total: Money.new(0),
+    total: Money.new(rand(30..250) * 100),
+    created_at: rand(6.months.ago..1.day.ago)
+  )
+  sample_orders << order
+end
+
+# Create order items to make some products best sellers
+products_sample = Product.includes(:product_variants).limit(25)
+products_sample.each_with_index do |product, index|
+  next unless product.product_variants.any?
+
+  # Create varying order quantities - some products will be best sellers
+  order_count = case index % 4
+  when 0 then rand(1..2)   # Lower sales
+  when 1 then rand(2..4)   # Medium sales
+  when 2 then rand(4..7)   # Good sales
+  when 3 then rand(6..12)  # Best sellers
+  end
+
+  order_count.times do
+    sample_orders.sample.order_items.create!(
+      product: product,
+      product_variant: product.product_variants.sample,
+      product_name: product.name,
+      variant_name: product.product_variants.sample.name,
+      quantity: rand(1..3),
+      unit_price: product.product_variants.first.price,
+      total_price: product.product_variants.first.price * rand(1..3)
+    )
+  end
+rescue ActiveRecord::RecordInvalid => e
+  puts "  ⚠️  Failed to create order item: #{e.message}"
+end
+
+# Add more diverse reviews for rating tests
+puts "Adding more reviews for rating tests..."
+Product.includes(:reviews).limit(20).each do |product|
+  existing_reviews = product.reviews.count
+  target_reviews = rand(3..10)
+
+  (target_reviews - existing_reviews).times do
+    user = all_users.sample
+    next if product.reviews.exists?(user: user) # Skip if user already reviewed
+
+    Review.create!(
+      product: product,
+      user: user,
+      rating: rand(2..5), # Mix of ratings for realistic distribution
+      title: [ "Great product!", "Love it", "Amazing quality", "Good value", "Highly recommend", "Perfect!", "Excellent" ].sample,
+      body: [ "Really happy with this purchase.", "Quality is excellent.", "Worth every penny.", "Will buy again!", "Exceeded expectations." ].sample,
+      status: "approved",
+      created_at: rand(3.months.ago..1.day.ago)
+    )
+  rescue ActiveRecord::RecordInvalid
+    # Skip if validation fails (e.g., user already reviewed)
+  end
+end
+
+puts "✅ Created #{Order.count} orders with #{OrderItem.count} order items"
 
 # Image attachment summary
 puts "\n📷 Image Attachment Summary:"

@@ -43,8 +43,4 @@ class Brands::BrandBannerComponent < ViewComponent::Base
     text_color = banner_image? ? "text-white/90" : "text-gray-600"
     "hero-subtitle #{text_color}"
   end
-
-  def description?
-    description.present?
-  end
 end
