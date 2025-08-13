@@ -1,0 +1,95 @@
+<!-- Modern Compact Review Summary -->
+<% if has_reviews? %>
+  <div class="space-y-6">
+    <!-- Section Header -->
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-gray-900">Customer Reviews</h3>
+      <button type="button"
+              class="text-cyan-600 hover:text-orange-700 text-sm font-medium transition-colors group">
+        View All Reviews
+        <%= render IconComponent.new(name: :arrow_right, class: "inline w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5") %>
+      </button>
+    </div>
+
+    <!-- Compact Rating Summary Row -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 py-4 border-t border-gray-100">
+      <!-- Average Rating & Stars -->
+      <div class="flex items-center space-x-3">
+        <div class="text-2xl font-medium text-gray-900">
+          <%= sprintf("%.1f", average_rating) %>
+        </div>
+        <%= render_stars(average_rating.to_i, size: "w-5 h-5") %>
+      </div>
+
+      <!-- Review Count -->
+      <div class="text-sm text-gray-600">
+        Based on <%= pluralize(product.reviews_count, 'review') %>
+      </div>
+
+      <!-- Recommendation Percentage -->
+      <div class="flex items-center space-x-2 sm:ml-auto">
+        <div class="text-sm font-medium text-gray-900">
+          <%= recommendation_percentage %>% recommend
+        </div>
+        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+      </div>
+    </div>
+
+    <!-- Recent Review Highlights -->
+    <% if recent_reviews.any? %>
+      <div class="space-y-4">
+        <h4 class="text-sm font-medium text-gray-700">Recent Reviews</h4>
+
+        <% recent_reviews.limit(2).each do |review| %>
+          <div class="border-l-2 border-gray-100 pl-4">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center space-x-2">
+                <%= render_stars(review.rating, size: "w-4 h-4") %>
+                <span class="text-sm font-medium text-gray-700">
+                  <%= review.user&.email_address&.split('@')&.first&.capitalize || 'Anonymous' %>
+                </span>
+              </div>
+              <time class="text-xs text-gray-500">
+                <%= time_ago_in_words_russian(review.created_at) %>
+              </time>
+            </div>
+            <% if review.body.present? %>
+              <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                <%= review.body.truncate(120) %>
+              </p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- View More Reviews Link -->
+        <div class="pt-2">
+          <button type="button"
+                  class="text-sm text-cyan-600 hover:text-orange-700 font-medium transition-colors">
+            Read more reviews →
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <!-- Compact No Reviews State -->
+  <div class="space-y-4 py-6 border-t border-gray-100">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-gray-900">Customer Reviews</h3>
+    </div>
+
+    <div class="flex items-center justify-between py-4">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-1">
+          <%= render_stars(0, size: "w-5 h-5") %>
+        </div>
+        <span class="text-sm text-gray-500">No reviews yet</span>
+      </div>
+
+      <button type="button"
+              class="text-cyan-600 hover:text-orange-700 text-sm font-medium transition-colors">
+        Write the first review
+      </button>
+    </div>
+  </div>
+<% end %>
