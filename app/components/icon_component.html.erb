@@ -1,3 +1,3 @@
-<svg <%= tag.attributes(svg_attributes) %>>
-  <%= icon_path.html_safe %>
-</svg>
+<%= tag.svg(**svg_attributes) do %>
+  <%= raw icon_path %>
+<% end %>
