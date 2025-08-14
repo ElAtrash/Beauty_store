@@ -60,7 +60,7 @@ class Product < ApplicationRecord
   }
   scope :by_sizes, ->(sizes) {
     valid_sizes = Array(sizes).compact.reject(&:blank?)
-    joins(:product_variants).where(product_variants: { size: valid_sizes }).distinct if valid_sizes.any?
+    joins(:product_variants).where(product_variants: { size_type: valid_sizes }).distinct if valid_sizes.any?
   }
 
   scope :by_popularity, -> {
@@ -130,6 +130,28 @@ class Product < ApplicationRecord
 
   def average_rating
     reviews.average(:rating)&.round(1)
+  end
+
+  def hit_product?
+    # You can customize this logic based on your business requirements
+    # For now, let's consider products with high ratings and recent orders as hit products
+    return false unless available?
+
+    # Consider it a hit if it has good ratings and recent sales
+    (average_rating.to_f >= 4.0 && reviews.count >= 3) ||
+    order_items.joins(:order).where("orders.created_at > ?", 30.days.ago).sum(:quantity) >= 10
+  end
+
+  def rating
+    average_rating
+  end
+
+  def reviews_count
+    reviews.count
+  end
+
+  def product_code
+    default_variant&.sku || "N/A"
   end
 
   private

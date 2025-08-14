@@ -18,6 +18,14 @@ class ProductVariant < ApplicationRecord
   scope :in_stock, -> { where("stock_quantity > 0") }
   scope :available, -> { joins(:product).merge(Product.available) }
   scope :ordered, -> { order(:position) }
+  scope :with_size, -> { where.not(size_value: nil) }
+  scope :ordered_by_size, -> {
+    with_size.order(
+      Arel.sql("CASE size_type WHEN 'volume' THEN 1 WHEN 'weight' THEN 2 WHEN 'quantity' THEN 3 ELSE 4 END"),
+      :size_value,
+      :id
+    )
+  }
 
   def in_stock?
     return true unless track_inventory?
@@ -51,6 +59,40 @@ class ProductVariant < ApplicationRecord
 
   def display_name
     "#{product.name} - #{name}"
+  end
+
+  def has_size?
+    size_value.present?
+  end
+
+  def size_display
+    return nil unless has_size?
+
+    case size_type
+    when "volume"
+      "#{size_value} #{size_unit}"
+    when "weight"
+      "#{size_value} #{size_unit}"
+    when "quantity"
+      size_value == 1 ? "#{size_value} piece" : "#{size_value} pieces"
+    else
+      "#{size_value} #{size_unit}"
+    end
+  end
+
+  def size_display_short
+    return nil unless has_size?
+
+    case size_type
+    when "volume"
+      "#{size_value}#{size_unit}"
+    when "weight"
+      "#{size_value}#{size_unit}"
+    when "quantity"
+      size_value == 1 ? "#{size_value}pc" : "#{size_value}pcs"
+    else
+      "#{size_value}#{size_unit}"
+    end
   end
 
   private
