@@ -13,6 +13,7 @@ FactoryBot.define do
     meta_title { Faker::Lorem.sentence }
     meta_description { Faker::Lorem.paragraph }
     reviews_count { 0 }
+    product_attributes { { "skin_type" => "normal" } }
 
     trait :published do
       published_at { 1.week.ago }
