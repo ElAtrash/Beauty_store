@@ -1,0 +1,28 @@
+<div class="product-info-container space-y-6">
+  <!-- Product Header (Name, Subtitle, Rating) -->
+  <%= render Products::ProductHeaderComponent.new(
+        product_info: product_info
+      ) %>
+
+  <!-- Price Display -->
+  <%= render Products::ProductPriceComponent.new(
+        price_info: default_price_info,
+        stock_info: default_stock_info
+      ) %>
+
+  <!-- Variant Selection -->
+  <%= render Products::VariantSelectorComponent.new(
+        product: product,
+        variant_options: variant_options,
+        stock_info: default_stock_info
+      ) %>
+
+  <!-- Product Actions (Add to Cart, Wishlist) -->
+  <%= render Products::ProductActionsComponent.new(
+        stock_info: default_stock_info
+      ) %>
+
+  <!-- Future: Hidden data for JavaScript dynamic updates -->
+  <script type="application/json" id="product-data" style="display: none;">
+    <%= js_data.to_json.html_safe %>
+  </script>

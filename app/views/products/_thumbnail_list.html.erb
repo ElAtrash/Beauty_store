@@ -1,0 +1,82 @@
+<%
+  # Shared thumbnail list partial for gallery components
+  # Supports desktop, mobile, and modal contexts
+
+  # Local variables expected:
+  # - images: Array of GalleryImage objects
+  # - context: Symbol (:desktop, :mobile, :modal)
+  # - product: Product instance
+  # - component: Parent component instance
+  # - show_arrows: Boolean (optional, defaults to false)
+  # - container_height: Integer (optional, for desktop/modal only)
+
+  show_arrows = local_assigns.fetch(:show_arrows, false)
+  container_height = local_assigns[:container_height]
+
+  case context
+  when :desktop
+    wrapper_classes = "flex flex-col items-center"
+    container_classes = "space-y-2"
+    arrow_classes = "p-1 rounded-full hover:bg-gray-200 hover:bg-opacity-50 transition-all duration-200"
+    arrow_icon_classes = "w-4 h-4 text-gray-600"
+  when :mobile
+    wrapper_classes = "flex space-x-3 overflow-x-auto pb-2"
+    container_classes = ""
+    show_arrows = false
+  when :modal
+    wrapper_classes = "flex flex-col items-center"
+    container_classes = "space-y-3"
+    arrow_classes = "p-2 rounded-full hover:bg-gray-200 transition-all duration-200"
+    arrow_icon_classes = "w-5 h-5 text-gray-600"
+  end
+%>
+
+<% if context == :mobile %>
+  <div class="<%= wrapper_classes %>">
+    <% images.each_with_index do |image_data, index| %>
+      <%= render "products/thumbnail_button",
+          image_data: image_data,
+          index: index,
+          context: context,
+          product: product,
+          component: component %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="<%= wrapper_classes %>">
+    <!-- Previous/Up Arrow -->
+    <% if show_arrows %>
+      <button type="button"
+              class="<%= context == :desktop ? 'mb-2' : 'mb-4' %> <%= arrow_classes %>"
+              data-action="click->products--gallery#scrollThumbnailsUp"
+              data-products--gallery-target="upArrow">
+        <%= render IconComponent.new(name: :chevron_up, class: arrow_icon_classes) %>
+      </button>
+    <% end %>
+
+    <!-- Thumbnail Container -->
+    <div <% if container_height %>style="height: <%= container_height %>px;"<% end %>
+         data-products--gallery-target="thumbnailContainer">
+      <div class="<%= container_classes %>">
+        <% images.each_with_index do |image_data, index| %>
+          <%= render "products/thumbnail_button",
+              image_data: image_data,
+              index: index,
+              context: context,
+              product: product,
+              component: component %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Next/Down Arrow -->
+    <% if show_arrows %>
+      <button type="button"
+              class="<%= context == :desktop ? 'mt-2' : 'mt-4' %> <%= arrow_classes %>"
+              data-action="click->products--gallery#scrollThumbnailsDown"
+              data-products--gallery-target="downArrow">
+        <%= render IconComponent.new(name: :chevron_down, class: arrow_icon_classes) %>
+      </button>
+    <% end %>
+  </div>
+<% end %>

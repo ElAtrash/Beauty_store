@@ -1,0 +1,14 @@
+<% if has_attributes? %>
+  <div class="mt-8">
+    <h4 class="text-base font-medium text-gray-900 mb-6">Product Details</h4>
+    <div class="space-y-2 max-w-sm">
+      <% display_attributes.each do |attribute| %>
+        <div class="grid grid-cols-[auto_1fr_auto] items-center">
+          <dt class="text-gray-600 text-sm pr-0"><%= attribute[:label] %></dt>
+          <div class="border-b border-dotted border-gray-300 mx-2"></div>
+          <dd class="text-gray-900 font-medium text-sm pl-0"><%= attribute[:value] %></dd>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

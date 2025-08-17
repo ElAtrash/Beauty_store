@@ -76,6 +76,11 @@ module IconPath
 
     # Navigation cursor icons (Heroicons)
     arrow_long_left: '<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />',
-    arrow_long_right: '<path stroke-linecap="round" stroke-linejoin="round" d="m17.25 8.25 3.75 3.75-3.75 3.75M21 12H3" />'
+    arrow_long_right: '<path stroke-linecap="round" stroke-linejoin="round" d="m17.25 8.25 3.75 3.75-3.75 3.75M21 12H3" />',
+
+    # Gallery navigation cursor icons (for data URLs)
+    cursor_left: '<path stroke="black" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" d="M2 12l6-6m-6 6l6 6m-6-6h20"/>',
+    cursor_right: '<path stroke="black" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" d="M22 12l-6-6m6 6l-6 6m6-6H2"/>',
+    cursor_zoom: '<path stroke="black" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>'
   }
 end
