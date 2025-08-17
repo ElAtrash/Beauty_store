@@ -21,6 +21,13 @@ class Product < ApplicationRecord
   HAIR_TYPES = %w[straight wavy curly coily fine thick damaged colored].freeze
 
   validates :skin_types, inclusion: { in: SKIN_TYPES }, allow_blank: true
+  validates :product_attributes, presence: true
+
+  store_accessor :product_attributes,
+    :hair_type, :sulfate_free, :paraben_free, :color_safe, :texture,
+    :finish, :coverage, :water_resistant, :skin_type, :spf, :alcohol_free,
+    :fragrance_family, :longevity, :sillage, :material, :intended_for,
+    :application_area, :suitable_for, :cruelty_free
 
   SKIN_TYPES.each do |skin_type|
     define_method "#{skin_type}_skin?" do
@@ -60,7 +67,7 @@ class Product < ApplicationRecord
   }
   scope :by_sizes, ->(sizes) {
     valid_sizes = Array(sizes).compact.reject(&:blank?)
-    joins(:product_variants).where(product_variants: { size: valid_sizes }).distinct if valid_sizes.any?
+    joins(:product_variants).where(product_variants: { size_type: valid_sizes }).distinct if valid_sizes.any?
   }
 
   scope :by_popularity, -> {
@@ -109,6 +116,16 @@ class Product < ApplicationRecord
     rel = rel.by_skin_types(filters[:skin_types])
     rel = rel.by_colors(filters[:colors])
     rel = rel.by_sizes(filters[:sizes])
+
+    # JSONB attribute filters
+    # TODO: Implement JSONB attribute filtering
+    rel = rel.with_hair_type(filters[:hair_type]) if filters[:hair_type].present?
+    rel = rel.with_texture(filters[:texture]) if filters[:texture].present?
+    rel = rel.with_finish(filters[:finish]) if filters[:finish].present?
+    rel = rel.with_coverage(filters[:coverage]) if filters[:coverage].present?
+    rel = rel.with_spf(filters[:spf]) if filters[:spf].present?
+    rel = rel.cruelty_free(filters[:cruelty_free]) if filters[:cruelty_free].present?
+
     rel
   }
 
@@ -130,6 +147,25 @@ class Product < ApplicationRecord
 
   def average_rating
     reviews.average(:rating)&.round(1)
+  end
+
+  def hit_product?
+    return false unless available?
+
+    (average_rating.to_f >= 4.0 && reviews.count >= 3) ||
+    order_items.joins(:order).where("orders.created_at > ?", 30.days.ago).sum(:quantity) >= 10
+  end
+
+  def rating
+    average_rating
+  end
+
+  def reviews_count
+    reviews.count
+  end
+
+  def product_code
+    default_variant&.sku || "N/A"
   end
 
   private

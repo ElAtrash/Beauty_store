@@ -1,0 +1,35 @@
+<div class="max-w-2xl mx-auto" data-controller="products--tabs">
+  <% if tab_sections.any? %>
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8 overflow-x-auto">
+        <% tab_sections.each_with_index do |section, index| %>
+          <button type="button"
+                  class="<%= tab_button_classes(index) %>"
+                  data-products--tabs-target="tabButton"
+                  data-action="click->products--tabs#switchTab"
+            data-products--tabs-index-param="<%= index %>">
+            <%= section[:name] %>
+          </button>
+        <% end %>
+      </nav>
+    </div>
+    <div class="mt-8">
+      <% tab_sections.each_with_index do |section, index| %>
+        <div class="<%= tab_panel_classes(index) %>"
+             data-products--tabs-target="tabPanel"
+             id="tab-<%= section[:id] %>">
+          <div class="max-w-none">
+            <%= section[:content] %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-12">
+      <div class="text-gray-400 mb-4">
+        <%= render IconComponent.new(name: :document_text, class: "w-12 h-12 mx-auto") %>
+      </div>
+      <p class="text-gray-500">Product details will be available soon.</p>
+    </div>
+  <% end %>
+</div>

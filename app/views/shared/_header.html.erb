@@ -1,4 +1,12 @@
-<div class="header-wrapper" data-controller="navigation--header" data-navigation--header-page-type-value="<%= controller_name == 'brands' && action_name == 'show' ? 'brand' : 'home' %>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-navigation--header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
+<div class="header-wrapper" data-controller="navigation--header" data-navigation--header-page-type-value="<%=
+  if controller_name == 'brands' && action_name == 'show'
+    'brand'
+  elsif controller_name == 'products' && action_name == 'show'
+    'product'
+  else
+    'home'
+  end
+%>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-navigation--header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
   <header class="site-header" data-navigation--header-target="header">
     <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
       <!-- Left Side: Location + Language (hidden on mobile) -->
@@ -6,7 +14,7 @@
         <!-- Location Selector -->
         <div class="flex items-center space-x-2 text-gray-600">
           <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
-          <button class="hover:text-cyan-600 transition-colors text-sm"
+          <button class="hover:text-orange-600 transition-colors text-sm"
                   data-action="click->navigation--header#selectLocation">
             <%= t('header.location.beirut') %>
           </button>
@@ -102,7 +110,7 @@
         <div class="p-4 border-b">
           <div class="flex items-center space-x-2 text-gray-600">
             <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
-            <button class="hover:text-cyan-600 transition-colors text-sm"
+            <button class="hover:text-orange-600 transition-colors text-sm"
                     data-action="click->navigation--header#selectLocation">
               <%= t('header.location.beirut') %>
             </button>
@@ -114,7 +122,7 @@
             <% header_navigation_items.each do |item| %>
               <li>
                 <%= link_to t("header.nav.#{item[:key]}"), item[:path],
-                    class: "block py-2 text-gray-700 hover:text-cyan-600 transition-colors",
+                    class: "block py-2 text-gray-700 hover:text-orange-600 transition-colors",
                     data: { turbo: true, action: "click->navigation--header#closeMobileMenu" } %>
               </li>
             <% end %>

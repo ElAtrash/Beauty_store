@@ -1,0 +1,51 @@
+<!-- Enhanced Add to Cart -->
+<div class="product-actions">
+  <div class="flex-1">
+    <!-- Initial Add to Cart State -->
+    <button type="button"
+            class="add-to-cart-button w-full"
+            data-products--variant-selector-target="addToCartButton"
+            data-action="click->products--variant-selector#addToCart"
+            data-cart-state="initial"
+            <%= 'disabled' if cart_button_disabled? %>>
+      <span data-products--variant-selector-target="buttonText">
+        <%= cart_button_text %>
+      </span>
+    </button>
+
+    <!-- Quantity Controls State (Initially Hidden) -->
+    <div class="add-to-cart-button w-full items-center justify-between hidden"
+         data-products--variant-selector-target="quantityControls"
+         data-cart-state="quantity">
+      <button type="button"
+              class="w-8 h-8 flex items-center justify-center rounded-full"
+              data-action="click->products--variant-selector#decrementQuantity"
+              data-products--variant-selector-target="decrementButton">
+        <%= render IconComponent.new(name: :minus, class: "w-4 h-4") %>
+      </button>
+
+      <span class="flex-1 text-center font-medium text-lg"
+            data-products--variant-selector-target="quantityDisplay">1</span>
+
+      <button type="button"
+              class="w-8 h-8 flex items-center justify-center rounded-full"
+              data-action="click->products--variant-selector#incrementQuantity"
+              data-products--variant-selector-target="incrementButton">
+        <%= render IconComponent.new(name: :plus, class: "w-4 h-4") %>
+      </button>
+    </div>
+
+    <!-- Hidden form field to track quantity -->
+    <input type="hidden"
+           name="quantity"
+           value="1"
+           data-products--variant-selector-target="quantityInput">
+  </div>
+
+  <!-- Wishlist Button -->
+  <button type="button"
+          class="wishlist-button"
+          title="Add to Wishlist">
+    <%= render IconComponent.new(name: :heart, class: "w-6 h-6") %>
+  </button>
+</div>

@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :product_variant do
-    product
+    association :product, product_attributes: { "skin_type" => "normal" }
     name { [ "30ml", "50ml", "100ml", "Travel Size", "Full Size" ].sample }
     sku { "SKU-#{Faker::Alphanumeric.alphanumeric(number: 8).upcase}" }
     barcode { Faker::Code.ean }
@@ -8,8 +8,9 @@ FactoryBot.define do
     compare_at_price { Money.new(0) }
     cost { Money.new(price.cents * 0.6) } # 60% of price
     color { nil }
-    size { [ "Small", "Medium", "Large" ].sample }
-    volume { [ "30ml", "50ml", "100ml" ].sample }
+    size_value { [ 30, 50, 100 ].sample }
+    size_unit { "ml" }
+    size_type { "volume" }
     stock_quantity { rand(0..100) }
     track_inventory { true }
     allow_backorder { false }

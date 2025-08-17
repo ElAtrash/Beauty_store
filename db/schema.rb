@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_22_160308) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_131117) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -205,16 +205,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_160308) do
     t.integer "cost_cents", default: 0, null: false
     t.string "cost_currency", default: "USD", null: false
     t.string "color"
-    t.string "size"
-    t.string "volume"
     t.integer "stock_quantity", default: 0
     t.boolean "track_inventory", default: true, null: false
     t.boolean "allow_backorder", default: false, null: false
     t.integer "position", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "size_value", precision: 10, scale: 2
+    t.string "size_unit"
+    t.string "size_type"
     t.index ["product_id", "position"], name: "index_product_variants_on_product_id_and_position"
     t.index ["product_id"], name: "index_product_variants_on_product_id"
+    t.index ["size_type", "size_value"], name: "index_product_variants_on_size_type_and_size_value"
     t.index ["sku"], name: "index_product_variants_on_sku", unique: true
   end
 
@@ -234,9 +236,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_160308) do
     t.integer "reviews_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "subtitle"
+    t.jsonb "product_attributes", default: {}
     t.index ["active", "published_at"], name: "index_products_on_active_and_published_at"
     t.index ["brand_id"], name: "index_products_on_brand_id"
+    t.index ["product_attributes"], name: "index_products_on_product_attributes", using: :gin
     t.index ["slug"], name: "index_products_on_slug", unique: true
+    t.check_constraint "jsonb_typeof(product_attributes) = 'object'::text", name: "product_attributes_is_object"
   end
 
   create_table "reviews", force: :cascade do |t|

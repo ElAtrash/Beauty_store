@@ -3,9 +3,14 @@
 class IconComponent < ViewComponent::Base
   include IconPath
 
-  def initialize(name:, class: nil, aria_label: nil, **attrs)
+  FILL_ICONS = %i[check_circle exclamation_circle chevron_right star].freeze
+  HEROICONS_VIEWBOX = "0 0 20 20"
+  DEFAULT_VIEWBOX = "0 0 24 24"
+
+  def initialize(name:, css_class: nil, class: nil, aria_label: nil, **attrs)
     @name = name.to_sym
-    @css_class = binding.local_variable_get(:class)
+    # Support both class: and css_class: for backward compatibility
+    @css_class = css_class || binding.local_variable_get(:class)
     @aria_label = aria_label
     @attrs = attrs
 
@@ -23,13 +28,12 @@ class IconComponent < ViewComponent::Base
   def svg_attributes
     base_attrs = {
       class: css_class,
-      viewBox: "0 0 24 24"
+      viewBox: FILL_ICONS.include?(name) ? HEROICONS_VIEWBOX : DEFAULT_VIEWBOX
     }
 
-    # Special handling for icons that use fill instead of stroke
-    if [ :check_circle, :exclamation_circle ].include?(name)
+    # Configure fill and stroke based on icon type
+    if FILL_ICONS.include?(name)
       base_attrs[:fill] = "currentColor"
-      base_attrs[:viewBox] = "0 0 20 20"
     elsif name == :loading
       base_attrs[:fill] = "none"
       base_attrs[:xmlns] = "http://www.w3.org/2000/svg"
@@ -38,6 +42,7 @@ class IconComponent < ViewComponent::Base
       base_attrs[:stroke] = "currentColor"
     end
 
+    # Accessibility attributes
     base_attrs[:"aria-hidden"] = "true" unless aria_label
     base_attrs[:"aria-label"] = aria_label if aria_label
 

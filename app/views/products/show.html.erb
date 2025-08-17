@@ -1,0 +1,45 @@
+<% content_for :title, @page_title %>
+<% content_for :meta_description, @meta_description %>
+
+<main class="min-h-screen bg-white">
+  <!-- Breadcrumbs and Product Name Header -->
+  <section>
+    <div class="container mx-auto px-4 py-6">
+      <%= render Products::BreadcrumbComponent.new(breadcrumbs: @breadcrumbs, product_name: @product.name) %>
+    </div>
+  </section>
+
+  <!-- Main Product Section -->
+  <div data-controller="products--variant-selector"
+       data-products--variant-selector-variants-value="<%= @product.product_variants.map { |v| { id: v.id, name: v.name, size: v.size_display, color: v.color, price: v.price.format, inStock: v.in_stock?, sku: v.sku } }.to_json %>">
+    <section>
+      <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          <!-- Product Gallery -->
+          <div class="lg:col-span-2 lg:sticky lg:top-24">
+            <%= render Products::ProductGalleryComponent.new(product: @product) %>
+          </div>
+
+          <!-- Product Info -->
+          <div class="lg:col-span-1 space-y-6">
+            <%= render Products::ProductInfoComponent.new(product: @product, product_data: @product_data) %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Details Tabs -->
+    <section>
+      <div class="container mx-auto px-4 py-12">
+        <%= render Products::ProductTabsComponent.new(product: @product) %>
+      </div>
+    </section>
+  </div>
+
+  <!-- Reviews Section -->
+  <section id="reviews-section">
+    <div class="container mx-auto px-4 py-12">
+      <%= render Products::ProductReviewsComponent.new(product: @product) %>
+    </div>
+  </section>
+</main>

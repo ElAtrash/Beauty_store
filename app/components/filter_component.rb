@@ -79,13 +79,15 @@ class FilterComponent < ViewComponent::Base
     @available_sizes ||= begin
       return [] unless filter_form.filter_available?(:sizes)
 
-      products.joins(:product_variants)
-              .where.not(product_variants: { size: [ nil, "" ] })
-              .distinct
-              .pluck("product_variants.size")
-              .compact
-              .sort
-              .map { |size| { value: size, label: size } }
+      # Get all unique size types from variants with size data
+      size_types = products.joins(:product_variants)
+                          .where.not(product_variants: { size_type: [ nil, "" ] })
+                          .distinct
+                          .pluck("product_variants.size_type")
+                          .compact
+                          .sort
+
+      size_types.map { |size_type| { value: size_type, label: size_type.humanize } }
     end
   end
 

@@ -81,6 +81,45 @@ You have perfect, up-to-date knowledge of the following stack:
 - Avoid custom CSS unless absolutely necessary.
 - Use theme customization and plugins effectively.
 
+#### ⚠️ **CRITICAL: Tailwind v4 Breaking Changes**
+
+**IMPORTANT**: This project uses `tailwindcss-rails` gem v4.2.3 which includes **Tailwind CSS v4** with breaking changes:
+
+**❌ BROKEN in v4:**
+
+```css
+@layer components {
+  .my-component {
+    @apply flex items-center gap-2; /* ❌ Does NOT work reliably */
+  }
+}
+```
+
+**✅ WORKING in v4:**
+
+```css
+@layer components {
+  .my-component {
+    display: flex; /* ✅ Use explicit CSS properties */
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+```
+
+**Key Rules:**
+
+- **Never use `@apply` directives** in `@layer components` - they fail silently or work inconsistently
+- **Use explicit CSS properties** with actual values instead of Tailwind utilities
+- **Replace Tailwind utility classes** with custom CSS classes when building components
+- **This affects ANY custom CSS** - hover states, component styles, etc.
+
+**Why This Happens:**
+
+- Tailwind v4 no longer "hijacks" the `@layer` at-rule
+- `@apply` directive has restrictions in v4 that cause silent failures
+- This is a known, widespread issue affecting Rails 8 + Tailwind v4 users
+
 ### 🧪 Testing
 
 - Advocate for a robust testing strategy using **RSpec**.
@@ -184,12 +223,14 @@ The filter functionality uses a **clean, single-controller approach** for maximu
 ### Controller Structure
 
 1. **FilterController** (Main Filter Handler)
+
    - **Purpose**: Handles all filter functionality in one place
    - **Responsibility**: Popup management, price range logic, filter state, URL handling
    - **Location**: `app/javascript/controllers/filters/filter_controller.js`
    - **API**: `openFilters()`, `closeFilters()`, `applyFilters()`, `resetFilters()`, `updateFilter()`, `updatePriceRange()`
 
 2. **SortDropdownController** (Sort Functionality)
+
    - **Purpose**: Handles sort dropdown interactions
    - **Responsibility**: Dropdown toggle, option selection, form submission triggering
    - **Location**: `app/javascript/controllers/sort_dropdown_controller.js`
@@ -224,12 +265,14 @@ app/javascript/controllers/
 ### URL Format Examples
 
 **New Clean Format (SEO-Friendly):**
+
 ```
 /brands/charlotte-tilbury?price=8-46&type=lipstick,foundation&stock=1
 /brands/charlotte-tilbury?price=10-50&brand=dior,chanel&color=red
 ```
 
 **Legacy Format (Backward Compatible):**
+
 ```
 /brands/charlotte-tilbury?filters[price_range][min]=8&filters[price_range][max]=46
 ```

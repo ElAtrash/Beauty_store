@@ -1,0 +1,114 @@
+<!-- Variant Selection Form -->
+<%= form_with model: product, url: "#", local: false,
+    data: {
+      "products--variant-selector-target": "form",
+      action: "change->products--variant-selector#updateVariant submit->products--variant-selector#submitForm"
+    } do |form| %>
+
+  <!-- Product Options Section -->
+  <div class="space-y-6 py-6">
+    <!-- Size Selection -->
+    <% if has_sizes? %>
+      <div class="space-y-4">
+        <label class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+          <%= size_type_label %>
+        </label>
+
+        <div class="flex flex-wrap gap-3">
+          <% variant_options[:sizes].each_with_index do |size_option, index| %>
+            <label class="cursor-pointer relative">
+              <%= form.radio_button :size, size_option.value,
+                  checked: index == 0,
+                  class: "sr-only peer",
+                  disabled: !size_option.available?,
+                  data: { "products--variant-selector-target": "sizeOption" } %>
+
+              <!-- Size Button -->
+              <div class="size-option <%= size_option.available? ? 'size-option--available peer-checked:size-option--selected' : 'size-option--unavailable' %>">
+
+                <!-- Size Text -->
+                <span class="<%= size_option.available? ? 'text-gray-900' : 'text-gray-400' %> text-center leading-tight">
+                  <%= size_option.name %>
+                </span>
+
+                <!-- Unavailable Diagonal Strikethrough -->
+                <% unless size_option.available? %>
+                  <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 50">
+                    <line x1="0" y1="0" x2="50" y2="50" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                <% end %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Color Selection -->
+    <% if has_colors? %>
+      <div data-controller="products--color-dropdown"
+           data-products--color-dropdown-selected-value-value="<%= first_color_option.value %>"
+           data-products--color-dropdown-selected-name-value="<%= first_color_option.name %>">
+
+        <!-- Hidden input for form submission -->
+        <%= form.hidden_field :color,
+            value: first_color_option.value,
+            data: {
+              "products--color-dropdown-target": "hiddenInput",
+              "products--variant-selector-target": "colorOption"
+            } %>
+
+        <!-- Dropdown Button -->
+        <div class="relative">
+          <button type="button"
+                  class="color-dropdown-button"
+                  data-products--color-dropdown-target="button"
+                  data-action="click->products--color-dropdown#toggle">
+
+            <div class="flex items-center space-x-3">
+              <!-- Selected Color Circle -->
+              <div class="color-circle"
+                   data-products--color-dropdown-target="selectedColor"
+                   style="background-color: <%= first_color_option.value.downcase %>;">
+              </div>
+
+              <!-- Selected Color Text -->
+              <span class="text-gray-900 font-medium text-base group-hover:text-orange-600 transition-colors"
+                    data-products--color-dropdown-target="selectedText">
+                <%= first_color_option.name %>
+              </span>
+            </div>
+
+            <!-- Dropdown Arrow -->
+            <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transition-transform duration-200", "data-products--color-dropdown-target": "arrow") %>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 pointer-events-none scale-95 transition-all duration-200 origin-top"
+               data-products--color-dropdown-target="menu">
+
+            <div class="py-1 max-h-64 overflow-y-auto scrollbar-thin">
+              <% variant_options[:colors].each do |color_option| %>
+                <button type="button"
+                        class="w-full px-4 py-3 text-left focus:outline-none transition-colors flex items-center space-x-3 group"
+                        data-action="click->products--color-dropdown#selectColor"
+                        data-value="<%= color_option.value %>"
+                        data-name="<%= color_option.name %>"
+                        data-color-hex="<%= color_option.value %>">
+
+                  <!-- Color Circle -->
+                  <div class="color-circle"
+                       style="background-color: <%= color_option.value.downcase %>;">
+                  </div>
+
+                  <!-- Color Name -->
+                  <span class="text-gray-900 group-hover:text-orange-600 transition-colors"><%= color_option.name %></span>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
