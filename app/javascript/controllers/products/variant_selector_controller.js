@@ -233,7 +233,7 @@ export default class extends Controller {
       button.disabled = false
       button.textContent = "Add to Cart"
       button.classList.remove("bg-gray-300", "cursor-not-allowed")
-      button.classList.add("bg-black", "hover:bg-cyan-600")
+      button.classList.add("bg-black", "hover:bg-interactive")
     } else {
       button.disabled = true
       button.textContent = "Out of Stock"

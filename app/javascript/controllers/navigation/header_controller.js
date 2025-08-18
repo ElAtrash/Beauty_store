@@ -336,11 +336,11 @@ export default class extends Controller {
     const tabButtons = this.element.querySelectorAll('.auth-tab-btn')
     tabButtons.forEach(btn => {
       if (btn.dataset.tab === targetTab) {
-        btn.classList.add('active', 'bg-white', 'text-gray-900', 'shadow-sm')
-        btn.classList.remove('text-gray-500')
+        btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm')
+        btn.classList.remove('text-subtle')
       } else {
-        btn.classList.remove('active', 'bg-white', 'text-gray-900', 'shadow-sm')
-        btn.classList.add('text-gray-500')
+        btn.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm')
+        btn.classList.add('text-subtle')
       }
     })
 
@@ -373,7 +373,7 @@ export default class extends Controller {
     const inputs = authPopup.querySelectorAll('input[type="email"], input[type="password"]');
     inputs.forEach(input => {
       input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-      input.classList.add('border-gray-300', 'focus:border-cyan-500', 'focus:ring-cyan-500');
+      input.classList.add('border-gray-300', 'focus:border-interactive', 'focus:ring-interactive');
     });
 
     const forms = authPopup.querySelectorAll('form[data-controller="auth-form"]');

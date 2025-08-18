@@ -35,12 +35,12 @@ class Brands::BrandBannerComponent < ViewComponent::Base
   end
 
   def brand_name_classes
-    text_color = banner_image? ? "text-white drop-shadow-lg" : "text-gray-900"
+    text_color = banner_image? ? "text-white drop-shadow-lg" : "text-primary"
     "hero-title #{text_color}"
   end
 
   def description_classes
-    text_color = banner_image? ? "text-white/90" : "text-gray-600"
+    text_color = banner_image? ? "text-white/90" : "text-muted"
     "hero-subtitle #{text_color}"
   end
 end

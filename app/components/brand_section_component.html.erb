@@ -1,8 +1,8 @@
 <section class="brand-section" id="<%= section_id %>">
   <div class="container mx-auto px-4 py-8">
-    <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+    <h2 class="text-3xl font-bold mb-6 flex items-center">
       <span class="letter-heading"><%= letter %></span>
-      <span class="ml-4 text-lg font-normal text-gray-600">
+      <span class="ml-4 text-lg font-normal text-muted">
         <%= brands.count %> <%= brands.count == 1 ? "brand" : "brands" %>
       </span>
     </h2>
@@ -12,9 +12,9 @@
         <div class="brand-card">
           <%= link_to brand_path(brand),
               class: "brand-link",
-              data: { 
+              data: {
                 turbo: true,
-                turbo_frame: "_top" 
+                turbo_frame: "_top"
               } do %>
             <div class="brand-card-content">
               <h3 class="brand-name"><%= brand.name %></h3>

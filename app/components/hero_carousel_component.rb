@@ -31,7 +31,7 @@ class HeroCarouselComponent < ViewComponent::Base
       },
       {
         index: 2,
-        gradient: "from-cyan-200 via-blue-200 to-indigo-400",
+        gradient: "from-blue-200 via-indigo-200 to-purple-400",
         title: t("hero.title_3"),
         subtitle: t("hero.subtitle_3"),
         cta_primary: t("hero.cta_primary_3"),
@@ -42,9 +42,18 @@ class HeroCarouselComponent < ViewComponent::Base
     ]
   end
 
-  def navigation_arrow_icon(direction)
-    icon_name = direction == :left ? :arrow_left : :arrow_right
-    render(IconComponent.new(name: icon_name, class: "w-6 h-6"))
+  def cursor_data_url(icon_name)
+    icon_path = IconPath::ICONS[icon_name]
+    return "" unless icon_path
+
+    size = 36
+    svg_content = <<~SVG
+      <svg xmlns="http://www.w3.org/2000/svg" width="#{size}" height="#{size}" fill="none" viewBox="0 0 24 24">
+        #{icon_path}
+      </svg>
+    SVG
+
+    "data:image/svg+xml;base64,#{Base64.strict_encode64(svg_content)}"
   end
 
   def slide_animation_classes(slide)

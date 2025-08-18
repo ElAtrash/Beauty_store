@@ -3,31 +3,31 @@
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-4 gap-6">
         <div class="col-start-3 col-span-2">
-          <h2 class="text-2xl md:text-3xl font-bold text-left mb-6 md:mb-8 text-gray-900">
+          <h2 class="text-2xl md:text-3xl font-bold text-left mb-6 md:mb-8">
             <%= brand_name %>
           </h2>
 
           <div class="text-left">
             <% if long_description? %>
-              <div data-text-expander-target="truncated" class="text-gray-700 leading-relaxed">
+              <div data-text-expander-target="truncated" class="text-secondary leading-relaxed">
                 <%= simple_format(truncated_description, class: "mb-4") %>
                 <button type="button"
-                        class="text-cyan-600 hover:text-cyan-700 transition-colors text-sm font-medium underline-offset-2 hover:underline"
+                        class="text-interactive hover:text-interactive-secondary transition-colors text-sm font-medium underline-offset-2 hover:underline"
                         data-action="click->text-expander#toggle">
                   Read more
                 </button>
               </div>
 
-              <div data-text-expander-target="expanded" class="hidden text-gray-700 leading-relaxed">
+              <div data-text-expander-target="expanded" class="hidden text-secondary leading-relaxed">
                 <%= simple_format(description, class: "mb-4") %>
                 <button type="button"
-                        class="text-cyan-600 hover:text-cyan-700 transition-colors text-sm font-medium underline-offset-2 hover:underline"
+                        class="text-interactive hover:text-interactive-secondary transition-colors text-sm font-medium underline-offset-2 hover:underline"
                         data-action="click->text-expander#toggle">
                   Read less
                 </button>
               </div>
             <% else %>
-                <div class="text-gray-700 leading-relaxed">
+                <div class="text-secondary leading-relaxed">
                 <%= simple_format(description, class: "mb-4") %>
               </div>
             <% end %>

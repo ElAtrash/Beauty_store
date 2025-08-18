@@ -19,7 +19,7 @@
     <div class="flex-1 overflow-y-auto relative">
       <!-- Close Button -->
       <button type="button"
-              class="absolute top-6 right-6 z-50 text-black hover:text-orange-600 transition-colors duration-200 p-2"
+              class="absolute top-6 right-6 z-50 text-black hover:text-interactive transition-colors duration-200 p-2"
               data-action="click->products--gallery#closeZoom">
         <%= render IconComponent.new(name: :close, class: "w-8 h-8") %>
       </button>
@@ -34,9 +34,9 @@
             <!-- Product Info -->
             <% if index == 0 %>
               <div class="mb-8 text-left">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= product.name %></h1>
+                <h1 class="text-3xl font-bold mb-2"><%= product.name %></h1>
                 <% if product.subtitle.present? %>
-                  <p class="text-lg text-gray-600"><%= product.subtitle %></p>
+                  <p class="text-lg text-muted"><%= product.subtitle %></p>
                 <% end %>
               </div>
             <% end %>

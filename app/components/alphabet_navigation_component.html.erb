@@ -41,7 +41,7 @@
         <%= form.text_field :search,
             placeholder: "Find brands",
             value: params[:search],
-            class: "w-80 py-3 px-4 pr-12 text-gray-700 bg-gray-50 border-0 rounded-lg hover:bg-white focus:outline-none focus:ring-0 focus:bg-white transition-all duration-200 placeholder-gray-400",
+            class: "w-80 py-3 px-4 pr-12 text-secondary bg-gray-50 border-0 rounded-lg hover:bg-white focus:outline-none focus:ring-0 focus:bg-white transition-all duration-200 placeholder-gray-400",
             data: {
               action: "input->brands#handleSearchInput",
               brands_target: "searchInput"
@@ -49,7 +49,7 @@
             "aria-label": "Search for brands",
             role: "searchbox",
             autocomplete: "off" %>
-        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true">
+        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-subtle" aria-hidden="true">
           <%= render IconComponent.new(name: :search, class: "w-5 h-5") %>
         </div>
       <% end %>

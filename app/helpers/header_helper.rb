@@ -1,7 +1,7 @@
 module HeaderHelper
   def header_language_class(locale)
-    base_classes = "hover:text-cyan-600 transition-colors"
-    active_classes = "font-bold text-cyan-600"
+    base_classes = "hover:text-interactive transition-colors"
+    active_classes = "font-bold text-interactive"
 
     if I18n.locale == locale
       "#{base_classes} #{active_classes}"
@@ -37,9 +37,9 @@ module HeaderHelper
 
     case item_key
     when "sale"
-      "#{base_classes} text-cyan-600"
+      "#{base_classes} text-interactive"
     else
-      "#{base_classes} text-gray-700 hover:text-cyan-600"
+      "#{base_classes} hover:text-interactive"
     end
   end
 end

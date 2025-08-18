@@ -36,7 +36,7 @@
                   data-sort-dropdown-target="menu">
               <% ProductFilterForm::SORT_OPTIONS.each do |value, label| %>
                 <button type="button"
-                        class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-cyan-600 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                        class="w-full text-left px-3 py-2 text-sm text-secondary hover:text-interactive transition-colors first:rounded-t-lg last:rounded-b-lg"
                         data-action="click->sort-dropdown#selectOption"
                         data-value="<%= value %>">
                   <%= label %>
@@ -46,7 +46,7 @@
           </div>
         </div>
 
-        <div class="text-base text-gray-700 font-medium">
+        <div class="text-base text-secondary font-medium">
           <%= @pagy.count %> <%= 'product'.pluralize(@pagy.count) %>
         </div>
       </div>

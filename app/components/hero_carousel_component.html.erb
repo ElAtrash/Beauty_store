@@ -28,18 +28,22 @@
         </div>
       </div>
     <% end %>
+
+    <!-- Click Zones for Navigation -->
+    <% if slides.size > 1 %>
+      <!-- Left Click Zone for Previous Slide -->
+      <div class="gallery-click-zone gallery-click-zone--left"
+           style="cursor: url('<%= cursor_data_url(:cursor_left) %>') 16 16, pointer;"
+           data-action="click->ui--hero-carousel#previousSlide">
+      </div>
+
+      <!-- Right Click Zone for Next Slide -->
+      <div class="gallery-click-zone gallery-click-zone--right"
+           style="cursor: url('<%= cursor_data_url(:cursor_right) %>') 16 16, pointer;"
+           data-action="click->ui--hero-carousel#nextSlide">
+      </div>
+    <% end %>
   </div>
-  <!-- Navigation Arrows (hidden on mobile) -->
-  <button class="hidden md:block carousel-nav-button left-4"
-          data-action="click->ui--hero-carousel#previousSlide"
-          aria-label="<%= t('hero.previous_slide') %>">
-    <%= navigation_arrow_icon(:left) %>
-  </button>
-  <button class="hidden md:block carousel-nav-button right-4"
-          data-action="click->ui--hero-carousel#nextSlide"
-          aria-label="<%= t('hero.next_slide') %>">
-    <%= navigation_arrow_icon(:right) %>
-  </button>
   <!-- Dots Indicator -->
   <div class="carousel-dots-container">
     <% slides.each_with_index do |slide, index| %>
