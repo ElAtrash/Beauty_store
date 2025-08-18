@@ -1,13 +1,13 @@
 <!-- Price Section -->
 <div class="space-y-1">
   <div class="flex items-baseline space-x-2">
-    <span class="text-3xl font-light text-gray-900"
+    <span class="text-3xl font-light"
           data-products--variant-selector-target="currentPrice">
       <%= price_info.current %>
     </span>
 
     <% if show_sale_badge? %>
-      <span class="text-lg text-gray-500 line-through"
+      <span class="text-lg text-subtle line-through"
             data-products--variant-selector-target="originalPrice">
         <%= price_info.original %>
       </span>

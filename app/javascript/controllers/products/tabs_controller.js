@@ -27,11 +27,11 @@ export default class extends Controller {
   updateTabButtons(activeIndex) {
     this.tabButtonTargets.forEach((button, index) => {
       if (index === activeIndex) {
-        button.classList.remove("border-transparent", "text-gray-500")
+        button.classList.remove("border-transparent", "text-subtle")
         button.classList.add("border-black", "text-black")
       } else {
         button.classList.remove("border-black", "text-black")
-        button.classList.add("border-transparent", "text-gray-500")
+        button.classList.add("border-transparent", "text-subtle")
       }
     })
   }

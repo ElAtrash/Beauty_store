@@ -64,25 +64,25 @@ class Products::ProductTabsComponent < ViewComponent::Base
 
   def render_description_content
     content_tag :div, class: "space-y-6" do
-      concat content_tag(:h3, product.name.upcase, class: "text-xl font-bold text-gray-900")
+      concat content_tag(:h3, product.name.upcase, class: "text-xl font-bold")
 
-      concat(content_tag(:p, class: "text-sm text-gray-500") do
+      concat(content_tag(:p, class: "text-sm text-subtle") do
         "SKU: ".html_safe + content_tag(:span, product.product_code, class: "sku-display", data: { "products--variant-selector-target" => "skuDisplay" })
       end)
 
-      concat content_tag(:div, simple_format(product.description, {}, class: "text-gray-700 leading-relaxed"), class: "mt-4")
+      concat content_tag(:div, simple_format(product.description, {}, class: "text-secondary leading-relaxed"), class: "mt-4")
       concat product_details_section
     end
   end
 
   def render_application_content
     formatted_text = product.how_to_use.gsub(/\*\*(.*?)\*\*/, '<strong>\1</strong>').html_safe
-    simple_format(formatted_text, {}, class: "text-gray-700 leading-relaxed")
+    simple_format(formatted_text, {}, class: "text-secondary leading-relaxed")
   end
 
   def render_ingredients_content
     ingredients = product.ingredients.split(",").map(&:strip)
-    content_tag :div, class: "text-gray-700" do
+    content_tag :div, class: "text-secondary" do
       ingredients.map do |ingredient|
         content_tag(:span, ingredient, class: "inline-block bg-gray-100 px-2 py-1 rounded-md text-sm mr-2 mb-2")
       end.join.html_safe
@@ -91,11 +91,11 @@ class Products::ProductTabsComponent < ViewComponent::Base
 
   def render_brand_content
     content_tag :div, class: "space-y-4" do
-      concat content_tag(:h4, product.brand.name, class: "text-xl font-medium text-gray-900")
+      concat content_tag(:h4, product.brand.name, class: "text-xl font-medium")
       if product.brand.description.present?
-        concat content_tag(:p, product.brand.description, class: "text-gray-700 leading-relaxed")
+        concat content_tag(:p, product.brand.description, class: "text-secondary leading-relaxed")
       else
-        concat content_tag(:p, "Discover more products from #{product.brand.name}.", class: "text-gray-700")
+        concat content_tag(:p, "Discover more products from #{product.brand.name}.", class: "text-secondary")
       end
     end
   end

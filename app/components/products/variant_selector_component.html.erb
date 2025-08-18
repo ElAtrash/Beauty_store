@@ -10,7 +10,7 @@
     <!-- Size Selection -->
     <% if has_sizes? %>
       <div class="space-y-4">
-        <label class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+        <label class="text-sm font-semibold uppercase tracking-wide">
           <%= size_type_label %>
         </label>
 
@@ -27,7 +27,7 @@
               <div class="size-option <%= size_option.available? ? 'size-option--available peer-checked:size-option--selected' : 'size-option--unavailable' %>">
 
                 <!-- Size Text -->
-                <span class="<%= size_option.available? ? 'text-gray-900' : 'text-gray-400' %> text-center leading-tight">
+                <span class="<%= 'text-subtle' unless size_option.available? %> text-center leading-tight">
                   <%= size_option.name %>
                 </span>
 
@@ -61,7 +61,7 @@
         <!-- Dropdown Button -->
         <div class="relative">
           <button type="button"
-                  class="color-dropdown-button"
+                  class="color-dropdown-button group"
                   data-products--color-dropdown-target="button"
                   data-action="click->products--color-dropdown#toggle">
 
@@ -73,14 +73,14 @@
               </div>
 
               <!-- Selected Color Text -->
-              <span class="text-gray-900 font-medium text-base group-hover:text-orange-600 transition-colors"
+              <span class="font-medium text-base group-hover:text-interactive transition-colors"
                     data-products--color-dropdown-target="selectedText">
                 <%= first_color_option.name %>
               </span>
             </div>
 
             <!-- Dropdown Arrow -->
-            <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transition-transform duration-200", "data-products--color-dropdown-target": "arrow") %>
+            <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transition-transform duration-200", "data-products--color-dropdown-target": "arrow") %>
           </button>
 
           <!-- Dropdown Menu -->
@@ -102,7 +102,7 @@
                   </div>
 
                   <!-- Color Name -->
-                  <span class="text-gray-900 group-hover:text-orange-600 transition-colors"><%= color_option.name %></span>
+                  <span class="group-hover:text-interactive transition-colors"><%= color_option.name %></span>
                 </button>
               <% end %>
             </div>

@@ -21,19 +21,19 @@
       <% end %>
 
       <div class="hidden text-center mt-8" data-product-grid-target="loading">
-        <div class="inline-flex items-center px-6 py-3 text-gray-600">
-          <%= render IconComponent.new(name: :loading, class: "animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600") %>
+        <div class="inline-flex items-center px-6 py-3 text-muted">
+          <%= render IconComponent.new(name: :loading, class: "animate-spin -ml-1 mr-3 h-5 w-5 text-muted") %>
           Loading more products...
         </div>
       </div>
     <% else %>
       <div class="text-center py-16">
         <div class="max-w-md mx-auto">
-          <%= render IconComponent.new(name: :shopping_cart, class: "w-16 h-16 text-gray-300 mx-auto mb-4") %>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          <%= render IconComponent.new(name: :shopping_cart, class: "w-16 h-16 text-disabled mx-auto mb-4") %>
+          <h3 class="text-xl font-semibold mb-2">
             No products found
           </h3>
-          <p class="text-gray-600 mb-8">
+          <p class="text-muted mb-8">
             <%= brand.name %> products are coming soon. Check back later for new arrivals.
           </p>
           <%= link_to "Browse All Brands",

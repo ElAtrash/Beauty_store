@@ -11,9 +11,9 @@ export default class extends Controller {
 
     if (isActive) {
       button.classList.remove('text-pink-500')
-      button.classList.add('text-gray-600')
+      button.classList.add('text-muted')
     } else {
-      button.classList.remove('text-gray-600')
+      button.classList.remove('text-muted')
       button.classList.add('text-pink-500')
     }
 

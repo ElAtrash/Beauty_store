@@ -3,7 +3,7 @@
          data-catalog--product-grid-pagy-url-value="<%= root_path %>">
   <div class="container mx-auto px-4">
     <!-- Section Title -->
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-900">
+    <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">
       You might be interested
     </h2>
     <!-- Products Grid -->
@@ -25,8 +25,8 @@
     <% end %>
     <!-- Loading indicator -->
     <div class="hidden text-center mt-8" data-catalog--product-grid-target="loading">
-      <div class="inline-flex items-center px-6 py-3 text-gray-600">
-        <%= render IconComponent.new(name: :loading, class: "animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600") %>
+      <div class="inline-flex items-center px-6 py-3 text-secondary">
+        <%= render IconComponent.new(name: :loading, class: "animate-spin -ml-1 mr-3 h-5 w-5 text-muted") %>
         Loading more products...
       </div>
     </div>

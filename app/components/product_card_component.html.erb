@@ -45,14 +45,14 @@
     <div class="pt-4 text-right space-y-3">
       <!-- Product Info Text -->
       <div class="space-y-1">
-        <h3 class="font-medium text-gray-900 line-clamp-2 leading-tight transition-colors duration-200">
-          <%= product.name %>
-        </h3>
         <% if product.subtitle.present? %>
-          <p class="text-sm font-medium text-gray-500 transition-colors duration-200">
+          <p class="text-sm font-medium text-muted transition-colors duration-200">
             <%= product.subtitle %>
           </p>
         <% end %>
+        <h3 class="line-clamp-2 pt-2 leading-tight transition-colors duration-200">
+          <%= product.name %>
+        </h3>
       </div>
       <!-- Rating and Reviews -->
       <% if product.reviews_count > 0 %>
@@ -62,11 +62,11 @@
       <% end %>
       <!-- Price -->
       <div class="flex items-center gap-2 justify-end">
-        <span class="font-bold text-gray-900 transition-colors duration-200">
+        <span class="font-bold transition-colors duration-200">
           <%= price_display %>
         </span>
         <% if original_price_display %>
-          <span class="text-sm text-gray-500 line-through transition-colors duration-200">
+          <span class="text-sm text-muted line-through transition-colors duration-200">
             <%= original_price_display %>
           </span>
         <% end %>

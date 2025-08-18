@@ -49,9 +49,9 @@ class Products::ProductReviewsComponent < ViewComponent::Base
     content_tag :div, class: "flex items-center space-x-0.5" do
       5.times.map do |i|
         if i < rating
-          render(IconComponent.new(name: :star, class: "#{size} text-gray-700 transition-colors"))
+          render(IconComponent.new(name: :star, class: "#{size} text-secondary transition-colors"))
         else
-          render(IconComponent.new(name: :star, class: "#{size} text-gray-300"))
+          render(IconComponent.new(name: :star, class: "#{size} text-disabled"))
         end
       end.join.html_safe
     end

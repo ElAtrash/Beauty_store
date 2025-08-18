@@ -7,8 +7,8 @@
      data-<%= controller_name %>-target="filterPopupPanel">
   <div class="flex flex-col h-full">
     <div class="flex items-center justify-between p-6 pb-8">
-      <h2 class="text-xl font-semibold text-gray-900">Filters</h2>
-      <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+      <h2 class="text-xl font-semibold">Filters</h2>
+      <button class="p-2 text-subtle hover:text-muted transition-colors"
               data-action="click-><%= controller_name %>#closeFilters"
               aria-label="Close filters">
         <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
@@ -21,7 +21,7 @@
         <% if filter_form.filter_available?(:in_stock) %>
           <div class="filter-section">
             <div class="flex items-center justify-between">
-              <label for="in_stock" class="text-base font-medium text-gray-900">In Stock</label>
+              <label for="in_stock" class="text-base font-medium">In Stock</label>
               <div class="filter-toggle-switch">
                 <input type="checkbox"
                        id="in_stock"
@@ -69,7 +69,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between text-sm text-gray-600">
+              <div class="flex items-center justify-between text-sm text-muted">
                 <span data-<%= controller_name %>-target="minPriceDisplay">$<%= current_min_price %></span>
                 <span data-<%= controller_name %>-target="maxPriceDisplay">$<%= current_max_price %></span>
               </div>
@@ -85,8 +85,8 @@
                     data-action="click-><%= controller_name %>#toggleSection"
                     data-section="product-type"
                     aria-expanded="false">
-              <span class="text-base font-medium text-gray-900">Product Type</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transform transition-transform") %>
+              <span class="text-base font-medium">Product Type</span>
+              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
             </button>
 
             <div class="filter-section-content hidden" data-section-content="product-type">
@@ -99,8 +99,8 @@
                            <%= 'checked' if filter_selected?('product_types', option[:value]) %>
                            data-action="change-><%= controller_name %>#updateFilter"
                            data-filter-type="product_types"
-                           class="form-checkbox text-cyan-600 focus:ring-cyan-500">
-                    <span class="ml-2 text-sm text-gray-700"><%= option[:label] %></span>
+                           class="form-checkbox-interactive">
+                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
                   </label>
                 <% end %>
               </div>
@@ -116,8 +116,8 @@
                     data-action="click-><%= controller_name %>#toggleSection"
                     data-section="brands"
                     aria-expanded="false">
-              <span class="text-base font-medium text-gray-900">Brands</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transform transition-transform") %>
+              <span class="text-base font-medium">Brands</span>
+              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
             </button>
 
             <div class="filter-section-content hidden" data-section-content="brands">
@@ -130,8 +130,8 @@
                            <%= 'checked' if filter_selected?('brands', option[:value]) %>
                            data-action="change-><%= controller_name %>#updateFilter"
                            data-filter-type="brands"
-                           class="form-checkbox text-cyan-600 focus:ring-cyan-500">
-                    <span class="ml-2 text-sm text-gray-700"><%= option[:label] %></span>
+                           class="form-checkbox-interactive">
+                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
                   </label>
                 <% end %>
               </div>
@@ -147,8 +147,8 @@
                     data-action="click-><%= controller_name %>#toggleSection"
                     data-section="colors"
                     aria-expanded="false">
-              <span class="text-base font-medium text-gray-900">Colors</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transform transition-transform") %>
+              <span class="text-base font-medium">Colors</span>
+              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
             </button>
 
             <div class="filter-section-content hidden" data-section-content="colors">
@@ -161,8 +161,8 @@
                            <%= 'checked' if filter_selected?('colors', color[:value]) %>
                            data-action="change-><%= controller_name %>#updateFilter"
                            data-filter-type="colors"
-                           class="form-checkbox text-cyan-600 focus:ring-cyan-500">
-                    <span class="ml-2 text-sm text-gray-700"><%= color[:label] %></span>
+                           class="form-checkbox-interactive">
+                    <span class="ml-2 text-sm text-secondary"><%= color[:label] %></span>
                   </label>
                 <% end %>
               </div>
@@ -178,8 +178,8 @@
                     data-action="click-><%= controller_name %>#toggleSection"
                     data-section="sizes"
                     aria-expanded="false">
-              <span class="text-base font-medium text-gray-900">Sizes</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transform transition-transform") %>
+              <span class="text-base font-medium">Sizes</span>
+              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
             </button>
 
             <div class="filter-section-content hidden" data-section-content="sizes">
@@ -192,8 +192,8 @@
                            <%= 'checked' if filter_selected?('sizes', size[:value]) %>
                            data-action="change-><%= controller_name %>#updateFilter"
                            data-filter-type="sizes"
-                           class="form-checkbox text-cyan-600 focus:ring-cyan-500">
-                    <span class="ml-2 text-sm text-gray-700"><%= size[:label] %></span>
+                           class="form-checkbox-interactive">
+                    <span class="ml-2 text-sm text-secondary"><%= size[:label] %></span>
                   </label>
                 <% end %>
               </div>
@@ -209,8 +209,8 @@
                     data-action="click-><%= controller_name %>#toggleSection"
                     data-section="skin-type"
                     aria-expanded="false">
-              <span class="text-base font-medium text-gray-900">Skin Type</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-gray-400 transform transition-transform") %>
+              <span class="text-base font-medium">Skin Type</span>
+              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
             </button>
 
             <div class="filter-section-content hidden" data-section-content="skin-type">
@@ -223,8 +223,8 @@
                            <%= 'checked' if filter_selected?('skin_types', option[:value]) %>
                            data-action="change-><%= controller_name %>#updateFilter"
                            data-filter-type="skin_types"
-                           class="form-checkbox text-cyan-600 focus:ring-cyan-500">
-                    <span class="ml-2 text-sm text-gray-700"><%= option[:label] %></span>
+                           class="form-checkbox-interactive">
+                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
                   </label>
                 <% end %>
               </div>
@@ -243,7 +243,7 @@
           Reset
         </button>
         <button type="button"
-                class="flex-1 px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 transition-colors"
+                class="flex-1 px-4 py-2 bg-interactive text-white font-semibold rounded-lg hover:bg-interactive-dark transition-colors"
                 data-action="click-><%= controller_name %>#applyFilters">
           Apply Filters
         </button>
