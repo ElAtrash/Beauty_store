@@ -1,0 +1,23 @@
+<% if has_options? %>
+  <div class="filter-section">
+    <button type="button"
+            class="filter-section-header"
+            data-action="<%= section_data_attributes[:action] %>"
+            data-section="<%= section_data_attributes[:section] %>"
+            aria-expanded="false">
+      <span class="text-base font-medium"><%= title %></span>
+      <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
+    </button>
+
+    <div class="filter-section-content hidden" data-section-content="<%= section_id %>">
+      <div class="space-y-3 mt-4 max-h-48 overflow-y-auto">
+        <%= render FilterOptionComponent.with_collection(
+              options,
+              filter_type: filter_type,
+              selected_values: selected_values,
+              controller_name: controller_name
+            ) %>
+      </div>
+    </div>
+  </div>
+<% end %>

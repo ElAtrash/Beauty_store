@@ -1,15 +1,16 @@
 <!-- Authentication Popup -->
-<div class="modal-overlay opacity-0 pointer-events-none"
-     data-navigation--header-target="authPopupOverlay"
-     data-action="click->navigation--header#closeAuthPopup">
+<div class="modal-overlay auth-popup-overlay"
+     data-navigation--auth-popup-target="overlay"
+     data-action="click->navigation--auth-popup#closePopup">
 </div>
-<div class="auth-sidebar translate-x-full"
-     data-navigation--header-target="authPopupPanel">
+<div class="auth-sidebar auth-popup-panel"
+     data-navigation--auth-popup-target="panel"
+     data-auth-tab="signin">
   <div class="flex flex-col h-full">
     <!-- Header -->
     <div class="flex items-center justify-end p-6">
-      <button class="p-2 text-subtle hover:text-muted transition-colors"
-              data-action="click->navigation--header#closeAuthPopup"
+      <button class="p-2 text-subtle hover:text-interactive transition-colors"
+              data-action="click->navigation--auth-popup#closePopup"
         aria-label="<%= t('auth.close') %>">
         <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
       </button>
@@ -46,11 +47,12 @@
           </div>
         <% else %>
           <!-- Sign In/Up State -->
-          <div>
+          <div data-controller="auth-tab auth-form-coordinator"
+               data-auth-tab-active-tab-value="signin">
             <!-- Notifications Area -->
             <div class="relative">
               <!-- Flash Messages -->
-              <div data-auth-form-target="messages" class="space-y-2">
+              <div class="space-y-2">
                 <% if flash[:alert] %>
                   <div class="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p class="text-sm text-red-600"><%= flash[:alert] %></p>
@@ -69,20 +71,20 @@
             </div>
             <!-- Toggle Buttons -->
             <div class="flex bg-gray-100 p-1 rounded-lg mb-6">
-              <button class="auth-tab-button auth-tab-btn active"
-                      data-action="click->navigation--header#switchAuthTab"
+              <button class="auth-tab-button signin-tab"
+                      data-action="click->auth-tab#switchTab"
                 data-tab="signin">
                 <%= t('auth.sign_in') %>
               </button>
-              <button class="auth-tab-button auth-tab-btn"
-                      data-action="click->navigation--header#switchAuthTab"
+              <button class="auth-tab-button signup-tab"
+                      data-action="click->auth-tab#switchTab"
                 data-tab="signup">
                 <%= t('auth.sign_up') %>
               </button>
             </div>
             <!-- Sign In Form -->
             <div class="auth-form-container mt-6" data-form="signin">
-              <%= form_with url: session_path, local: false, html: { novalidate: true, 'data-controller': 'auth-form' }, class: "space-y-4", data: { turbo_frame: "auth_result" } do |form| %>
+              <%= form_with url: session_path, local: false, html: { novalidate: true }, class: "space-y-4", data: { controller: "form-validation", turbo_frame: "auth_result", form_validation_translations_value: t('javascript.auth_form').to_json } do |form| %>
                 <div>
                   <label for="email_address" class="block text-sm font-medium text-secondary mb-1">
                     <%= t('auth.email') %>
@@ -91,9 +93,9 @@
                       autofocus: true,
                       autocomplete: "username",
                       placeholder: t('auth.email_placeholder'),
-                      'data-auth-form-target': 'email',
+                      data: { validation_rules: 'email' },
                       class: "form-input" %>
-                  <div class="text-red-600 text-xs mt-1 hidden">
+                  <div class="text-red-600 text-xs mt-1 hidden field-error">
                     <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
@@ -102,18 +104,24 @@
                   <label for="password" class="block text-sm font-medium text-secondary mb-1">
                     <%= t('auth.password') %>
                   </label>
-                  <div class="relative">
+                  <div class="relative" data-controller="password-toggle"
+                       data-password-toggle-show-icon-path-value="<%= eye_icon_path %>"
+                       data-password-toggle-hide-icon-path-value="<%= eye_off_icon_path %>">
                     <%= form.password_field :password,
                         autocomplete: "current-password",
                         placeholder: t('auth.password_placeholder'),
-                        'data-auth-form-target': 'password',
+                        data: {
+                          validation_rules: 'password',
+                          password_toggle_target: 'field'
+                        },
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            data-action="click->auth-form#togglePasswordVisibility">
+                            data-action="click->password-toggle#toggle"
+                            data-password-toggle-target="button">
                       <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
-                  <div class="text-red-600 text-xs mt-1 hidden">
+                  <div class="text-red-600 text-xs mt-1 hidden field-error">
                     <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
@@ -129,12 +137,12 @@
                     <%= t('auth.forgot_password') %>
                   <% end %>
                 </div>
-                <%= form.submit t('auth.sign_in'), class: "w-full bg-text-primary text-white py-2 px-4 rounded-md hover:bg-interactive-primary focus:outline-none focus:ring-2 focus:ring-interactive-primary focus:ring-offset-2 transition-colors font-medium" %>
+                <%= form.submit t('auth.sign_in'), class: "w-full bg-text-primary text-white py-2 px-4 rounded-md hover:bg-interactive-primary focus:outline-none transition-colors font-medium" %>
               <% end %>
             </div>
             <!-- Sign Up Form -->
-            <div class="auth-form-container hidden mt-6" data-form="signup">
-              <%= form_with model: User.new, url: register_path, local: false, html: { novalidate: true, 'data-controller': 'auth-form' }, class: "space-y-4", data: { turbo_frame: "auth_result" } do |form| %>
+            <div class="auth-form-container mt-6" data-form="signup">
+              <%= form_with model: User.new, url: register_path, local: false, html: { novalidate: true }, class: "space-y-4", data: { controller: "form-validation", turbo_frame: "auth_result", form_validation_translations_value: t('javascript.auth_form').to_json } do |form| %>
                 <div>
                   <label for="user_email_address" class="block text-sm font-medium text-secondary mb-1">
                     <%= t('auth.email') %>
@@ -142,9 +150,9 @@
                   <%= form.email_field :email_address,
                       autocomplete: "email",
                       placeholder: t('auth.email_placeholder'),
-                      'data-auth-form-target': 'email',
+                      data: { validation_rules: 'email' },
                       class: "form-input" %>
-                  <div class="text-red-600 text-xs mt-1 hidden">
+                  <div class="text-red-600 text-xs mt-1 hidden field-error">
                     <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
@@ -153,18 +161,24 @@
                   <label for="user_password" class="block text-sm font-medium text-secondary mb-1">
                     <%= t('auth.password') %>
                   </label>
-                  <div class="relative">
+                  <div class="relative" data-controller="password-toggle"
+                       data-password-toggle-show-icon-path-value="<%= eye_icon_path %>"
+                       data-password-toggle-hide-icon-path-value="<%= eye_off_icon_path %>">
                     <%= form.password_field :password,
                         autocomplete: "new-password",
                         placeholder: t('auth.password_placeholder'),
-                        'data-auth-form-target': 'password',
+                        data: {
+                          validation_rules: 'password',
+                          password_toggle_target: 'field'
+                        },
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            data-action="click->auth-form#togglePasswordVisibility">
+                            data-action="click->password-toggle#toggle"
+                            data-password-toggle-target="button">
                       <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
-                  <div class="text-red-600 text-xs mt-1 hidden">
+                  <div class="text-red-600 text-xs mt-1 hidden field-error">
                     <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
@@ -173,18 +187,24 @@
                   <label for="user_password_confirmation" class="block text-sm font-medium text-secondary mb-1">
                     <%= t('auth.password_confirmation') %>
                   </label>
-                  <div class="relative">
+                  <div class="relative" data-controller="password-toggle"
+                       data-password-toggle-show-icon-path-value="<%= eye_icon_path %>"
+                       data-password-toggle-hide-icon-path-value="<%= eye_off_icon_path %>">
                     <%= form.password_field :password_confirmation,
                         autocomplete: "new-password",
                         placeholder: t('auth.password_confirmation_placeholder'),
-                        'data-auth-form-target': 'passwordConfirmation',
+                        data: {
+                          validation_rules: 'passwordConfirmation',
+                          password_toggle_target: 'field'
+                        },
                         class: "form-input pr-12" %>
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            data-action="click->auth-form#togglePasswordVisibility">
+                            data-action="click->password-toggle#toggle"
+                            data-password-toggle-target="button">
                       <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
-                  <div class="text-red-600 text-xs mt-1 hidden">
+                  <div class="text-red-600 text-xs mt-1 hidden field-error">
                     <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
@@ -195,7 +215,7 @@
                   <%= t('auth.and') %>
                   <%= link_to t('auth.privacy_link'), "#", class: "hover:text-interactive-primary" %>
                 </div>
-                <%= form.submit t('auth.sign_up'), class: "w-full bg-text-primary text-white py-2 px-4 rounded-md hover:bg-interactive-primary focus:outline-none focus:ring-2 focus:ring-interactive focus:ring-offset-2 transition-colors font-medium" %>
+                <%= form.submit t('auth.sign_up'), class: "w-full bg-text-primary text-white py-2 px-4 rounded-md hover:bg-interactive-primary focus:outline-none transition-colors font-medium" %>
               <% end %>
             </div>
           </div>

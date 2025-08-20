@@ -32,4 +32,12 @@ class AuthPopupComponent < ViewComponent::Base
       }
     ]
   end
+
+  def eye_icon_path
+    IconPath::ICONS[:eye]
+  end
+
+  def eye_off_icon_path
+    IconPath::ICONS[:eye_off]
+  end
 end

@@ -55,28 +55,4 @@ class HeroCarouselComponent < ViewComponent::Base
 
     "data:image/svg+xml;base64,#{Base64.strict_encode64(svg_content)}"
   end
-
-  def slide_animation_classes(slide)
-    if slide[:animations]
-      "animate-fade-in-up"
-    else
-      ""
-    end
-  end
-
-  def subtitle_animation_classes(slide)
-    if slide[:animations]
-      "animate-fade-in-up animation-delay-200"
-    else
-      ""
-    end
-  end
-
-  def cta_animation_classes(slide)
-    if slide[:animations]
-      "animate-fade-in-up animation-delay-400"
-    else
-      ""
-    end
-  end
 end

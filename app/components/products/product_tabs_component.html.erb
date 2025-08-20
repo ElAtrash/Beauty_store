@@ -2,27 +2,11 @@
   <% if tab_sections.any? %>
     <div class="border-b border-gray-200">
       <nav class="flex space-x-8 overflow-x-auto">
-        <% tab_sections.each_with_index do |section, index| %>
-          <button type="button"
-                  class="<%= tab_button_classes(index) %>"
-                  data-products--tabs-target="tabButton"
-                  data-action="click->products--tabs#switchTab"
-            data-products--tabs-index-param="<%= index %>">
-            <%= section[:name] %>
-          </button>
-        <% end %>
+        <%= render ProductTabComponent.with_collection(sections_with_metadata) %>
       </nav>
     </div>
     <div class="mt-8">
-      <% tab_sections.each_with_index do |section, index| %>
-        <div class="<%= tab_panel_classes(index) %>"
-             data-products--tabs-target="tabPanel"
-             id="tab-<%= section[:id] %>">
-          <div class="max-w-none">
-            <%= section[:content] %>
-          </div>
-        </div>
-      <% end %>
+      <%= render ProductTabPanelComponent.with_collection(sections_with_metadata) %>
     </div>
   <% else %>
     <div class="text-center py-12">

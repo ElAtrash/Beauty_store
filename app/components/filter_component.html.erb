@@ -8,7 +8,7 @@
   <div class="flex flex-col h-full">
     <div class="flex items-center justify-between p-6 pb-8">
       <h2 class="text-xl font-semibold">Filters</h2>
-      <button class="p-2 text-subtle hover:text-muted transition-colors"
+      <button class="p-2 text-subtle hover:text-interactive transition-colors"
               data-action="click-><%= controller_name %>#closeFilters"
               aria-label="Close filters">
         <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
@@ -78,159 +78,54 @@
         <% end %>
 
         <!-- Product Type -->
-        <% if filter_form.filter_available?(:product_types) && product_type_options.any? %>
-          <div class="filter-section">
-            <button type="button"
-                    class="filter-section-header"
-                    data-action="click-><%= controller_name %>#toggleSection"
-                    data-section="product-type"
-                    aria-expanded="false">
-              <span class="text-base font-medium">Product Type</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
-            </button>
-
-            <div class="filter-section-content hidden" data-section-content="product-type">
-              <div class="space-y-3 mt-4 max-h-48 overflow-y-auto">
-                <% product_type_options.each do |option| %>
-                  <label class="flex items-center">
-                    <input type="checkbox"
-                           name="filters[product_types][]"
-                           value="<%= option[:value] %>"
-                           <%= 'checked' if filter_selected?('product_types', option[:value]) %>
-                           data-action="change-><%= controller_name %>#updateFilter"
-                           data-filter-type="product_types"
-                           class="form-checkbox-interactive">
-                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render FilterSectionComponent.new(
+              section_id: "product-type",
+              title: "Product Type",
+              options: product_type_options,
+              filter_type: "product_types",
+              selected_values: selected_values_for("product_types"),
+              controller_name: controller_name
+            ) if filter_form.filter_available?(:product_types) %>
 
         <!-- Brands (only show if not in brand context) -->
-        <% if filter_form.filter_available?(:brands) && brand_options.any? %>
-          <div class="filter-section">
-            <button type="button"
-                    class="filter-section-header"
-                    data-action="click-><%= controller_name %>#toggleSection"
-                    data-section="brands"
-                    aria-expanded="false">
-              <span class="text-base font-medium">Brands</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
-            </button>
-
-            <div class="filter-section-content hidden" data-section-content="brands">
-              <div class="space-y-3 mt-4 max-h-48 overflow-y-auto">
-                <% brand_options.each do |option| %>
-                  <label class="flex items-center">
-                    <input type="checkbox"
-                           name="filters[brands][]"
-                           value="<%= option[:value] %>"
-                           <%= 'checked' if filter_selected?('brands', option[:value]) %>
-                           data-action="change-><%= controller_name %>#updateFilter"
-                           data-filter-type="brands"
-                           class="form-checkbox-interactive">
-                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render FilterSectionComponent.new(
+              section_id: "brands",
+              title: "Brands",
+              options: brand_options,
+              filter_type: "brands",
+              selected_values: selected_values_for("brands"),
+              controller_name: controller_name
+            ) if filter_form.filter_available?(:brands) %>
 
         <!-- Colors -->
-        <% if filter_form.filter_available?(:colors) && available_colors.any? %>
-          <div class="filter-section">
-            <button type="button"
-                    class="filter-section-header"
-                    data-action="click-><%= controller_name %>#toggleSection"
-                    data-section="colors"
-                    aria-expanded="false">
-              <span class="text-base font-medium">Colors</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
-            </button>
-
-            <div class="filter-section-content hidden" data-section-content="colors">
-              <div class="space-y-3 mt-4 max-h-48 overflow-y-auto">
-                <% available_colors.each do |color| %>
-                  <label class="flex items-center">
-                    <input type="checkbox"
-                           name="filters[colors][]"
-                           value="<%= color[:value] %>"
-                           <%= 'checked' if filter_selected?('colors', color[:value]) %>
-                           data-action="change-><%= controller_name %>#updateFilter"
-                           data-filter-type="colors"
-                           class="form-checkbox-interactive">
-                    <span class="ml-2 text-sm text-secondary"><%= color[:label] %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render FilterSectionComponent.new(
+              section_id: "colors",
+              title: "Colors",
+              options: available_colors,
+              filter_type: "colors",
+              selected_values: selected_values_for("colors"),
+              controller_name: controller_name
+            ) if filter_form.filter_available?(:colors) %>
 
         <!-- Sizes -->
-        <% if filter_form.filter_available?(:sizes) && available_sizes.any? %>
-          <div class="filter-section">
-            <button type="button"
-                    class="filter-section-header"
-                    data-action="click-><%= controller_name %>#toggleSection"
-                    data-section="sizes"
-                    aria-expanded="false">
-              <span class="text-base font-medium">Sizes</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
-            </button>
-
-            <div class="filter-section-content hidden" data-section-content="sizes">
-              <div class="space-y-3 mt-4 max-h-32 overflow-y-auto">
-                <% available_sizes.each do |size| %>
-                  <label class="flex items-center">
-                    <input type="checkbox"
-                           name="filters[sizes][]"
-                           value="<%= size[:value] %>"
-                           <%= 'checked' if filter_selected?('sizes', size[:value]) %>
-                           data-action="change-><%= controller_name %>#updateFilter"
-                           data-filter-type="sizes"
-                           class="form-checkbox-interactive">
-                    <span class="ml-2 text-sm text-secondary"><%= size[:label] %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render FilterSectionComponent.new(
+              section_id: "sizes",
+              title: "Sizes",
+              options: available_sizes,
+              filter_type: "sizes",
+              selected_values: selected_values_for("sizes"),
+              controller_name: controller_name
+            ) if filter_form.filter_available?(:sizes) %>
 
         <!-- Skin Type -->
-        <% if filter_form.filter_available?(:skin_types) && skin_type_options.any? %>
-          <div class="filter-section">
-            <button type="button"
-                    class="filter-section-header"
-                    data-action="click-><%= controller_name %>#toggleSection"
-                    data-section="skin-type"
-                    aria-expanded="false">
-              <span class="text-base font-medium">Skin Type</span>
-              <%= render IconComponent.new(name: :chevron_down, class: "w-5 h-5 text-subtle transform transition-transform") %>
-            </button>
-
-            <div class="filter-section-content hidden" data-section-content="skin-type">
-              <div class="space-y-3 mt-4">
-                <% skin_type_options.each do |option| %>
-                  <label class="flex items-center">
-                    <input type="checkbox"
-                           name="filters[skin_types][]"
-                           value="<%= option[:value] %>"
-                           <%= 'checked' if filter_selected?('skin_types', option[:value]) %>
-                           data-action="change-><%= controller_name %>#updateFilter"
-                           data-filter-type="skin_types"
-                           class="form-checkbox-interactive">
-                    <span class="ml-2 text-sm text-secondary"><%= option[:label] %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render FilterSectionComponent.new(
+              section_id: "skin-type",
+              title: "Skin Type",
+              options: skin_type_options,
+              filter_type: "skin_types",
+              selected_values: selected_values_for("skin_types"),
+              controller_name: controller_name
+            ) if filter_form.filter_available?(:skin_types) %>
       </div>
     </div>
 
@@ -243,7 +138,7 @@
           Reset
         </button>
         <button type="button"
-                class="flex-1 px-4 py-2 bg-interactive text-white font-semibold rounded-lg hover:bg-interactive-dark transition-colors"
+                class="flex-1 px-4 py-2 bg-text-primary text-white hover:bg-interactive-primary transition-colors"
                 data-action="click-><%= controller_name %>#applyFilters">
           Apply Filters
         </button>

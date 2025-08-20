@@ -1,0 +1,20 @@
+<% if has_brands? %>
+  <%= link_to url,
+      class: letter_class,
+      role: "listitem",
+      tabindex: "0",
+      data: link_data_attributes,
+      "aria-label": aria_label,
+      "aria-current": aria_current do %>
+    <span aria-hidden="true"><%= letter %></span>
+    <span class="brand-count" aria-label="<%= count %> brands"><%= count %></span>
+  <% end %>
+<% else %>
+  <span class="<%= letter_class %>"
+        role="listitem"
+        aria-label="<%= aria_label %>"
+        aria-disabled="true">
+    <span aria-hidden="true"><%= letter %></span>
+    <span class="brand-count" aria-label="0 brands">0</span>
+  </span>
+<% end %>
