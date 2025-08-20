@@ -148,15 +148,15 @@ class FilterComponent < ViewComponent::Base
 
   def selected_values_for(filter_type)
     case filter_type
-    when 'product_types'
+    when "product_types"
       filter_form.product_types || []
-    when 'brands'
+    when "brands"
       filter_form.brands || []
-    when 'colors'
+    when "colors"
       filter_form.colors || []
-    when 'skin_types'
+    when "skin_types"
       filter_form.skin_types || []
-    when 'sizes'
+    when "sizes"
       filter_form.sizes || []
     else
       []
