@@ -12,6 +12,16 @@ class HeaderActionButtonComponent < ViewComponent::Base
 
   attr_reader :icon, :action, :aria_label, :badge
 
+  def action_string
+    # If action contains '#', it's a full controller#action string
+    if action.include?("#")
+      action
+    else
+      # Legacy support: prepend with navigation--header# for backward compatibility
+      "navigation--header##{action}"
+    end
+  end
+
   def has_badge?
     badge && badge > 0
   end

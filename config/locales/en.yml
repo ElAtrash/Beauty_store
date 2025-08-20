@@ -115,3 +115,11 @@ en:
       account_created: "Welcome! Account created successfully!"
       signed_in: "Successfully signed in!"
       rate_limit: "Try again later."
+  javascript:
+    auth_form:
+      email_required: "Email is required."
+      email_invalid: "Email is not valid."
+      password_required: "Password is required."
+      password_too_short: "Password must be at least 8 characters."
+      password_confirmation_required: "Password confirmation is required."
+      passwords_dont_match: "Passwords do not match."

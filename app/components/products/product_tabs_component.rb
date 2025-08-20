@@ -36,14 +36,14 @@ class Products::ProductTabsComponent < ViewComponent::Base
     @tab_sections ||= build_tab_sections
   end
 
-  def tab_button_classes(index)
-    base_class = "product-tab-button"
-    index.zero? ? "#{base_class} active" : base_class
-  end
-
-  def tab_panel_classes(index)
-    base_class = "product-tab-panel"
-    index.zero? ? "#{base_class} active" : base_class
+  def sections_with_metadata
+    @sections_with_metadata ||= tab_sections.map.with_index do |section, index|
+      {
+        section: section,
+        index: index,
+        active: index.zero?
+      }
+    end
   end
 
   private

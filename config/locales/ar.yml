@@ -115,3 +115,11 @@ ar:
       account_created: "مرحباً! تم إنشاء حسابك بنجاح!"
       signed_in: "تم تسجيل الدخول بنجاح!"
       rate_limit: "يرجى المحاولة لاحقاً."
+  javascript:
+    auth_form:
+      email_required: "البريد الإلكتروني مطلوب."
+      email_invalid: "البريد الإلكتروني غير صالح."
+      password_required: "كلمة المرور مطلوبة."
+      password_too_short: "كلمة المرور يجب أن تكون 8 أحرف على الأقل."
+      password_confirmation_required: "تأكيد كلمة المرور مطلوب."
+      passwords_dont_match: "كلمات المرور غير متطابقة."

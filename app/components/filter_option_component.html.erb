@@ -1,0 +1,10 @@
+<label class="flex items-center">
+  <input type="checkbox"
+         name="<%= input_name %>"
+         value="<%= option_value %>"
+         <%= 'checked' if checked? %>
+         data-action="<%= data_attributes[:action] %>"
+         data-filter-type="<%= data_attributes[:filter_type] %>"
+         class="form-checkbox-interactive">
+  <span class="ml-2 text-sm text-secondary"><%= option_label %></span>
+</label>

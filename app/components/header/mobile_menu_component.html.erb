@@ -1,0 +1,71 @@
+
+<!-- Mobile Menu Overlay -->
+<div class="md:hidden mobile-menu-overlay"
+     data-navigation--mobile-menu-target="overlay"
+     data-action="click->navigation--mobile-menu#closeMenu">
+</div>
+<!-- Mobile Menu Panel -->
+<div class="md:hidden mobile-menu-panel"
+     data-navigation--mobile-menu-target="panel">
+  <div class="flex flex-col h-full">
+    <!-- Location & Language -->
+    <div class="px-4 py-2 border-b border-gray-100">
+      <div class="flex items-center justify-between">
+        <!-- Location -->
+        <div class="flex items-center space-x-2">
+          <%= render IconComponent.new(name: :location, class: "w-4 h-4 text-muted") %>
+          <button class="text-sm font-medium"
+                  data-action="click->navigation--mobile-menu#selectLocation">
+            <%= t('header.location.beirut') %>
+          </button>
+        </div>
+        <!-- Language Switcher -->
+        <div class="flex items-center space-x-2 text-sm">
+          <% if I18n.locale == :en %>
+            <span class="font-bold text-interactive">EN</span>
+          <% else %>
+            <%= button_to "EN", "/set_locale",
+                method: :post,
+                params: { locale: :en, return_to: request.fullpath },
+                form_class: "inline",
+                class: "hover:text-interactive transition-colors bg-transparent border-none p-0 text-inherit font-inherit cursor-pointer text-sm appearance-none",
+                local: true %>
+          <% end %>
+          <span class="text-disabled">|</span>
+          <% if I18n.locale == :ar %>
+            <span class="font-bold text-interactive">العربية</span>
+          <% else %>
+            <%= button_to "العربية", "/set_locale",
+                method: :post,
+                params: { locale: :ar, return_to: request.fullpath },
+                form_class: "inline",
+                class: "hover:text-interactive transition-colors bg-transparent border-none p-0 text-inherit font-inherit cursor-pointer text-sm appearance-none",
+                local: true %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <!-- Navigation Links -->
+    <div class="flex-1 py-2">
+      <%= render Header::NavigationListComponent.new(
+          navigation_items: navigation_items,
+          variant: :mobile) %>
+    </div>
+    <!-- Authentication Section -->
+    <div class="px-4 py-2 border-t border-gray-100">
+      <% if Current.user %>
+        <button class="flex items-center justify-between w-full text-left py-2"
+                data-action="click->navigation--auth-popup#openProfile">
+          <span class="font-medium"><%= Current.user.email_address %></span>
+          <%= render IconComponent.new(name: :chevron_right, class: "w-4 h-4 text-muted") %>
+        </button>
+      <% else %>
+        <button class="flex items-center justify-between w-full text-left py-2"
+                data-action="click->navigation--auth-popup#openProfile">
+          <span class="font-medium">login</span>
+          <%= render IconComponent.new(name: :chevron_right, class: "w-4 h-4 text-muted") %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>

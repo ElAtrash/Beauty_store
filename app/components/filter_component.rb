@@ -145,4 +145,21 @@ class FilterComponent < ViewComponent::Base
   def turbo_frame_target
     turbo_frame_id || "filtered_products"
   end
+
+  def selected_values_for(filter_type)
+    case filter_type
+    when 'product_types'
+      filter_form.product_types || []
+    when 'brands'
+      filter_form.brands || []
+    when 'colors'
+      filter_form.colors || []
+    when 'skin_types'
+      filter_form.skin_types || []
+    when 'sizes'
+      filter_form.sizes || []
+    else
+      []
+    end
+  end
 end

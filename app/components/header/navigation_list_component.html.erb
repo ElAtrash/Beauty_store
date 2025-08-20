@@ -1,0 +1,6 @@
+<ul class="<%= list_classes %>">
+  <%= render Header::NavigationItemComponent.with_collection(
+        navigation_items,
+        variant: variant
+      ) %>
+</ul>

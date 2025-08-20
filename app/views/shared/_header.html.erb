@@ -1,16 +1,13 @@
-<div class="header-wrapper" data-controller="navigation--header" data-navigation--header-page-type-value="<%=
-  if controller_name == 'brands' && action_name == 'show'
-    'brand'
-  elsif controller_name == 'products' && action_name == 'show'
-    'product'
-  else
-    'home'
-  end
-%>"<% if controller_name == 'brands' && action_name == 'show' && @brand&.banner_image&.attached? %> data-navigation--header-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>>
-  <header class="site-header" data-navigation--header-target="header">
-    <div class="flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
-      <!-- Left Side: Location + Language (hidden on mobile) -->
-      <div class="hidden md:flex items-center space-x-4">
+<div class="header-wrapper"
+     data-controller="navigation--header-state navigation--mobile-menu navigation--auth-popup navigation--scroll-detection navigation--header-actions"
+     data-navigation--header-state-page-type-value="<%= current_page_type %>"
+     <% if current_page_type == 'brand' && @brand&.banner_image&.attached? %>data-navigation--header-state-banner-url-value="<%= Rails.application.routes.url_helpers.url_for(@brand.banner_image) %>"<% end %>
+     data-mobile-menu="closed"
+     data-auth-popup="closed">
+  <header class="site-header" data-navigation--header-state-target="header">
+    <!-- Desktop Header -->
+    <div class="hidden md:flex items-center justify-between px-4 md:mx-8 md:px-1 py-4">
+      <div class="flex items-center space-x-4">
         <!-- Location Selector -->
         <div class="flex items-center space-x-2">
           <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
@@ -26,132 +23,79 @@
           <%= language_link(:ar, "العربية") %>
         </div>
       </div>
-      <!-- Mobile: Empty space for balance -->
-      <div class="md:hidden w-8"></div>
-      <!-- Center: Logo Icon -->
+      <!-- Logo Icon -->
       <div class="flex justify-center">
         <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
-          <div class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-            <%= render IconComponent.new(name: :logo, class: "w-5 h-5 md:w-6 md:h-6") %>
+          <div class="w-10 h-10 flex items-center justify-center">
+            <%= render IconComponent.new(name: :logo, class: "w-6 h-6") %>
           </div>
         <% end %>
       </div>
-      <!-- Right Side: Action Icons -->
-      <div class="flex items-center space-x-2 md:space-x-4">
-        <div class="hidden md:block">
-          <%= render HeaderActionButtonComponent.new(
-              icon: 'search',
-              action: 'openSearch',
-              aria_label: t('header.actions.search')) %>
-        </div>
-        <div class="hidden md:block">
-          <%= render HeaderActionButtonComponent.new(
-              icon: 'heart',
-              action: 'openFavorites',
-              aria_label: t('header.actions.favorites'),
-              badge: 3) %>
-        </div>
-        <div class="hidden md:block">
-          <%= render HeaderActionButtonComponent.new(
-              icon: 'user',
-              action: 'openProfile',
-              aria_label: t('header.actions.profile')) %>
-        </div>
+      <!-- Action Icons -->
+      <div class="flex items-center space-x-4">
+        <%= render HeaderActionButtonComponent.new(
+            icon: 'search',
+            action: 'navigation--header-actions#openSearch',
+            aria_label: t('header.actions.search')) %>
+        <%= render HeaderActionButtonComponent.new(
+            icon: 'heart',
+            action: 'navigation--header-actions#openFavorites',
+            aria_label: t('header.actions.favorites'),
+            badge: header_badge_count(:favorites)) %>
+        <%= render HeaderActionButtonComponent.new(
+            icon: 'user',
+            action: 'navigation--auth-popup#openProfile',
+            aria_label: t('header.actions.profile')) %>
         <%= render HeaderActionButtonComponent.new(
             icon: 'shopping_cart',
-            action: 'openCart',
+            action: 'navigation--header-actions#openCart',
             aria_label: t('header.actions.cart'),
-            badge: 2) %>
+            badge: header_badge_count(:cart)) %>
       </div>
+    </div>
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between px-4 py-4">
+      <!-- Menu Icon -->
+      <button class="mobile-menu-toggle"
+              data-action="click->navigation--mobile-menu#toggleMenu"
+              data-navigation--mobile-menu-target="toggle"
+              aria-label="<%= t('header.mobile_menu_toggle') %>"
+              aria-expanded="false">
+        <%= render IconComponent.new(name: :menu, class: "w-5 h-5") %>
+      </button>
+      <!-- Search Icon -->
+      <%= render HeaderActionButtonComponent.new(
+          icon: 'search',
+          action: 'navigation--header-actions#openSearch',
+          aria_label: t('header.actions.search')) %>
+
+      <!-- Logo -->
+      <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
+        <div class="w-8 h-8 flex items-center justify-center">
+          <%= render IconComponent.new(name: :logo, class: "w-5 h-5") %>
+        </div>
+      <% end %>
+      <!-- Wishlist Icon -->
+      <%= render HeaderActionButtonComponent.new(
+          icon: 'heart',
+          action: 'navigation--header-actions#openFavorites',
+          aria_label: t('header.actions.favorites'),
+          badge: header_badge_count(:favorites)) %>
+      <!-- Cart Icon -->
+      <%= render HeaderActionButtonComponent.new(
+          icon: 'shopping_cart',
+          action: 'navigation--header-actions#openCart',
+          aria_label: t('header.actions.cart'),
+          badge: header_badge_count(:cart)) %>
     </div>
   </header>
-  <nav class="navigation-wrapper hidden md:block transition-all duration-300" role="navigation" aria-label="<%= t('header.nav.main_navigation') %>" data-navigation--header-target="nav">
+  <nav class="navigation-wrapper hidden md:block transition-all duration-300" aria-label="<%= t('header.nav.main_navigation') %>" data-navigation--header-state-target="nav">
     <div class="container mx-auto px-4">
-      <ul class="flex items-center justify-center space-x-8 py-3" role="list">
-        <% header_navigation_items.each do |item| %>
-          <li role="listitem">
-            <%= link_to t("header.nav.#{item[:key]}"), item[:path],
-                class: header_nav_class(item[:key]),
-                data: { turbo: true } %>
-          </li>
-        <% end %>
-      </ul>
+      <%= render Header::NavigationListComponent.new(
+          navigation_items: header_navigation_items,
+          variant: :desktop) %>
     </div>
   </nav>
-  <!-- Mobile Menu Toggle -->
-  <button class="md:hidden fixed top-4 left-4 z-[110] mobile-menu-toggle"
-          data-action="click->navigation--header#toggleMobileMenu"
-          data-navigation--header-target="mobileMenuToggle"
-          aria-label="<%= t('header.mobile_menu_toggle') %>"
-          aria-expanded="false">
-    <%= render IconComponent.new(name: :menu, class: "w-5 h-5") %>
-  </button>
-  <!-- Mobile Menu Overlay -->
-  <div class="md:hidden mobile-menu-overlay opacity-0 pointer-events-none z-[105]"
-       data-navigation--header-target="mobileMenuOverlay"
-       data-action="click->navigation--header#closeMobileMenu">
-  </div>
-  <!-- Mobile Menu Panel -->
-  <div class="md:hidden mobile-menu-panel -translate-x-full z-[110]"
-       data-navigation--header-target="mobileMenuPanel">
-    <div class="flex flex-col h-full">
-      <!-- Mobile Menu Header -->
-      <div class="flex items-center justify-between p-4 border-b">
-        <h2 class="text-lg font-semibold"><%= t('header.mobile_menu_title') %></h2>
-        <button class="p-2 hover:text-secondary"
-                data-action="click->navigation--header#closeMobileMenu"
-                aria-label="<%= t('header.close_menu') %>">
-          <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
-        </button>
-      </div>
-      <!-- Mobile Menu Content -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- Location Selector -->
-        <div class="p-4 border-b">
-          <div class="flex items-center space-x-2">
-            <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
-            <button class="hover:text-interactive transition-colors text-sm"
-                    data-action="click->navigation--header#selectLocation">
-              <%= t('header.location.beirut') %>
-            </button>
-          </div>
-        </div>
-        <!-- Navigation Links -->
-        <nav class="p-4">
-          <ul class="space-y-4">
-            <% header_navigation_items.each do |item| %>
-              <li>
-                <%= link_to t("header.nav.#{item[:key]}"), item[:path],
-                    class: "block py-2 hover:text-interactive transition-colors",
-                    data: { turbo: true, action: "click->navigation--header#closeMobileMenu" } %>
-              </li>
-            <% end %>
-          </ul>
-        </nav>
-        <!-- Action Buttons -->
-        <div class="p-4 border-t">
-          <div class="space-y-3">
-            <button class="mobile-menu-item"
-                    data-action="click->navigation--header#openSearch">
-              <%= render IconComponent.new(name: :search, class: "w-5 h-5") %>
-              <span><%= t('header.actions.search') %></span>
-            </button>
-            <button class="mobile-menu-item"
-                    data-action="click->navigation--header#openFavorites">
-              <%= render IconComponent.new(name: :heart, class: "w-5 h-5") %>
-              <span><%= t('header.actions.favorites') %></span>
-              <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
-            </button>
-            <button class="mobile-menu-item"
-                    data-action="click->navigation--header#openProfile">
-              <%= render IconComponent.new(name: :user, class: "w-5 h-5") %>
-              <span><%= t('header.actions.profile') %></span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Authentication Popup -->
+  <%= render Header::MobileMenuComponent.new(navigation_items: header_navigation_items) %>
   <%= render AuthPopupComponent.new(current_user: Current.user) %>
 </div>

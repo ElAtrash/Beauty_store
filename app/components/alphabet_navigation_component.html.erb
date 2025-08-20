@@ -1,36 +1,8 @@
 <nav class="alphabet-navigation" aria-label="Browse brands by letter" role="navigation">
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap justify-center gap-1 py-4" role="list">
-      <% navigation_items.each do |item| %>
-        <% if item[:count] > 0 %>
-          <%= link_to item[:url],
-              class: letter_class(item),
-              role: "listitem",
-              tabindex: "0",
-              data: {
-                turbo_frame: "brands-content",
-                brands_letter_value: item[:letter].downcase,
-                action: "keydown.enter->brands#handleKeyboardNavigation keydown.space->brands#handleKeyboardNavigation",
-                brands_letter_param: item[:letter]
-              },
-              "aria-label": "Browse brands starting with #{item[:letter]} (#{item[:count]} brands)",
-              "aria-current": item[:active] ? "page" : nil do %>
-            <span aria-hidden="true"><%= item[:letter] %></span>
-            <span class="brand-count" aria-label="#{item[:count]} brands"><%= item[:count] %></span>
-          <% end %>
-        <% else %>
-          <span class="<%= letter_class(item) %>"
-                role="listitem"
-                aria-label="No brands starting with <%= item[:letter] %>"
-                aria-disabled="true">
-            <span aria-hidden="true"><%= item[:letter] %></span>
-            <span class="brand-count" aria-label="0 brands">0</span>
-          </span>
-        <% end %>
-      <% end %>
+      <%= render AlphabetLetterComponent.with_collection(navigation_items) %>
     </div>
-
-    <!-- Search Input -->
     <div class="flex justify-center pb-6">
       <%= form_with url: brands_path, method: :get, local: true,
           data: {
