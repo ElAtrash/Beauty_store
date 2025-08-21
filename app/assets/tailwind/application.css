@@ -115,6 +115,28 @@
     border: 1px solid rgb(229 231 235);
     /* border-gray-200 */
     flex-shrink: 0;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+  }
+
+  /* Enhanced color circle for light colors */
+  .color-circle--light {
+    border: 1px solid var(--color-text-disabled);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05) inset;
+  }
+
+  /* Color circle hover state */
+  .color-circle:hover {
+    transform: scale(1.1);
+    border-color: var(--color-text-muted);
+  }
+
+  /* Mobile responsiveness for color circles */
+  @media (max-width: 640px) {
+    .color-circle {
+      width: 1rem;
+      height: 1rem;
+    }
   }
 
   /* Scrollbar */
@@ -499,6 +521,28 @@
 
   .size-option--selected {
     border-color: var(--color-black);
+    background-color: var(--color-black);
+    color: var(--color-white);
+  }
+
+  .size-option--selected:hover {
+    border-color: var(--color-black);
+    background-color: var(--color-black);
+  }
+
+  /* Focus states for accessibility */
+  .size-option--available:focus-visible {
+    outline: 2px solid var(--color-interactive-primary);
+    outline-offset: 2px;
+  }
+
+  /* Mobile responsiveness for size options */
+  @media (max-width: 640px) {
+    .size-option {
+      width: 2.75rem;
+      height: 2.75rem;
+      font-size: 0.75rem;
+    }
   }
 
   /* Color Dropdown */
@@ -526,6 +570,26 @@
   .color-dropdown-button:focus {
     outline: none;
     border-color: var(--color-black);
+  }
+
+  /* Mobile responsiveness for color dropdown */
+  @media (max-width: 640px) {
+    .color-dropdown-button {
+      height: 2.75rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Color dropdown menu enhancements */
+  .color-dropdown-menu-item:hover {
+    background-color: var(--color-background-light);
+  }
+
+  .color-dropdown-menu-item:focus {
+    outline: none;
+    background-color: var(--color-background-light);
   }
 
   /* Action Buttons */
@@ -574,6 +638,26 @@
 
   .wishlist-button:hover {
     background-color: var(--color-interactive-primary);
+  }
+
+  /* Mobile responsiveness for action buttons */
+  @media (max-width: 640px) {
+    .product-actions {
+      max-width: none;
+      gap: 0.5rem;
+    }
+    
+    .add-to-cart-button {
+      height: 2.75rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .wishlist-button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
   }
 
   /* Card Components */
