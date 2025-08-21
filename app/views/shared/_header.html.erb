@@ -10,7 +10,7 @@
       <div class="flex items-center space-x-4">
         <!-- Location Selector -->
         <div class="flex items-center space-x-2">
-          <%= render IconComponent.new(name: :location, class: "w-4 h-4") %>
+          <%= render UI::IconComponent.new(name: :location, css_class: "w-4 h-4") %>
           <button class="hover:text-interactive transition-colors text-sm"
                   data-action="click->navigation--header#selectLocation">
             <%= t('header.location.beirut') %>
@@ -27,26 +27,26 @@
       <div class="flex justify-center">
         <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
           <div class="w-10 h-10 flex items-center justify-center">
-            <%= render IconComponent.new(name: :logo, class: "w-6 h-6") %>
+            <%= render UI::IconComponent.new(name: :logo, css_class: "w-6 h-6") %>
           </div>
         <% end %>
       </div>
       <!-- Action Icons -->
       <div class="flex items-center space-x-4">
-        <%= render HeaderActionButtonComponent.new(
+        <%= render UI::HeaderActionButtonComponent.new(
             icon: 'search',
             action: 'navigation--header-actions#openSearch',
             aria_label: t('header.actions.search')) %>
-        <%= render HeaderActionButtonComponent.new(
+        <%= render UI::HeaderActionButtonComponent.new(
             icon: 'heart',
             action: 'navigation--header-actions#openFavorites',
             aria_label: t('header.actions.favorites'),
             badge: header_badge_count(:favorites)) %>
-        <%= render HeaderActionButtonComponent.new(
+        <%= render UI::HeaderActionButtonComponent.new(
             icon: 'user',
             action: 'navigation--auth-popup#openProfile',
             aria_label: t('header.actions.profile')) %>
-        <%= render HeaderActionButtonComponent.new(
+        <%= render UI::HeaderActionButtonComponent.new(
             icon: 'shopping_cart',
             action: 'navigation--header-actions#openCart',
             aria_label: t('header.actions.cart'),
@@ -61,10 +61,10 @@
               data-navigation--mobile-menu-target="toggle"
               aria-label="<%= t('header.mobile_menu_toggle') %>"
               aria-expanded="false">
-        <%= render IconComponent.new(name: :menu, class: "w-5 h-5") %>
+        <%= render UI::IconComponent.new(name: :menu, css_class: "w-5 h-5") %>
       </button>
       <!-- Search Icon -->
-      <%= render HeaderActionButtonComponent.new(
+      <%= render UI::HeaderActionButtonComponent.new(
           icon: 'search',
           action: 'navigation--header-actions#openSearch',
           aria_label: t('header.actions.search')) %>
@@ -72,17 +72,17 @@
       <!-- Logo -->
       <%= link_to root_path, class: "flex items-center", "aria-label": t('header.logo_alt') do %>
         <div class="w-8 h-8 flex items-center justify-center">
-          <%= render IconComponent.new(name: :logo, class: "w-5 h-5") %>
+          <%= render UI::IconComponent.new(name: :logo, css_class: "w-5 h-5") %>
         </div>
       <% end %>
       <!-- Wishlist Icon -->
-      <%= render HeaderActionButtonComponent.new(
+      <%= render UI::HeaderActionButtonComponent.new(
           icon: 'heart',
           action: 'navigation--header-actions#openFavorites',
           aria_label: t('header.actions.favorites'),
           badge: header_badge_count(:favorites)) %>
       <!-- Cart Icon -->
-      <%= render HeaderActionButtonComponent.new(
+      <%= render UI::HeaderActionButtonComponent.new(
           icon: 'shopping_cart',
           action: 'navigation--header-actions#openCart',
           aria_label: t('header.actions.cart'),

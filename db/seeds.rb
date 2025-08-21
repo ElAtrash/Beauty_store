@@ -102,18 +102,24 @@ end
 
 def create_complete_product(
   name:, brand:, categories:, product_type:, price:,
-  description:, how_to_use: nil, ingredients: nil,
+  description:, how_to_use: nil, ingredients: nil, subtitle: nil,
   attributes: {}, variants: [], image_url: nil
 )
   product = Product.find_or_create_by!(name: name) do |p|
     p.brand = brand
     p.product_type = product_type
     p.description = description
+    p.subtitle = subtitle
     p.how_to_use = how_to_use
     p.ingredients = ingredients
     p.product_attributes = attributes
     p.active = true
     p.published_at = rand(1..30).days.ago
+  end
+
+  # Update subtitle for existing products
+  if product.persisted? && product.subtitle != subtitle
+    product.update!(subtitle: subtitle)
   end
 
   # Add to categories
@@ -175,6 +181,7 @@ puts "\n📍 Creating Fenty Beauty products..."
 # Pro Filt'r Foundation
 create_complete_product(
   name: "Pro Filt'r Soft Matte Longwear Foundation",
+  subtitle: "Longwear foundation with 50 inclusive shades",
   brand: brands["fenty-beauty"],
   categories: [ categories["face"] ],
   product_type: "foundation",
@@ -202,6 +209,7 @@ create_complete_product(
 # Gloss Bomb
 create_complete_product(
   name: "Gloss Bomb Universal Lip Luminizer",
+  subtitle: "Explosive shine lip gloss for all skin tones",
   brand: brands["fenty-beauty"],
   categories: [ categories["lips"] ],
   product_type: "lip_gloss",
@@ -229,6 +237,7 @@ create_complete_product(
 # Match Stix Concealer
 create_complete_product(
   name: "Match Stix Matte Skinstick Concealer",
+  subtitle: "Portable magnetic concealer that won't crease",
   brand: brands["fenty-beauty"],
   categories: [ categories["face"] ],
   product_type: "concealer",
@@ -261,6 +270,7 @@ puts "\n📍 Creating Charlotte Tilbury products..."
 # Pillow Talk Lipstick
 create_complete_product(
   name: "Matte Revolution Lipstick - Pillow Talk",
+  subtitle: "Award-winning bestselling lipstick",
   brand: brands["charlotte-tilbury"],
   categories: [ categories["lips"] ],
   product_type: "lipstick",
@@ -289,6 +299,7 @@ create_complete_product(
 # Hollywood Flawless Filter
 create_complete_product(
   name: "Hollywood Flawless Filter",
+  subtitle: "Complexion booster for supermodel glow",
   brand: brands["charlotte-tilbury"],
   categories: [ categories["face"] ],
   product_type: "highlighter",
@@ -314,6 +325,7 @@ create_complete_product(
 # Magic Cream Moisturizer
 create_complete_product(
   name: "Magic Cream Moisturizer",
+  subtitle: "Celebrity favorite red carpet moisturizer",
   brand: brands["charlotte-tilbury"],
   categories: [ categories["skincare"] ],
   product_type: "moisturizer",
@@ -344,6 +356,7 @@ puts "\n📍 Creating The Ordinary products..."
 # Niacinamide Serum
 create_complete_product(
   name: "Niacinamide 10% + Zinc 1%",
+  subtitle: "High-strength blemish fighting formula",
   brand: brands["the-ordinary"],
   categories: [ categories["skincare"] ],
   product_type: "serum",
@@ -367,6 +380,7 @@ create_complete_product(
 # Hyaluronic Acid Serum
 create_complete_product(
   name: "Hyaluronic Acid 2% + B5",
+  subtitle: "Multi-depth hydration with vitamin B5",
   brand: brands["the-ordinary"],
   categories: [ categories["skincare"] ],
   product_type: "serum",
@@ -391,6 +405,7 @@ create_complete_product(
 # Retinol Serum
 create_complete_product(
   name: "Retinol 0.5% in Squalane",
+  subtitle: "Moderate-strength anti-aging serum",
   brand: brands["the-ordinary"],
   categories: [ categories["skincare"] ],
   product_type: "serum",
@@ -420,6 +435,7 @@ puts "\n📍 Creating Rare Beauty products..."
 # Soft Pinch Blush
 create_complete_product(
   name: "Soft Pinch Liquid Blush",
+  subtitle: "Weightless liquid blush for natural flush",
   brand: brands["rare-beauty"],
   categories: [ categories["face"] ],
   product_type: "blush",
@@ -446,6 +462,7 @@ create_complete_product(
 # Perfect Strokes Mascara
 create_complete_product(
   name: "Perfect Strokes Universal Volumizing Mascara",
+  subtitle: "Universal mascara with hourglass brush",
   brand: brands["rare-beauty"],
   categories: [ categories["eyes"] ],
   product_type: "mascara",
@@ -471,6 +488,7 @@ create_complete_product(
 # Kind Words Lip Liner
 create_complete_product(
   name: "Kind Words Matte Lip Liner",
+  subtitle: "Long-wearing highly pigmented lip liner",
   brand: brands["rare-beauty"],
   categories: [ categories["lips"] ],
   product_type: "lip_liner",
@@ -503,6 +521,7 @@ puts "\n📍 Creating additional test products..."
 # High-end fragrance for pricing variety
 create_complete_product(
   name: "Fenty Eau de Parfum",
+  subtitle: "Rihanna's signature warm spicy scent",
   brand: brands["fenty-beauty"],
   categories: [ categories["fragrance"] ],
   product_type: "perfume",
@@ -529,6 +548,7 @@ create_complete_product(
 # Professional brush for tools category
 create_complete_product(
   name: "Foundation Brush - Precision",
+  subtitle: "Dense synthetic brush for flawless application",
   brand: brands["rare-beauty"],
   categories: [ categories["tools"] ],
   product_type: "brush",
@@ -559,6 +579,7 @@ puts "\n📍 Creating products with extensive variants and galleries..."
 # Foundation with 20+ shades - Testing extensive variant selection
 fenty_foundation_pro = create_complete_product(
   name: "Pro Filt'r Hydrating Longwear Foundation",
+  subtitle: "Hydrating sister to the original Pro Filt'r",
   brand: brands["fenty-beauty"],
   categories: [ categories["face"] ],
   product_type: "foundation",
@@ -634,6 +655,7 @@ end
 # Eyeshadow palette with many shades - Testing color variants
 charlotte_palette = create_complete_product(
   name: "Luxury Palette - The Queen of Glow",
+  subtitle: "12 mesmerizing shades for every occasion",
   brand: brands["charlotte-tilbury"],
   categories: [ categories["eyes"] ],
   product_type: "eyeshadow",
@@ -698,6 +720,7 @@ end
 # Serum with multiple sizes - Testing size variants
 ordinary_vitamin_c = create_complete_product(
   name: "Vitamin C Suspension 23% + HA Spheres 2%",
+  subtitle: "Water-free stable vitamin C suspension",
   brand: brands["the-ordinary"],
   categories: [ categories["skincare"] ],
   product_type: "serum",
@@ -752,6 +775,7 @@ end
 # Liquid blush with many shades - Testing color dropdown
 rare_blush_collection = create_complete_product(
   name: "Soft Pinch Liquid Blush Collection",
+  subtitle: "15 beautiful shades for every skin tone",
   brand: brands["rare-beauty"],
   categories: [ categories["face"] ],
   product_type: "blush",
@@ -820,6 +844,7 @@ puts "  ✅ Added 4 products with extensive variants and multiple images"
 # Moisturizer with multiple sizes - Testing out-of-stock styling
 charlotte_moisturizer = create_complete_product(
   name: "Magic Cream Moisturizer Deluxe Collection",
+  subtitle: "Award-winning Magic Cream in multiple sizes",
   brand: brands["charlotte-tilbury"],
   categories: [ categories["skincare"] ],
   product_type: "moisturizer",

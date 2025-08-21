@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FilterSectionComponent < ViewComponent::Base
+class Filters::FilterSectionComponent < ViewComponent::Base
   def initialize(section_id:, title:, options:, filter_type:, selected_values: [], controller_name:)
     @section_id = section_id
     @title = title

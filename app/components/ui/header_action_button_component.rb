@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HeaderActionButtonComponent < ViewComponent::Base
+class UI::HeaderActionButtonComponent < ViewComponent::Base
   def initialize(icon:, action:, aria_label:, badge: nil)
     @icon = icon
     @action = action

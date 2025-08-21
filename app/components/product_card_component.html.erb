@@ -2,18 +2,15 @@
   <div class="product-card"
        data-product-id="<%= product.id %>"
        data-product-slug="<%= product.slug %>">
-    <!-- Product Image Container -->
     <div class="relative aspect-square overflow-hidden">
       <%= image_tag product_image_url,
           alt: product.name,
           class: "size-full object-cover group-hover:scale-105 transition-transform duration-300",
           loading: "lazy" %>
-
       <!-- Image Overlays -->
       <div class="absolute inset-0 pointer-events-none">
-        <!-- Top Row: Labels and Wishlist -->
         <div class="flex justify-between items-start">
-          <!-- Left: Discount & Hit Labels -->
+          <!-- Discount & Hit Labels -->
           <% if show_labels %>
             <div class="flex">
               <% if has_discount? %>
@@ -30,13 +27,12 @@
           <% else %>
             <div></div>
           <% end %>
-
-          <!-- Right: Wishlist Button -->
+          <!-- Wishlist Button -->
           <button class="product-wishlist-button pointer-events-auto"
                   data-action="click->wishlist#toggle"
                   data-product-id="<%= product.id %>"
                   aria-label="Add to wishlist">
-            <%= render IconComponent.new(name: :heart, class: "w-5 h-5") %>
+            <%= render UI::IconComponent.new(name: :heart, css_class: "w-5 h-5") %>
           </button>
         </div>
       </div>
@@ -57,7 +53,7 @@
       <!-- Rating and Reviews -->
       <% if product.reviews_count > 0 %>
         <div class="flex justify-end">
-          <%= render RatingComponent.new(product: product, style: :compact) %>
+          <%= render UI::RatingComponent.new(product: product, style: :compact) %>
         </div>
       <% end %>
       <!-- Price -->

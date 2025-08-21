@@ -1,6 +1,6 @@
 <turbo-frame id="auth_result">
   <div class="alert-error">
-    <%= render IconComponent.new(name: :exclamation_circle, class: "w-8 h-8 text-red-500 flex-shrink-0") %>
+    <%= render UI::IconComponent.new(name: :exclamation_circle, css_class: "w-8 h-8 text-red-500 flex-shrink-0") %>
     <div>
       <p class="text-lg font-semibold text-red-700">Oops! Something went wrong.</p>
       <p class="text-red-600 mt-1"><%= message %></p>

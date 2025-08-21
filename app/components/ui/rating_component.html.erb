@@ -1,27 +1,23 @@
 <div class="<%= container_classes %>">
-  <!-- Stars -->
   <div class="rating-stars">
     <!-- Full Stars -->
     <% full_stars.times do %>
-      <%= render IconComponent.new(name: :star, class: "rating-star rating-star--full") %>
+      <%= render UI::IconComponent.new(name: :star, css_class: "rating-star rating-star--full") %>
     <% end %>
-
     <!-- Half Star -->
     <% if has_half_star? %>
       <div class="rating-half-star-container">
-        <%= render IconComponent.new(name: :star, class: "rating-star rating-star--empty") %>
+        <%= render UI::IconComponent.new(name: :star, css_class: "rating-star rating-star--empty") %>
         <div class="rating-half-star-overlay">
-          <%= render IconComponent.new(name: :star, class: "rating-star rating-star--half") %>
+          <%= render UI::IconComponent.new(name: :star, css_class: "rating-star rating-star--half") %>
         </div>
       </div>
     <% end %>
-
     <!-- Empty Stars -->
     <% empty_stars.times do %>
-      <%= render IconComponent.new(name: :star, class: "rating-star rating-star--empty") %>
+      <%= render UI::IconComponent.new(name: :star, css_class: "rating-star rating-star--empty") %>
     <% end %>
   </div>
-
   <!-- Rating Text and Count -->
   <% if style == :full %>
     <div class="flex items-center gap-1">

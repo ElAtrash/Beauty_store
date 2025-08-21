@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ProductCardComponent < ViewComponent::Base
+class ProductCardComponent < CollectionComponent
   include Rails.application.routes.url_helpers
 
   with_collection_parameter :product
