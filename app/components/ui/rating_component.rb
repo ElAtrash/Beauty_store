@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RatingComponent < ViewComponent::Base
+class UI::RatingComponent < ViewComponent::Base
   def initialize(product:, style: :full)
     @product = product
     @style = style

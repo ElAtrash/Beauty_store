@@ -2,7 +2,7 @@
      data-products--gallery-target="zoomModal"
      data-action="click->products--gallery#closeZoom">
   <div class="flex h-full bg-white" data-action="click->products--gallery#stopPropagation">
-    <!-- Left Sidebar - Product Page Style Thumbnails -->
+    <!-- Product Page Style Thumbnails -->
     <div class="gallery-modal-sidebar">
       <% if gallery_images.size > 1 %>
         <%= render "products/thumbnail_list",
@@ -14,16 +14,14 @@
             container_height: thumbnail_container_height %>
       <% end %>
     </div>
-
-    <!-- Main Content - Scrollable Images -->
+    <!-- Scrollable Images -->
     <div class="flex-1 overflow-y-auto relative">
       <!-- Close Button -->
       <button type="button"
               class="absolute top-6 right-6 z-50 text-black hover:text-interactive transition-colors duration-200 p-2"
               data-action="click->products--gallery#closeZoom">
-        <%= render IconComponent.new(name: :close, class: "w-8 h-8") %>
+        <%= render UI::IconComponent.new(name: :close, css_class: "w-8 h-8") %>
       </button>
-
       <!-- Images List -->
       <div class="gallery-modal-content">
         <% gallery_images.each_with_index do |image_data, index| %>

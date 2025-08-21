@@ -1,21 +1,20 @@
 <!-- Brand and Product Name -->
 <div class="space-y-2">
-  <h1 class="text-3xl font-light"><%= product_info.name %></h1>
   <% if product_info.subtitle.present? %>
     <p class="text-lg font-medium text-muted"><%= product_info.subtitle %></p>
   <% end %>
+  <h1 class="text-3xl font-light"><%= product_info.name %></h1>
 </div>
 
 <!-- Rating -->
 <% if show_rating? %>
-  <a href="#reviews-section"
-     class="cursor-pointer group transition-all duration-200 w-fit"
-     data-controller="scroll-to"
-     data-action="click->scroll-to#smoothScroll"
-     aria-label="View <%= pluralize(product_info.reviews_count, 'review') %>">
-    <!-- Note: Will need to pass a product object to RatingComponent in real implementation -->
-    <div class="rating-placeholder">
-      ⭐ <%= product_info.rating %> (<%= product_info.reviews_count %> reviews)
-    </div>
-  </a>
+  <div class="space-y-2">
+    <a href="#reviews-section"
+      class="cursor-pointer group transition-all duration-200 w-fit"
+      data-controller="scroll-to"
+      data-action="click->scroll-to#smoothScroll"
+      aria-label="View <%= pluralize(product_info.reviews_count, 'review') %>">
+      <%= render UI::RatingComponent.new(product: product, style: :full) %>
+    </a>
+  </div>
 <% end %>

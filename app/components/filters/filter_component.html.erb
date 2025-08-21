@@ -2,7 +2,6 @@
      data-<%= controller_name %>-target="filterPopupOverlay"
      data-action="click-><%= controller_name %>#closeFilters">
 </div>
-
 <div class="filter-popup-panel -translate-x-full"
      data-<%= controller_name %>-target="filterPopupPanel">
   <div class="flex flex-col h-full">
@@ -11,10 +10,9 @@
       <button class="p-2 text-subtle hover:text-interactive transition-colors"
               data-action="click-><%= controller_name %>#closeFilters"
               aria-label="Close filters">
-        <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
+        <%= render UI::IconComponent.new(name: :close, css_class: "w-6 h-6") %>
       </button>
     </div>
-
     <div class="flex-1 overflow-y-auto">
       <div class="p-6 space-y-3">
         <!-- In Stock Toggle -->
@@ -37,7 +35,6 @@
             </div>
           </div>
         <% end %>
-
         <!-- Price Range -->
         <% if filter_form.filter_available?(:price_range) %>
           <div class="filter-section">
@@ -68,7 +65,6 @@
                          data-action="input-><%= controller_name %>#updatePriceRange">
                 </div>
               </div>
-
               <div class="flex items-center justify-between text-sm text-muted">
                 <span data-<%= controller_name %>-target="minPriceDisplay">$<%= current_min_price %></span>
                 <span data-<%= controller_name %>-target="maxPriceDisplay">$<%= current_max_price %></span>
@@ -76,9 +72,8 @@
             </div>
           </div>
         <% end %>
-
         <!-- Product Type -->
-        <%= render FilterSectionComponent.new(
+        <%= render Filters::FilterSectionComponent.new(
               section_id: "product-type",
               title: "Product Type",
               options: product_type_options,
@@ -86,9 +81,8 @@
               selected_values: selected_values_for("product_types"),
               controller_name: controller_name
             ) if filter_form.filter_available?(:product_types) %>
-
         <!-- Brands (only show if not in brand context) -->
-        <%= render FilterSectionComponent.new(
+        <%= render Filters::FilterSectionComponent.new(
               section_id: "brands",
               title: "Brands",
               options: brand_options,
@@ -96,9 +90,8 @@
               selected_values: selected_values_for("brands"),
               controller_name: controller_name
             ) if filter_form.filter_available?(:brands) %>
-
         <!-- Colors -->
-        <%= render FilterSectionComponent.new(
+        <%= render Filters::FilterSectionComponent.new(
               section_id: "colors",
               title: "Colors",
               options: available_colors,
@@ -106,9 +99,8 @@
               selected_values: selected_values_for("colors"),
               controller_name: controller_name
             ) if filter_form.filter_available?(:colors) %>
-
         <!-- Sizes -->
-        <%= render FilterSectionComponent.new(
+        <%= render Filters::FilterSectionComponent.new(
               section_id: "sizes",
               title: "Sizes",
               options: available_sizes,
@@ -118,7 +110,7 @@
             ) if filter_form.filter_available?(:sizes) %>
 
         <!-- Skin Type -->
-        <%= render FilterSectionComponent.new(
+        <%= render Filters::FilterSectionComponent.new(
               section_id: "skin-type",
               title: "Skin Type",
               options: skin_type_options,
@@ -128,7 +120,6 @@
             ) if filter_form.filter_available?(:skin_types) %>
       </div>
     </div>
-
     <div class="p-6">
       <div class="flex gap-3">
         <button type="button"

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AuthPopupComponent < ViewComponent::Base
+class AuthPopupComponent < BaseComponent
   def initialize(current_user: nil)
     @current_user = current_user
   end
@@ -16,17 +16,17 @@ class AuthPopupComponent < ViewComponent::Base
   def user_menu_items
     [
       {
-        icon: render(IconComponent.new(name: :profile, class: "w-5 h-5")),
+        icon: render(UI::IconComponent.new(name: :profile, css_class: "w-5 h-5")),
         text: t("auth.profile"),
         path: "#"
       },
       {
-        icon: render(IconComponent.new(name: :orders, class: "w-5 h-5")),
+        icon: render(UI::IconComponent.new(name: :orders, css_class: "w-5 h-5")),
         text: t("auth.orders"),
         path: "#"
       },
       {
-        icon: render(IconComponent.new(name: :settings, class: "w-5 h-5")),
+        icon: render(UI::IconComponent.new(name: :settings, css_class: "w-5 h-5")),
         text: t("auth.settings"),
         path: "#"
       }

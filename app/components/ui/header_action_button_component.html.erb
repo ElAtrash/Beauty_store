@@ -2,7 +2,7 @@
         data-action="click-><%= action_string %>"
         aria-label="<%= aria_label %>"
         type="button">
-  <%= render IconComponent.new(name: icon.to_sym, class: "w-5 h-5 group-hover:text-interactive") %>
+  <%= render UI::IconComponent.new(name: icon.to_sym, css_class: "w-5 h-5 group-hover:text-interactive") %>
   <% if has_badge? %>
     <span class="notification-badge"
           aria-label="<%= badge_aria_label %>">

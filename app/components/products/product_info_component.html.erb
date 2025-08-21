@@ -1,7 +1,8 @@
 <div class="product-info-container space-y-6">
   <!-- Product Header (Name, Subtitle, Rating) -->
   <%= render Products::ProductHeaderComponent.new(
-        product_info: product_info
+        product_info: product_info,
+        product: product
       ) %>
 
   <!-- Price Display -->

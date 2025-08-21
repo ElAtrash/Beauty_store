@@ -2,13 +2,14 @@
 
 module Products
   class ProductHeaderComponent < ViewComponent::Base
-    def initialize(product_info:)
+    def initialize(product_info:, product:)
       @product_info = product_info
+      @product = product
     end
 
     private
 
-    attr_reader :product_info
+    attr_reader :product_info, :product
 
     def show_rating?
       product_info.reviews_count && product_info.reviews_count > 0

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FilterOptionComponent < ViewComponent::Base
+class Filters::FilterOptionComponent < ViewComponent::Base
   with_collection_parameter :option
 
   def initialize(option:, filter_type:, selected_values: [], controller_name:)

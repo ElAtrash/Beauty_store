@@ -2,7 +2,7 @@
   <nav class="flex items-center space-x-2 text-sm text-muted">
     <% breadcrumbs.each_with_index do |crumb, index| %>
       <% if index > 0 %>
-        <%= render IconComponent.new(name: :chevron_right, class: "w-4 h-4 text-subtle") %>
+        <%= render UI::IconComponent.new(name: :chevron_right, css_class: "w-4 h-4 text-subtle") %>
       <% end %>
 
       <% if crumb[:path] %>

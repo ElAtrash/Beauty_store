@@ -33,7 +33,7 @@ export default class extends Controller {
       this.isScrolled = shouldBeScrolled
 
       // Emit custom events for other controllers to listen to
-      this.dispatch('scrollStateChanged', {
+      this.dispatch('scroll-state-changed', {
         detail: {
           isScrolled: this.isScrolled,
           scrollY: window.scrollY,

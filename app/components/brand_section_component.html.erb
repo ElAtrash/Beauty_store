@@ -6,7 +6,6 @@
         <%= brands.count %> <%= brands.count == 1 ? "brand" : "brands" %>
       </span>
     </h2>
-
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <% brands.each do |brand| %>
         <div class="brand-card">
@@ -28,7 +27,7 @@
               <% end %>
             </div>
             <div class="brand-card-arrow">
-              <%= render IconComponent.new(name: :arrow_right, class: "w-4 h-4") %>
+              <%= render UI::IconComponent.new(name: :arrow_right, css_class: "w-4 h-4") %>
             </div>
           <% end %>
         </div>

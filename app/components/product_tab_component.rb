@@ -29,7 +29,7 @@ class ProductTabComponent < ViewComponent::Base
     base_classes = "product-tab-button"
 
     if active?
-      "#{base_classes} text-text-primary border-b-2 border-interactive-primary"
+      "#{base_classes} text-text-primary border-b-2 border-text-primary"
     else
       "#{base_classes} text-text-muted border-b-2 border-transparent hover:text-text-secondary"
     end

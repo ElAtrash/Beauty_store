@@ -12,7 +12,7 @@
       <button class="p-2 text-subtle hover:text-interactive transition-colors"
               data-action="click->navigation--auth-popup#closePopup"
         aria-label="<%= t('auth.close') %>">
-        <%= render IconComponent.new(name: :close, class: "w-6 h-6") %>
+        <%= render UI::IconComponent.new(name: :close, css_class: "w-6 h-6") %>
       </button>
     </div>
     <!-- Content -->
@@ -23,7 +23,7 @@
           <div class="space-y-6">
             <div class="text-center">
               <div class="category-icon-container bg-interactive-100">
-                <%= render IconComponent.new(name: :user, class: "w-8 h-8 text-interactive") %>
+                <%= render UI::IconComponent.new(name: :user, css_class: "w-8 h-8 text-interactive") %>
               </div>
               <h3 class="text-lg font-medium"><%= t('auth.welcome_back') %></h3>
               <p class="text-muted mt-1"><%= current_user.email_address %></p>
@@ -40,7 +40,7 @@
             <!-- Sign Out -->
             <div class="border-t border-gray-200 pt-6">
               <%= link_to logout_path, data: { turbo_method: :delete }, class: "w-full flex items-center justify-center space-x-2 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors" do %>
-                <%= render IconComponent.new(name: :signout, class: "w-5 h-5") %>
+                <%= render UI::IconComponent.new(name: :signout, css_class: "w-5 h-5") %>
                 <span><%= t('auth.sign_out') %></span>
               <% end %>
             </div>
@@ -96,7 +96,7 @@
                       data: { validation_rules: 'email' },
                       class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden field-error">
-                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
+                    <%= render UI::IconComponent.new(name: :error, css_class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -118,11 +118,11 @@
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->password-toggle#toggle"
                             data-password-toggle-target="button">
-                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
+                      <%= render UI::IconComponent.new(name: :eye, css_class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden field-error">
-                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
+                    <%= render UI::IconComponent.new(name: :error, css_class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -153,7 +153,7 @@
                       data: { validation_rules: 'email' },
                       class: "form-input" %>
                   <div class="text-red-600 text-xs mt-1 hidden field-error">
-                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
+                    <%= render UI::IconComponent.new(name: :error, css_class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -175,11 +175,11 @@
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->password-toggle#toggle"
                             data-password-toggle-target="button">
-                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
+                      <%= render UI::IconComponent.new(name: :eye, css_class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden field-error">
-                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
+                    <%= render UI::IconComponent.new(name: :error, css_class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>
@@ -201,11 +201,11 @@
                     <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             data-action="click->password-toggle#toggle"
                             data-password-toggle-target="button">
-                      <%= render IconComponent.new(name: :eye, class: "w-5 h-5 text-subtle") %>
+                      <%= render UI::IconComponent.new(name: :eye, css_class: "w-5 h-5 text-subtle") %>
                     </button>
                   </div>
                   <div class="text-red-600 text-xs mt-1 hidden field-error">
-                    <%= render IconComponent.new(name: :error, class: "w-4 h-4 flex-shrink-0") %>
+                    <%= render UI::IconComponent.new(name: :error, css_class: "w-4 h-4 flex-shrink-0") %>
                     <span></span>
                   </div>
                 </div>

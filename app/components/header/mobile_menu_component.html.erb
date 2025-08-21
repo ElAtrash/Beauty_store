@@ -13,7 +13,7 @@
       <div class="flex items-center justify-between">
         <!-- Location -->
         <div class="flex items-center space-x-2">
-          <%= render IconComponent.new(name: :location, class: "w-4 h-4 text-muted") %>
+          <%= render UI::IconComponent.new(name: :location, css_class: "w-4 h-4 text-muted") %>
           <button class="text-sm font-medium"
                   data-action="click->navigation--mobile-menu#selectLocation">
             <%= t('header.location.beirut') %>
@@ -57,13 +57,13 @@
         <button class="flex items-center justify-between w-full text-left py-2"
                 data-action="click->navigation--auth-popup#openProfile">
           <span class="font-medium"><%= Current.user.email_address %></span>
-          <%= render IconComponent.new(name: :chevron_right, class: "w-4 h-4 text-muted") %>
+          <%= render UI::IconComponent.new(name: :chevron_right, css_class: "w-4 h-4 text-muted") %>
         </button>
       <% else %>
         <button class="flex items-center justify-between w-full text-left py-2"
                 data-action="click->navigation--auth-popup#openProfile">
           <span class="font-medium">login</span>
-          <%= render IconComponent.new(name: :chevron_right, class: "w-4 h-4 text-muted") %>
+          <%= render UI::IconComponent.new(name: :chevron_right, css_class: "w-4 h-4 text-muted") %>
         </button>
       <% end %>
     </div>

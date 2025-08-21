@@ -1,11 +1,9 @@
 <div class="brands-page">
-
   <!-- Alphabet Navigation -->
   <%= render AlphabetNavigationComponent.new(
     navigation_items: @brands_service.alphabet_navigation,
     selected_letter: @letter
   ) %>
-
   <!-- Brands Content -->
   <turbo-frame id="brands-content">
     <% if @letter || @brands_service.searching? %>
@@ -14,7 +12,7 @@
       <!-- Default state - select a letter -->
       <div class="container mx-auto px-4 py-16 text-center">
         <div class="max-w-md mx-auto">
-          <%= render IconComponent.new(name: :book_open, class: "w-16 h-16 text-disabled mx-auto mb-4") %>
+          <%= render UI::IconComponent.new(name: :book_open, css_class: "w-16 h-16 text-disabled mx-auto mb-4") %>
           <h3 class="text-xl font-semibold mb-2">
             Select a letter to browse brands
           </h3>
