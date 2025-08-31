@@ -102,10 +102,10 @@ end
 
 def attach_variant_images(variant, image_urls)
   return unless image_urls&.any?
-  
+
   image_urls.each_with_index do |url, index|
     next unless url
-    
+
     if index == 0 && !variant.featured_image.attached?
       # First image becomes featured image
       begin
@@ -199,16 +199,16 @@ def create_complete_product(
       if updates_needed.any?
         variant.update!(updates_needed)
       end
-      
+
       # Attach variant images if provided
       if variant_data[:image_urls]
         attach_variant_images(variant, variant_data[:image_urls])
       elsif variant_data[:image_url]
         # Fallback to single image_url for backward compatibility
-        attach_variant_images(variant, [variant_data[:image_url]])
+        attach_variant_images(variant, [ variant_data[:image_url] ])
       elsif image_url && !variant.featured_image.attached?
         # Use product's default image if no variant-specific image provided
-        attach_variant_images(variant, [image_url])
+        attach_variant_images(variant, [ image_url ])
       end
     end
   else
@@ -225,11 +225,11 @@ def create_complete_product(
       v.is_default = true
       v.canonical_variant = true
     end
-    
+
     # Ensure default variant has an image too
     default_variant = product.product_variants.first
     if default_variant && !default_variant.featured_image.attached? && image_url
-      attach_variant_images(default_variant, [image_url])
+      attach_variant_images(default_variant, [ image_url ])
     end
   end
 
@@ -264,21 +264,21 @@ create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "110 - Fair with cool undertones", price: 36, color: "Fair Cool", color_hex: "#F4C2A1", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&auto=format&q=80" ]
     },
-    { 
+    {
       name: "210 - Light with warm undertones", price: 36, color: "Light Warm", color_hex: "#E8B896", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80" ]
     },
-    { 
+    {
       name: "290 - Medium with warm undertones", price: 36, color: "Medium Warm", color_hex: "#D4A574", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80" ]
     },
-    { 
+    {
       name: "385 - Deep with cool undertones", price: 36, color: "Deep Cool", color_hex: "#A67C52", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80" ]
     }
   ],
   image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop"
@@ -305,17 +305,17 @@ create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Fenty Glow - Universal nude", price: 21, color: "Universal Nude", color_hex: "#D4A574", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80" ]
     },
-    { 
+    {
       name: "Fu$$y - Pinky peach", price: 21, color: "Pinky Peach", color_hex: "#F4A6A6", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80" ]
     },
-    { 
+    {
       name: "Sweet Mouth - Sheer berry", price: 21, color: "Sheer Berry", color_hex: "#C85A8E", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: ["https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80"]
+      image_urls: [ "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80" ]
     }
   ],
   image_url: "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=400&h=400&fit=crop"
@@ -895,7 +895,7 @@ if rare_blush_collection
     updates_needed[:size_value] = variant_info[:size_value] if variant_info[:size_value] && variant.size_value != variant_info[:size_value]
     updates_needed[:size_unit] = variant_info[:size_unit] if variant_info[:size_unit] && variant.size_unit != variant_info[:size_unit]
     updates_needed[:size_type] = variant_info[:size_type] if variant_info[:size_type] && variant.size_type != variant_info[:size_type]
-    
+
     if updates_needed.any?
       variant.update!(updates_needed)
     end
@@ -1268,23 +1268,23 @@ hit_foundation_sale = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
-      name: "Fair Glow", price: 34, color: "Fair", color_hex: "#F4C2A1", 
+    {
+      name: "Fair Glow", price: 34, color: "Fair", color_hex: "#F4C2A1",
       size_value: 30, size_unit: "ml", size_type: "volume",
       sales_count: 850, conversion_score: 0.28, is_default: true
     },
-    { 
-      name: "Light Glow", price: 34, color: "Light", color_hex: "#EDBF99", 
+    {
+      name: "Light Glow", price: 34, color: "Light", color_hex: "#EDBF99",
       size_value: 30, size_unit: "ml", size_type: "volume",
       sales_count: 920, conversion_score: 0.32
     },
-    { 
-      name: "Medium Glow", price: 34, color: "Medium", color_hex: "#D7A47B", 
+    {
+      name: "Medium Glow", price: 34, color: "Medium", color_hex: "#D7A47B",
       size_value: 30, size_unit: "ml", size_type: "volume",
       sales_count: 1100, conversion_score: 0.35
     },
-    { 
-      name: "Deep Glow", price: 34, color: "Deep", color_hex: "#B0855A", 
+    {
+      name: "Deep Glow", price: 34, color: "Deep", color_hex: "#B0855A",
       size_value: 30, size_unit: "ml", size_type: "volume",
       sales_count: 780, conversion_score: 0.29
     }
@@ -1327,17 +1327,17 @@ hit_lipstick_sale = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Pillow Talk Original", price: 29, color: "Nude Pink", color_hex: "#E8B8AB",
       size_value: 3.5, size_unit: "g", size_type: "weight",
       sales_count: 2500, conversion_score: 0.45, is_default: true, canonical_variant: true
     },
-    { 
+    {
       name: "Pillow Talk Medium", price: 29, color: "Medium Nude", color_hex: "#D4A574",
       size_value: 3.5, size_unit: "g", size_type: "weight",
       sales_count: 1800, conversion_score: 0.38
     },
-    { 
+    {
       name: "Pillow Talk Deep", price: 29, color: "Deep Nude", color_hex: "#B0855A",
       size_value: 3.5, size_unit: "g", size_type: "weight",
       sales_count: 1200, conversion_score: 0.31
@@ -1380,11 +1380,11 @@ hit_serum_sale = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Standard Size", price: 18, size_value: 30, size_unit: "ml", size_type: "volume",
       sales_count: 3200, conversion_score: 0.52, is_default: true
     },
-    { 
+    {
       name: "Value Size", price: 32, size_value: 60, size_unit: "ml", size_type: "volume",
       sales_count: 1800, conversion_score: 0.41
     }
@@ -1398,7 +1398,7 @@ if hit_serum_sale
     compare_at_price: Money.new(2500), # $25.00 original price
     price: Money.new(1800)             # $18.00 sale price (30% off)
   )
-  
+
   hit_serum_sale.product_variants.find_by(name: "Value Size")&.update!(
     compare_at_price: Money.new(4500), # $45.00 original price
     price: Money.new(3200)             # $32.00 sale price (30% off)
@@ -1425,17 +1425,17 @@ hit_blush_promo = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Sunset Coral - Trending", price: 23, color: "Coral", color_hex: "#FF7F7F",
       size_value: 15, size_unit: "ml", size_type: "volume",
       sales_count: 1500, conversion_score: 0.42, is_default: true
     },
-    { 
+    {
       name: "Peachy Pink - Viral", price: 23, color: "Peachy Pink", color_hex: "#F4A6A6",
-      size_value: 15, size_unit: "ml", size_type: "volume", 
+      size_value: 15, size_unit: "ml", size_type: "volume",
       sales_count: 1800, conversion_score: 0.48
     },
-    { 
+    {
       name: "Berry Flush - Hit", price: 23, color: "Berry", color_hex: "#B85A8E",
       size_value: 15, size_unit: "ml", size_type: "volume",
       sales_count: 1200, conversion_score: 0.39
@@ -1505,7 +1505,7 @@ bundle_skincare_set = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Complete Set", price: 45, size_value: 1, size_unit: "set", size_type: "bundle",
       sales_count: 650, conversion_score: 0.25, is_default: true
     }
@@ -1536,7 +1536,7 @@ limited_edition_palette = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [
-    { 
+    {
       name: "Holiday Glam Palette", price: 85, size_value: 48, size_unit: "g", size_type: "weight",
       sales_count: 180, conversion_score: 0.15, is_default: true
     }
@@ -1635,12 +1635,12 @@ lipstick_collection = create_complete_product(
       is_default: false
     },
     {
-      name: "Red Carpet Red - Professional", 
+      name: "Red Carpet Red - Professional",
       color: "Red Carpet Red",
-      color_hex: "#C41E3A", 
+      color_hex: "#C41E3A",
       price: 35,
       size_value: 3.5,
-      size_unit: "g", 
+      size_unit: "g",
       size_type: "weight",
       image_urls: [
         "https://images.unsplash.com/photo-1622556498246-755f44ca76f3?w=800&h=600&fit=crop&auto=format&q=80",
@@ -1654,12 +1654,12 @@ lipstick_collection = create_complete_product(
     },
     {
       name: "Berry Bliss - Professional",
-      color: "Berry Bliss", 
+      color: "Berry Bliss",
       color_hex: "#8B3A62",
       price: 35,
       size_value: 3.5,
       size_unit: "g",
-      size_type: "weight", 
+      size_type: "weight",
       image_urls: [
         "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80",
         "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80",
@@ -1675,10 +1675,10 @@ lipstick_collection = create_complete_product(
   ]
 )
 
-# Test Product 2: Foundation with Multiple Images Per Variant  
+# Test Product 2: Foundation with Multiple Images Per Variant
 foundation_collection = create_complete_product(
   name: "Perfect Match Foundation Gallery Test",
-  subtitle: "Foundation shades with comprehensive product imagery", 
+  subtitle: "Foundation shades with comprehensive product imagery",
   brand: brands["fenty-beauty"],
   categories: [ categories["face"] ],
   product_type: "foundation",
@@ -1688,7 +1688,7 @@ foundation_collection = create_complete_product(
   ingredients: "Water, Dimethicone, Isododecane, Alcohol Denat, Trimethylsiloxysilicate",
   attributes: {
     finish: "Natural",
-    coverage: "Medium to Full", 
+    coverage: "Medium to Full",
     skin_type: [ "All" ],
     cruelty_free: "Yes"
   },
@@ -1713,7 +1713,7 @@ foundation_collection = create_complete_product(
     {
       name: "290 - Medium Warm",
       color: "Medium Warm",
-      color_hex: "#D4A574", 
+      color_hex: "#D4A574",
       price: 36,
       size_value: 32,
       size_unit: "ml",
