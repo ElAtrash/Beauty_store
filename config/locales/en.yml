@@ -115,6 +115,16 @@ en:
       account_created: "Welcome! Account created successfully!"
       signed_in: "Successfully signed in!"
       rate_limit: "Try again later."
+  products:
+    stock:
+      in_stock: "In stock"
+      out_of_stock: "Out of stock"
+      low_stock: "Only %{count} left"
+      back_in_stock_soon: "Back in stock soon"
+    price:
+      unavailable: "Price unavailable"
+    color_dropdown:
+      placeholder: "Select a shade"
   javascript:
     auth_form:
       email_required: "Email is required."

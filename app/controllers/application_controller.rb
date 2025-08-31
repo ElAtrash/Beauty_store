@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
 
   before_action :set_locale
   before_action :set_current_session
+  before_action :set_active_storage_url_options
 
   private
 
@@ -30,5 +31,9 @@ class ApplicationController < ActionController::Base
 
   def set_current_session
     resume_session
+  end
+
+  def set_active_storage_url_options
+    ActiveStorage::Current.url_options = { host: request.host, port: request.port, protocol: request.protocol }
   end
 end

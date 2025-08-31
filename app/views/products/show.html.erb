@@ -1,6 +1,5 @@
 <% content_for :title, @page_title %>
 <% content_for :meta_description, @meta_description %>
-
 <main class="min-h-screen bg-white">
   <!-- Breadcrumbs and Product Name Header -->
   <section>
@@ -8,24 +7,19 @@
       <%= render Products::BreadcrumbComponent.new(breadcrumbs: @breadcrumbs, product_name: @product.name) %>
     </div>
   </section>
-
   <!-- Main Product Section -->
   <div data-controller="products--variant-selector"
-       data-products--variant-selector-variants-value="<%= @product.product_variants.map { |v| { id: v.id, name: v.name, size: v.size_display, color: v.color, price: v.price.format, inStock: v.in_stock?, sku: v.sku } }.to_json %>">
+       data-products--variant-selector-product-id-value="<%= @product.id %>">
     <section>
       <div class="product-layout">
         <!-- Product Gallery -->
-        <div class="product-gallery-section lg:sticky lg:top-24">
-          <%= render Products::ProductGalleryComponent.new(product: @product) %>
-        </div>
-
+        <%= render "products/gallery", product: @product, selected_variant: @product.default_variant %>
         <!-- Product Info -->
         <div class="product-info-section">
           <%= render Products::ProductInfoComponent.new(product: @product, product_data: @product_data) %>
         </div>
       </div>
     </section>
-
     <!-- Product Details Tabs -->
     <section>
       <div class="container mx-auto px-4 py-12">
@@ -33,7 +27,6 @@
       </div>
     </section>
   </div>
-
   <!-- Reviews Section -->
   <section id="reviews-section">
     <div class="container mx-auto px-4 py-12">

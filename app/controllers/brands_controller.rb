@@ -50,7 +50,7 @@ class BrandsController < ApplicationController
     # Create sorted relation for display using the filtered IDs
     @filtered_products = @brand.products.where(id: filtered_ids)
                                .sorted(@filter_form.sort_by)
-                               .includes(:brand, :featured_image_attachment)
+                               .includes(:brand, product_variants: { images_attachments: :blob })
     @pagy, @products = pagy(@filtered_products, items: 40)
 
     respond_to do |format|

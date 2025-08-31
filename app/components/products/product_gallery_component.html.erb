@@ -1,27 +1,14 @@
 <div class="space-y-4"
      data-controller="products--gallery">
-
   <!-- Main Image Area with Overlaid Thumbnails -->
   <div class="relative">
     <div class="relative aspect-[4/3] bg-gray-50 overflow-hidden shadow-sm">
-      <% if main_image.attached? %>
-        <img src="<%= image_url(main_image.attachment, size: :large) %>"
-             alt="<%= main_image.safe_alt %>"
-             width="800"
-             height="600"
-             class="w-full h-full object-cover transition-opacity duration-200"
-             data-products--gallery-target="mainImage">
-      <% else %>
-        <div class="w-full h-full flex items-center justify-center">
-          <img src="<%= placeholder_url %>"
-               alt="<%= main_image.safe_alt %>"
-               width="800"
-               height="600"
-               class="w-full h-full object-cover"
-               data-products--gallery-target="mainImage">
-        </div>
-      <% end %>
-
+      <img src="<%= main_image.url(:large) %>"
+           alt="<%= main_image.safe_alt %>"
+           width="800"
+           height="600"
+           class="w-full h-full object-cover transition-opacity duration-200"
+           data-products--gallery-target="mainImage">
       <!-- Left Click Zone for Previous Image -->
       <% if thumbnail_images.size > 1 %>
         <div class="gallery-click-zone gallery-click-zone--left"
@@ -29,7 +16,6 @@
              data-action="click->products--gallery#previousImage">
         </div>
       <% end %>
-
       <!-- Right Click Zone for Next Image -->
       <% if thumbnail_images.size > 1 %>
         <div class="gallery-click-zone gallery-click-zone--right"
@@ -37,24 +23,20 @@
              data-action="click->products--gallery#nextImage">
         </div>
       <% end %>
-
       <!-- Center Click Zone for Zoom -->
       <div class="gallery-click-zone gallery-click-zone--center"
            style="cursor: url('<%= cursor_data_url(:cursor_zoom) %>') 16 16, pointer;"
            data-action="click->products--gallery#zoomImage">
       </div>
-
-
       <!-- Sale Badge -->
-      <% if product.default_variant&.on_sale? %>
+      <% if show_discount_badge?(product.default_variant) %>
         <div class="absolute top-4 left-4 z-20">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-600 text-white">
-            -<%= product.default_variant.discount_percentage %>%
+          <span class="inline-flex items-center py-1 text-sm font-medium bg-pink-600 text-white">
+            <%= discount_badge_text(product.default_variant) %>
           </span>
         </div>
       <% end %>
     </div>
-
     <!-- Overlaid Thumbnail Stack -->
     <% if thumbnail_images.size > 1 %>
       <!-- Desktop: Vertical thumbnail overlay -->
@@ -67,7 +49,6 @@
             show_arrows: responsive_thumbnail_config[:show_arrows],
             container_height: thumbnail_container_height %>
       </div>
-
       <!-- Mobile: Horizontal thumbnails below -->
       <div class="lg:hidden mt-4">
         <%= render "products/thumbnail_list",
@@ -77,7 +58,6 @@
             component: self %>
       </div>
     <% end %>
-
     <!-- Image Counter -->
     <% if gallery_images.size > 1 %>
       <div class="flex justify-center mt-4 lg:hidden">
@@ -87,7 +67,6 @@
       </div>
     <% end %>
   </div>
-
   <!-- Gallery Modal Component -->
   <%= render Products::GalleryModalComponent.new(
         product: product,

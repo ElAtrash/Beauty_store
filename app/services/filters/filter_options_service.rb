@@ -82,7 +82,7 @@ module Filters
               .pluck("product_variants.color")
               .compact
               .sort
-              .map { |color| { value: color, label: color.humanize } }
+              .map { |color| { value: color, label: color } }
     end
 
     def build_available_sizes
