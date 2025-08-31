@@ -1,64 +1,56 @@
 <%= link_to product_url, class: "block group", data: { turbo_frame: "_top" } do %>
   <div class="product-card"
-       data-product-id="<%= product.id %>"
-       data-product-slug="<%= product.slug %>">
+       data-product-id="<%= id %>"
+       data-product-slug="<%= slug %>">
     <div class="relative aspect-square overflow-hidden">
-      <%= image_tag product_image_url,
-          alt: product.name,
-          class: "size-full object-cover group-hover:scale-105 transition-transform duration-300",
+      <%= image_tag image_url,
+          alt: name,
+          class: image_classes,
           loading: "lazy" %>
       <!-- Image Overlays -->
       <div class="absolute inset-0 pointer-events-none">
         <div class="flex justify-between items-start">
-          <!-- Discount & Hit Labels -->
-          <% if show_labels %>
-            <div class="flex">
-              <% if has_discount? %>
-                <span class="bg-pink-600 text-white text-xs font-bold p-1">
-                  <%= discount_percentage %>
-                </span>
-              <% end %>
-              <% if is_hit_product? %>
-                <span class="bg-yellow-400 text-black text-xs font-bold p-1">
-                  HIT
+          <% if show_badges? %>
+            <div class="flex flex-col gap-1 p-2">
+              <% badges.each do |badge| %>
+                <span class="<%= badge[:classes] %>">
+                  <%= badge[:text] %>
                 </span>
               <% end %>
             </div>
-          <% else %>
+            <% else %>
             <div></div>
           <% end %>
-          <!-- Wishlist Button -->
-          <button class="product-wishlist-button pointer-events-auto"
-                  data-action="click->wishlist#toggle"
-                  data-product-id="<%= product.id %>"
+           <!-- Wishlist Button -->
+          <button class="product-wishlist-button pointer-events-auto p-2"
+                  data="<%= wishlist_data.transform_keys { |key| key.to_s.dasherize } %>"
                   aria-label="Add to wishlist">
             <%= render UI::IconComponent.new(name: :heart, css_class: "w-5 h-5") %>
           </button>
         </div>
       </div>
     </div>
-    <!-- Product Info -->
     <div class="pt-4 text-right space-y-3">
       <!-- Product Info Text -->
       <div class="space-y-1">
-        <% if product.subtitle.present? %>
+        <% if subtitle.present? %>
           <p class="text-sm font-medium text-muted transition-colors duration-200">
-            <%= product.subtitle %>
+            <%= subtitle %>
           </p>
         <% end %>
         <h3 class="line-clamp-2 pt-2 leading-tight transition-colors duration-200">
-          <%= product.name %>
+          <%= name %>
         </h3>
       </div>
       <!-- Rating and Reviews -->
-      <% if product.reviews_count > 0 %>
+      <% if reviews_count > 0 %>
         <div class="flex justify-end">
           <%= render UI::RatingComponent.new(product: product, style: :compact) %>
         </div>
       <% end %>
       <!-- Price -->
       <div class="flex items-center gap-2 justify-end">
-        <span class="font-bold transition-colors duration-200">
+        <span class="<%= price_classes %>">
           <%= price_display %>
         </span>
         <% if original_price_display %>

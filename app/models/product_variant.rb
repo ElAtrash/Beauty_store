@@ -14,6 +14,9 @@ class ProductVariant < ApplicationRecord
   validates :sku, presence: true, uniqueness: true
   validates :price_cents, presence: true, numericality: { greater_than: 0 }
   validates :stock_quantity, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :conversion_score, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :sales_count, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :color_hex, format: { with: /\A#[0-9A-Fa-f]{6}\z/ }, allow_blank: true
 
   scope :in_stock, -> { where("stock_quantity > 0") }
   scope :available, -> { joins(:product).merge(Product.available) }
@@ -26,6 +29,11 @@ class ProductVariant < ApplicationRecord
       :id
     )
   }
+
+  scope :marked_default, -> { where(is_default: true) }
+  scope :canonical, -> { where(canonical_variant: true) }
+  scope :by_conversion_score, -> { order(conversion_score: :desc) }
+  scope :by_sales_count, -> { order(sales_count: :desc) }
 
   def in_stock?
     return true unless track_inventory?
@@ -65,18 +73,22 @@ class ProductVariant < ApplicationRecord
     size_value.present?
   end
 
+  def canonical_variant?
+    canonical_variant
+  end
+
   def size_display
     return nil unless has_size?
 
     case size_type
     when "volume"
-      "#{size_value} #{size_unit}"
+      "#{formatted_size_value} #{size_unit}"
     when "weight"
-      "#{size_value} #{size_unit}"
+      "#{formatted_size_value} #{size_unit}"
     when "quantity"
-      size_value == 1 ? "#{size_value} piece" : "#{size_value} pieces"
+      size_value == 1 ? "#{formatted_size_value} piece" : "#{formatted_size_value} pieces"
     else
-      "#{size_value} #{size_unit}"
+      "#{formatted_size_value} #{size_unit}"
     end
   end
 
@@ -85,14 +97,36 @@ class ProductVariant < ApplicationRecord
 
     case size_type
     when "volume"
-      "#{size_value}#{size_unit}"
+      "#{formatted_size_value}#{size_unit}"
     when "weight"
-      "#{size_value}#{size_unit}"
+      "#{formatted_size_value}#{size_unit}"
     when "quantity"
-      size_value == 1 ? "#{size_value}pc" : "#{size_value}pcs"
+      size_value == 1 ? "#{formatted_size_value}pc" : "#{formatted_size_value}pcs"
     else
-      "#{size_value}#{size_unit}"
+      "#{formatted_size_value}#{size_unit}"
     end
+  end
+
+  def has_color?
+    color_hex.present?
+  end
+
+  def formatted_size_value
+    return nil unless size_value.present?
+
+    size_value.to_f % 1 == 0 ? size_value.to_i.to_s : size_value.to_s
+  end
+
+  def size_key
+    return nil unless has_size?
+
+    size_value_str = formatted_size_value || ""
+    size_unit_str = size_unit&.to_s || ""
+    size_type_str = size_type&.to_s || ""
+
+    return nil if size_value_str.empty?
+
+    "#{size_value_str}:#{size_unit_str}:#{size_type_str}"
   end
 
   private

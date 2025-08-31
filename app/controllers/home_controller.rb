@@ -25,8 +25,8 @@ class HomeController < ApplicationController
 
   def featured_products_query
     Product.available
-           .includes(:brand, :categories, product_variants: [ :product ])
+           .includes(:brand, :categories, product_variants: { images_attachments: :blob })
            .preload(:reviews)
-           .order(created_at: :desc, reviews_count: :desc)
+           .by_popularity
   end
 end

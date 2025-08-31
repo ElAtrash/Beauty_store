@@ -115,6 +115,16 @@ ar:
       account_created: "مرحباً! تم إنشاء حسابك بنجاح!"
       signed_in: "تم تسجيل الدخول بنجاح!"
       rate_limit: "يرجى المحاولة لاحقاً."
+  products:
+    stock:
+      in_stock: "متوفر"
+      out_of_stock: "غير متوفر"
+      low_stock: "متبقي %{count} فقط"
+      back_in_stock_soon: "سيتوفر قريباً"
+    price:
+      unavailable: "السعر غير متوفر"
+    color_dropdown:
+      placeholder: "اختر لوناً"
   javascript:
     auth_form:
       email_required: "البريد الإلكتروني مطلوب."

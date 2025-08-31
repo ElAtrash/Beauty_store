@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
 class Products::ProductGalleryComponent < ViewComponent::Base
+  include DiscountBadgeHelper
+
   MAX_VISIBLE_THUMBNAILS = 4
   THUMBNAIL_SIZE = { width: 68, height: 68, spacing: 8 }.freeze
-
-  IMAGE_VARIANTS = {
-    large: { resize_to_fill: [ 800, 600, { gravity: :center } ] },
-    thumbnail: { resize_to_fill: [ 100, 100, { gravity: :center } ] },
-    medium: { resize_to_fill: [ 400, 300, { gravity: :center } ] }
-  }.freeze
 
   def initialize(product:, selected_variant: nil)
     @product = product
@@ -16,27 +12,11 @@ class Products::ProductGalleryComponent < ViewComponent::Base
   end
 
   def image_url(attachment, size: :large)
-    return placeholder_url if attachment.nil?
-
-    if attachment.content_type == "image/svg+xml"
-      return Rails.application.routes.url_helpers.rails_blob_url(attachment, only_path: true)
-    end
-
-    variant_params = IMAGE_VARIANTS[size] || IMAGE_VARIANTS[:medium]
-
-    begin
-      Rails.application.routes.url_helpers.rails_blob_url(
-        attachment.variant(variant_params),
-        only_path: true
-      )
-    rescue => e
-      Rails.logger.error "Failed to generate image variant: #{e.message}"
-      Rails.application.routes.url_helpers.rails_blob_url(attachment, only_path: true)
-    end
-  end
-
-  def placeholder_url
-    "data:image/svg+xml;base64,#{Base64.strict_encode64(generate_placeholder_svg)}"
+    gallery_image = Products::GalleryImage.new(
+      attachment: attachment,
+      type: attachment ? :gallery : :placeholder
+    )
+    gallery_image.url(size)
   end
 
   private
@@ -45,10 +25,7 @@ class Products::ProductGalleryComponent < ViewComponent::Base
 
   def gallery_images
     @gallery_images ||= begin
-      images = []
-      images.concat(build_featured_images)
-      images.concat(build_product_gallery_images)
-      images.concat(build_variant_images)
+      images = build_variant_images
       deduplicate_images(images)
     end
   end
@@ -67,16 +44,6 @@ class Products::ProductGalleryComponent < ViewComponent::Base
       type: :placeholder,
       alt: "#{product.name} - No image available"
     )
-  end
-
-  def generate_placeholder_svg
-    <<~SVG
-      <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg">
-        <rect width="600" height="600" fill="#f9fafb"/>
-        <rect x="250" y="250" width="100" height="100" rx="8" fill="#e5e7eb"/>
-        <text x="300" y="380" font-family="Arial, sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">#{product.name.truncate(20)}</text>
-      </svg>
-    SVG
   end
 
   def thumbnail_container_height
@@ -107,44 +74,65 @@ class Products::ProductGalleryComponent < ViewComponent::Base
     }
   end
 
-  def build_featured_images
-    return [] unless product.featured_image.attached?
-
-    [ Products::GalleryImage.new(
-      attachment: product.featured_image,
-      type: :featured,
-      alt: "#{product.name} - Main Image"
-    ) ]
-  end
-
-  def build_product_gallery_images
-    images = []
-
-    product.images.each_with_index do |image, index|
-      next if product.featured_image.attached? && image == product.featured_image
-
-      images << Products::GalleryImage.new(
-        attachment: image,
-        type: :gallery,
-        alt: "#{product.name} - Image #{index + 2}"
-      )
-    end
-
-    images
-  end
-
   def build_variant_images
     images = []
 
-    product.product_variants.each do |variant|
-      next unless variant.featured_image.attached?
+    # If a specific variant is selected, show only its images
+    if selected_variant
+      variant = selected_variant
 
-      images << Products::GalleryImage.new(
-        attachment: variant.featured_image,
-        type: :variant,
-        alt: "#{product.name} - #{variant.name}",
-        variant_id: variant.id
-      )
+      # Add featured image if present
+      if variant.featured_image.attached?
+        images << Products::GalleryImage.new(
+          attachment: variant.featured_image,
+          type: :variant,
+          alt: "#{product.name} - #{variant.name}",
+          variant_id: variant.id
+        )
+      end
+
+      # Add additional images if present
+      if variant.images.attached?
+        variant.images.each_with_index do |image, index|
+          next if variant.featured_image.attached? && image == variant.featured_image
+
+          images << Products::GalleryImage.new(
+            attachment: image,
+            type: :variant,
+            alt: "#{product.name} - #{variant.name} - Image #{index + 2}",
+            variant_id: variant.id
+          )
+        end
+      end
+    else
+      # Fallback: show default variant's images, or first variant's images
+      default_variant = product.default_variant || product.product_variants.first
+
+      if default_variant
+        # Add featured image if present
+        if default_variant.featured_image.attached?
+          images << Products::GalleryImage.new(
+            attachment: default_variant.featured_image,
+            type: :variant,
+            alt: "#{product.name} - #{default_variant.name}",
+            variant_id: default_variant.id
+          )
+        end
+
+        # Add additional images if present
+        if default_variant.images.attached?
+          default_variant.images.each_with_index do |image, index|
+            next if default_variant.featured_image.attached? && image == default_variant.featured_image
+
+            images << Products::GalleryImage.new(
+              attachment: image,
+              type: :variant,
+              alt: "#{product.name} - #{default_variant.name} - Image #{index + 2}",
+              variant_id: default_variant.id
+            )
+          end
+        end
+      end
     end
 
     images

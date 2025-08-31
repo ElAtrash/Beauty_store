@@ -4,27 +4,39 @@ export default class extends Controller {
   static targets = ["button", "menu", "selectedColor", "selectedText", "hiddenInput", "arrow"]
   static values = {
     selectedValue: String,
-    selectedName: String
+    selectedName: String,
+    selectedColorHex: String,
+    placeholder: String
   }
 
-  actualSelection = {
-    value: null,
-    name: null,
-    colorHex: null
+  static CLASSES = {
+    MENU_OPEN: ['opacity-100', 'pointer-events-auto', 'scale-100'],
+    MENU_CLOSED: ['opacity-0', 'pointer-events-none', 'scale-95'],
+    ARROW_OPEN: 'rotate-180',
+    PLACEHOLDER: 'color-circle--placeholder'
+  }
+
+  get placeholderText() {
+    return this.placeholderValue || 'Select a shade'
+  }
+
+  get isOpen() {
+    return this.menuTarget.classList.contains(this.constructor.CLASSES.MENU_OPEN[0])
   }
 
   connect() {
-    this.closeOnClickOutside = this.closeOnClickOutside.bind(this)
+    this.handleDocumentClick = this.handleDocumentClick.bind(this)
+    this.handleKeydown = this.handleKeydown.bind(this)
 
-    // Set initial selection if provided
+    document.addEventListener("click", this.handleDocumentClick)
+    this.element.addEventListener("keydown", this.handleKeydown)
+
+    this.buttonTarget.setAttribute('aria-expanded', 'false')
+    this.buttonTarget.setAttribute('aria-haspopup', 'listbox')
+
     if (this.selectedValueValue) {
-      this.updateSelection(this.selectedValueValue, this.selectedNameValue)
-      // Store the initial selection
-      this.actualSelection = {
-        value: this.selectedValueValue,
-        name: this.selectedNameValue,
-        colorHex: this.selectedValueValue
-      }
+      this.selectedColorHexValue = this.selectedColorHexValue || this.selectedValueValue
+      this.updateSelection(this.selectedValueValue, this.selectedNameValue, this.selectedColorHexValue)
     }
   }
 
@@ -32,9 +44,7 @@ export default class extends Controller {
     event.preventDefault()
     event.stopPropagation()
 
-    const isOpen = this.menuTarget.classList.contains("opacity-100")
-
-    if (isOpen) {
+    if (this.isOpen) {
       this.close()
     } else {
       this.open()
@@ -42,41 +52,41 @@ export default class extends Controller {
   }
 
   open() {
-    this.menuTarget.classList.remove("opacity-0", "pointer-events-none", "scale-95")
-    this.menuTarget.classList.add("opacity-100", "pointer-events-auto", "scale-100")
+    this.menuTarget.classList.remove(...this.constructor.CLASSES.MENU_CLOSED)
+    this.menuTarget.classList.add(...this.constructor.CLASSES.MENU_OPEN)
     if (this.hasArrowTarget) {
-      this.arrowTarget.classList.add("rotate-180")
+      this.arrowTarget.classList.add(this.constructor.CLASSES.ARROW_OPEN)
     }
 
-    this.showPlaceholder()
+    this.buttonTarget.setAttribute('aria-expanded', 'true')
+    this.menuTarget.setAttribute('role', 'listbox')
 
-    document.addEventListener("click", this.closeOnClickOutside)
+    this.showPlaceholder()
   }
 
   close() {
-    this.menuTarget.classList.add("opacity-0", "pointer-events-none", "scale-95")
-    this.menuTarget.classList.remove("opacity-100", "pointer-events-auto", "scale-100")
+    this.menuTarget.classList.add(...this.constructor.CLASSES.MENU_CLOSED)
+    this.menuTarget.classList.remove(...this.constructor.CLASSES.MENU_OPEN)
     if (this.hasArrowTarget) {
-      this.arrowTarget.classList.remove("rotate-180")
+      this.arrowTarget.classList.remove(this.constructor.CLASSES.ARROW_OPEN)
     }
 
-    this.restoreSelection()
+    this.buttonTarget.setAttribute('aria-expanded', 'false')
+    this.menuTarget.removeAttribute('role')
 
-    document.removeEventListener("click", this.closeOnClickOutside)
+    this.restoreSelection()
   }
 
   selectColor(event) {
     event.preventDefault()
-    const option = event.currentTarget
-    const value = option.dataset.value
-    const name = option.dataset.name
-    const colorHex = option.dataset.colorHex
-
-    this.actualSelection = { value, name, colorHex }
+    const { value, name, colorHex } = event.currentTarget.dataset
 
     this.updateSelection(value, name, colorHex)
     this.close()
 
+    this.buttonTarget.focus()
+
+    this.hiddenInputTarget.dispatchEvent(new Event('input', { bubbles: true }))
     this.hiddenInputTarget.dispatchEvent(new Event('change', { bubbles: true }))
   }
 
@@ -84,59 +94,63 @@ export default class extends Controller {
     this.hiddenInputTarget.value = value
     this.selectedTextTarget.textContent = name
 
-    // Update color circle if we have color info
     if (this.hasSelectedColorTarget && (colorHex || value)) {
       const color = colorHex || value
-      this.selectedColorTarget.style.backgroundColor = color.toLowerCase()
-
-      // Handle white/light colors with border
-      if (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff' || color.toLowerCase() === '#fff') {
-        this.selectedColorTarget.classList.add('border', 'border-gray-300')
-        this.selectedColorTarget.style.backgroundColor = 'white'
-      } else {
-        this.selectedColorTarget.classList.remove('border', 'border-gray-300')
-      }
+      this.selectedColorTarget.style.setProperty('--selected-color', color.toLowerCase())
     }
 
-    // Update selection values
     this.selectedValueValue = value
     this.selectedNameValue = name
+    this.selectedColorHexValue = colorHex || value
   }
 
-  closeOnClickOutside(event) {
-    if (!this.element.contains(event.target)) {
+  handleDocumentClick(event) {
+    if (this.isOpen && !this.element.contains(event.target)) {
       this.close()
     }
   }
 
+  handleKeydown(event) {
+    switch (event.key) {
+      case 'Escape':
+        if (this.isOpen) {
+          event.preventDefault()
+          this.close()
+        }
+        break
+      case 'Enter':
+      case ' ':
+        if (event.target === this.buttonTarget) {
+          event.preventDefault()
+          this.toggle(event)
+        }
+        break
+    }
+  }
+
   showPlaceholder() {
-    this.selectedTextTarget.textContent = "Select a shade"
+    this.selectedTextTarget.textContent = this.placeholderText
 
     if (this.hasSelectedColorTarget) {
-      this.selectedColorTarget.style.backgroundColor = "transparent"
-      this.selectedColorTarget.style.border = "2px dashed #d1d5db"
+      this.selectedColorTarget.classList.add(this.constructor.CLASSES.PLACEHOLDER)
+      this.selectedColorTarget.style.removeProperty('--selected-color')
     }
   }
 
   restoreSelection() {
-    if (this.actualSelection.value) {
-      this.selectedTextTarget.textContent = this.actualSelection.name
+    if (this.selectedValueValue) {
+      this.selectedTextTarget.textContent = this.selectedNameValue
 
       if (this.hasSelectedColorTarget) {
-        const color = this.actualSelection.colorHex || this.actualSelection.value
-        this.selectedColorTarget.style.backgroundColor = color.toLowerCase()
-        this.selectedColorTarget.style.border = "1px solid rgb(229 231 235)"
-
-        // Handle white/light colors with border
-        if (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff' || color.toLowerCase() === '#fff') {
-          this.selectedColorTarget.style.border = "1px solid #d1d5db"
-          this.selectedColorTarget.style.backgroundColor = 'white'
-        }
+        this.selectedColorTarget.classList.remove(this.constructor.CLASSES.PLACEHOLDER)
+        const color = this.selectedColorHexValue || this.selectedValueValue
+        this.selectedColorTarget.style.setProperty('--selected-color', color.toLowerCase())
       }
     }
   }
 
   disconnect() {
-    document.removeEventListener("click", this.closeOnClickOutside)
+    document.removeEventListener("click", this.handleDocumentClick)
+    this.element.removeEventListener("keydown", this.handleKeydown)
   }
 }

@@ -2,13 +2,10 @@
 
 # Configure Active Storage
 Rails.application.configure do
-  # Variant processor (use mini_magick or vips)
-  config.active_storage.variant_processor = :mini_magick
+  config.active_storage.variant_processor = :vips
 end
 
-# Configure ImageMagick for mini_magick
+# Configure libvips
 Rails.application.config.after_initialize do
-  require "mini_magick"
-  # Set timeout for long-running operations
-  MiniMagick.timeout = 120
+  require "ruby-vips"
 end

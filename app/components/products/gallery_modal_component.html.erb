@@ -39,17 +39,10 @@
               </div>
             <% end %>
 
-            <% if image_data.attached? %>
-              <img src="<%= image_url(image_data.attachment, size: :large) %>"
-                   alt="<%= image_data.safe_alt %>"
-                   class="w-full h-auto object-contain"
-                   loading="lazy">
-            <% else %>
-              <img src="<%= placeholder_url %>"
-                   alt="<%= image_data.safe_alt %>"
-                   class="w-full h-auto object-contain opacity-50"
-                   loading="lazy">
-            <% end %>
+            <img src="<%= image_url(image_data.attachment, size: :large) %>"
+                 alt="<%= image_data.safe_alt %>"
+                 class="w-full h-auto object-contain <%= 'opacity-50' unless image_data.attached? %>"
+                 loading="lazy">
           </div>
         <% end %>
         <div class="h-16"></div>

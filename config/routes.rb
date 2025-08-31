@@ -15,7 +15,11 @@ Rails.application.routes.draw do
   root "home#index"
 
   # Product routes
-  resources :products, only: [ :show ]
+  resources :products, only: [ :show ] do
+    member do
+      patch :update_variant
+    end
+  end
   resources :categories, only: [ :index, :show ] do
     resources :products, only: [ :index ]
   end

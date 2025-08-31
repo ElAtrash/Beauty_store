@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_14_131117) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_28_222406) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -214,7 +214,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_131117) do
     t.decimal "size_value", precision: 10, scale: 2
     t.string "size_unit"
     t.string "size_type"
+    t.decimal "conversion_score", precision: 8, scale: 4, default: "0.0", null: false
+    t.integer "sales_count", default: 0, null: false
+    t.boolean "is_default", default: false, null: false
+    t.boolean "canonical_variant", default: false, null: false
+    t.string "color_hex"
+    t.index ["color_hex"], name: "index_product_variants_on_color_hex"
+    t.index ["product_id", "conversion_score"], name: "index_product_variants_on_product_and_conversion"
+    t.index ["product_id", "is_default"], name: "index_product_variants_on_product_and_default"
     t.index ["product_id", "position"], name: "index_product_variants_on_product_id_and_position"
+    t.index ["product_id", "sales_count"], name: "index_product_variants_on_product_and_sales"
     t.index ["product_id"], name: "index_product_variants_on_product_id"
     t.index ["size_type", "size_value"], name: "index_product_variants_on_size_type_and_size_value"
     t.index ["sku"], name: "index_product_variants_on_sku", unique: true

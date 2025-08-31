@@ -5,6 +5,10 @@ module Products
     def initialize(product, selected_variant: nil)
       @product = product
       @selected_variant = selected_variant || product.default_variant
+      @variants = product.product_variants.includes(
+        featured_image_attachment: :blob,
+        images_attachments: :blob
+      ).to_a
     end
 
     def build_display_data
@@ -21,7 +25,7 @@ module Products
 
     private
 
-    attr_reader :product, :selected_variant
+    attr_reader :product, :selected_variant, :variants
 
     def build_product_info
       ProductInfo.new(
@@ -38,128 +42,125 @@ module Products
 
       {
         id: variant.id,
-        name: variant.name,
-        color: variant.color,
+        name: variant.name || "",
+        color: variant.color || "",
+        color_hex: variant.color_hex || "",
         size_value: variant.size_value,
-        size_unit: variant.size_unit,
-        size_type: variant.size_type,
-        size_key: build_size_key(variant),
-        sku: variant.sku
+        size_unit: variant.size_unit || "",
+        size_type: variant.size_type || "",
+        size_key: variant.size_key,
+        sku: variant.sku || ""
       }
     end
 
     def build_all_variants_data
-      product.product_variants.includes(:featured_image_attachment).map do |variant|
+      @all_variants_data ||= variants.map do |variant|
         build_variant_data(variant)
       end
     end
 
     def build_variant_images_mapping
-      mapping = {}
+      @variant_images_mapping ||= begin
+        mapping = {}
 
-      default_images = build_product_images
-
-      product.product_variants.includes(:featured_image_attachment).each do |variant|
-        variant_images = []
-
-        if variant.featured_image.attached?
-          variant_images << build_gallery_image(variant.featured_image, :variant, variant)
+        variants.each do |variant|
+          variant_images = build_variant_specific_images(variant)
+          mapping[variant.id] = variant_images.map(&:as_json)
         end
 
-        # For now, also include product's general images
-        # Future: could filter images based on variant attributes
-        variant_images.concat(default_images)
-
-        mapping[variant.id] = variant_images.uniq { |img| img.attachment }
+        mapping
       end
-
-      # Ensure default variant mapping exists
-      if selected_variant
-        mapping[selected_variant.id] ||= default_images
-      end
-
-      mapping
     end
 
     def build_price_matrix
-      matrix = {}
-
-      product.product_variants.each do |variant|
-        matrix[variant.id] = build_price_info(variant)
+      @price_matrix ||= variants.each_with_object({}) do |variant, matrix|
+        price_info = build_price_info(variant)
+        matrix[variant.id] = price_info
       end
-
-      matrix
     end
 
     def build_stock_matrix
-      matrix = {}
-
-      product.product_variants.each do |variant|
-        matrix[variant.id] = build_stock_info(variant)
+      @stock_matrix ||= variants.each_with_object({}) do |variant, matrix|
+        stock_info = build_stock_info(variant)
+        matrix[variant.id] = {
+          available: stock_info[:available],
+          message: stock_info[:message],
+          quantity: stock_info[:quantity]
+        }
       end
-
-      matrix
     end
 
     def build_variant_options
-      {
+      @variant_options ||= {
         colors: build_color_options,
         sizes: build_size_options
       }
     end
 
     def build_price_info(variant)
-      return PriceInfo.new(current: "Price not available", on_sale: false) unless variant
+      return {
+        current_cents: nil,
+        currency: "USD",
+        on_sale: false,
+        formatted_current_price: "Price unavailable",
+        formatted_original_price: nil
+      } unless variant
 
       if variant.on_sale?
-        PriceInfo.new(
-          current: variant.price.format(symbol: "", with_currency: true, decimal_mark: " "),
-          original: variant.compare_at_price.format(symbol: "", with_currency: true, decimal_mark: " "),
+        {
+          current_cents: variant.price.cents,
+          original_cents: variant.compare_at_price.cents,
+          currency: variant.price.currency.iso_code,
           discount_percentage: variant.discount_percentage,
-          on_sale: true
-        )
+          on_sale: true,
+          formatted_current_price: variant.price.format(symbol: "", with_currency: true, decimal_mark: " "),
+          formatted_original_price: variant.compare_at_price.format(symbol: "", with_currency: true, decimal_mark: " ")
+        }
       else
-        PriceInfo.new(
-          current: variant.price.format(symbol: "", with_currency: true, decimal_mark: " "),
-          original: nil,
+        {
+          current_cents: variant.price.cents,
+          original_cents: nil,
+          currency: variant.price.currency.iso_code,
           discount_percentage: nil,
-          on_sale: false
-        )
+          on_sale: false,
+          formatted_current_price: variant.price.format(symbol: "", with_currency: true, decimal_mark: " "),
+          formatted_original_price: nil
+        }
       end
     end
 
     def build_stock_info(variant)
-      return StockInfo.new(available: false, message: "Out of stock", quantity: 0) unless variant
+      return { available: false, message: I18n.t("products.stock.out_of_stock"), quantity: 0 } unless variant
 
       if variant.in_stock?
         if variant.stock_quantity <= 5
-          StockInfo.new(
+          {
             available: true,
-            message: "Only #{variant.stock_quantity} left in stock",
+            message: I18n.t("products.stock.low_stock", count: variant.stock_quantity),
             quantity: variant.stock_quantity
-          )
+          }
         else
-          StockInfo.new(
+          {
             available: true,
-            message: "In stock",
+            message: I18n.t("products.stock.in_stock"),
             quantity: variant.stock_quantity
-          )
+          }
         end
       else
-        StockInfo.new(
+        {
           available: false,
-          message: "Out of stock",
+          message: I18n.t("products.stock.out_of_stock"),
           quantity: 0
-        )
+        }
       end
     end
 
     def build_color_options
-      unique_colors.map do |color|
-        VariantOption.new(
-          name: color.humanize,
-          value: color,
-          available: color_available?(color),
+      unique_color_variants.map do |variant|
+        Products::VariantOption.new(
+          name: variant.color,
+          value: variant.color_hex,
+          available: variant.in_stock?,
           type: :color
         )
       end
@@ -167,9 +168,9 @@ module Products
 
     def build_size_options
       unique_sizes.map do |variant|
-        VariantOption.new(
-          name: variant.size_value.to_s,
-          value: build_size_key(variant),
+        Products::VariantOption.new(
+          name: variant.formatted_size_value || variant.size_value.to_s,
+          value: variant.size_key,
           available: variant.in_stock?,
           type: variant.size_type&.to_sym || :size,
           variant_id: variant.id
@@ -177,50 +178,49 @@ module Products
       end
     end
 
-    def unique_colors
-      @unique_colors ||= product.product_variants
-                                .where.not(color: [ nil, "" ])
-                                .distinct
-                                .pluck(:color)
-                                .compact
-                                .uniq
+    def unique_color_variants
+      @unique_color_variants ||= variants
+                                  .select { |v| v.color_hex.present? }
+                                  .uniq { |v| v.color_hex }
     end
 
     def unique_sizes
-      @unique_sizes ||= product.product_variants
-                               .with_size
-                               .to_a
-                               .uniq { |variant| [ variant.size_value, variant.size_unit, variant.size_type ] }
-                               .sort_by do |variant|
-                                 type_order = case variant.size_type
-                                 when "volume" then 1
-                                 when "weight" then 2
-                                 when "quantity" then 3
-                                 else 4
-                                 end
-                                 [ type_order, variant.size_value || 0 ]
-                               end
+      @unique_sizes ||= begin
+        size_variants = variants.select(&:has_size?)
+        return [] if size_variants.empty?
+
+        unique_variants = size_variants.uniq { |variant| [ variant.size_value, variant.size_unit, variant.size_type ] }
+
+        final_variants = unique_variants.empty? ? [ size_variants.first ] : unique_variants
+
+        final_variants.sort_by do |variant|
+          type_order = case variant.size_type
+          when "volume" then 1
+          when "weight" then 2
+          when "quantity" then 3
+          else 4
+          end
+          [ type_order, variant.size_value || 0 ]
+        end
+      end
     end
 
-    def color_available?(color)
-      product.product_variants.where(color: color).any?(&:in_stock?)
+    def color_available?(color_hex)
+      variants.any? { |variant| variant.color_hex == color_hex && variant.in_stock? }
     end
 
-    def build_size_key(variant)
-      return nil unless variant.has_size?
-      "#{variant.size_value}:#{variant.size_unit}:#{variant.size_type}"
-    end
-
-    def build_product_images
+    def build_variant_specific_images(variant)
       images = []
 
-      if product.featured_image.attached?
-        images << build_gallery_image(product.featured_image, :featured)
+      if variant.featured_image.attached?
+        images << build_gallery_image(variant.featured_image, :variant, variant, 1)
       end
 
-      product.images.each_with_index do |image, index|
-        next if product.featured_image.attached? && image == product.featured_image
-        images << build_gallery_image(image, :gallery, nil, index + 2)
+      if variant.images.attached?
+        variant.images.each_with_index do |image, index|
+          next if variant.featured_image.attached? && image == variant.featured_image
+          images << build_gallery_image(image, :variant, variant, index + 2)
+        end
       end
 
       images
