@@ -17,8 +17,8 @@
   when :desktop
     wrapper_classes = "flex flex-col items-center"
     container_classes = "space-y-2"
-    arrow_classes = "p-1 rounded-full hover:bg-gray-200 hover:bg-opacity-50 transition-all duration-200"
-    arrow_icon_classes = "w-4 h-4 text-muted"
+    arrow_classes = "p-1 rounded-full transition-all duration-200"
+    arrow_icon_classes = "w-5 h-5 text-muted"
   when :mobile
     wrapper_classes = "flex space-x-3 overflow-x-auto pb-2"
     container_classes = ""
@@ -26,7 +26,7 @@
   when :modal
     wrapper_classes = "flex flex-col items-center"
     container_classes = "space-y-3"
-    arrow_classes = "p-2 rounded-full hover:bg-gray-200 transition-all duration-200"
+    arrow_classes = "p-2 rounded-full transition-all duration-200"
     arrow_icon_classes = "w-5 h-5 text-muted"
   end
 %>
@@ -47,14 +47,19 @@
     <% if show_arrows %>
       <button type="button"
               class="<%= context == :desktop ? 'mb-2' : 'mb-4' %> <%= arrow_classes %>"
-              data-action="click->products--gallery#scrollThumbnailsUp"
-        data-products--gallery-target="upArrow">
+              <% if context == :modal %>
+                data-action="click->products--gallery#scrollThumbnailsUp"
+                data-products--gallery-target="upArrow"
+              <% else %>
+                data-action="click->products--gallery-thumbnails#scrollThumbnailsUp"
+                data-products--gallery-thumbnails-target="upArrow"
+              <% end %>>
         <%= render UI::IconComponent.new(name: :chevron_up, css_class: arrow_icon_classes) %>
       </button>
     <% end %>
     <!-- Thumbnail Container -->
-    <div <% if container_height %>style="height: <%= container_height %>px;"<% end %>
-         data-products--gallery-target="thumbnailContainer">
+    <div <% if container_height %>style="height: <%= container_height %>px; overflow: hidden;"<% end %>
+         <% if context == :modal %>data-products--gallery-target="thumbnailContainer"<% else %>data-products--gallery-thumbnails-target="thumbnailContainer"<% end %>>
       <div class="<%= container_classes %>">
         <% images.each_with_index do |image_data, index| %>
           <%= render "products/thumbnail_button",
@@ -70,8 +75,13 @@
     <% if show_arrows %>
       <button type="button"
               class="<%= context == :desktop ? 'mt-2' : 'mt-4' %> <%= arrow_classes %>"
-              data-action="click->products--gallery#scrollThumbnailsDown"
-        data-products--gallery-target="downArrow">
+              <% if context == :modal %>
+                data-action="click->products--gallery#scrollThumbnailsDown"
+                data-products--gallery-target="downArrow"
+              <% else %>
+                data-action="click->products--gallery-thumbnails#scrollThumbnailsDown"
+                data-products--gallery-thumbnails-target="downArrow"
+              <% end %>>
         <%= render UI::IconComponent.new(name: :chevron_down, css_class: arrow_icon_classes) %>
       </button>
     <% end %>

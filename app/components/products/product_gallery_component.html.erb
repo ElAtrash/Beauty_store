@@ -1,5 +1,5 @@
 <div class="space-y-4"
-     data-controller="products--gallery">
+     data-controller="products--gallery products--gallery-thumbnails products--gallery-modal">
   <!-- Main Image Area with Overlaid Thumbnails -->
   <div class="relative">
     <div class="relative aspect-[4/3] bg-gray-50 overflow-hidden shadow-sm">
@@ -73,4 +73,17 @@
         gallery_images: gallery_images,
         current_image_index: 0
       ) %>
+  <!-- Gallery Data for JavaScript -->
+  <script type="application/json" id="product-gallery-data">
+    <%= {
+      images: gallery_images.map do |image_data|
+        {
+          url: image_url(image_data.attachment, size: :medium),
+          large_url: image_url(image_data.attachment, size: :large),
+          thumbnail_url: image_url(image_data.attachment, size: :small),
+          alt: image_data.safe_alt
+        }
+      end
+    }.to_json.html_safe %>
+  </script>
 </div>

@@ -72,5 +72,22 @@ FactoryBot.define do
         end
       end
     end
+
+    trait :with_color_variants do
+      after(:create) do |product|
+        create(:product_variant, :red, :small_size, product: product, stock_quantity: 10)
+        create(:product_variant, :red, :medium_size, product: product, stock_quantity: 8)
+        create(:product_variant, :blue, :small_size, product: product, stock_quantity: 5)
+        create(:product_variant, :blue, :medium_size, product: product, stock_quantity: 3)
+      end
+    end
+
+    trait :with_size_only_variants do
+      after(:create) do |product|
+        create(:product_variant, :small_size, product: product, stock_quantity: 10)
+        create(:product_variant, :medium_size, product: product, stock_quantity: 8)
+        create(:product_variant, :large_size, product: product, stock_quantity: 5)
+      end
+    end
   end
 end

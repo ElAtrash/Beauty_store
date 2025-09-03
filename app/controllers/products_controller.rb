@@ -1,29 +1,19 @@
 class ProductsController < ApplicationController
   allow_unauthenticated_access only: %i[ show update_variant ]
 
+  before_action :set_product, only: %i[show update_variant]
+
   def show
-    @product = Product.friendly.find(params[:id])
-
-    unless @product.available?
-      raise ActiveRecord::RecordNotFound
-    end
-
-    @product_data = Products::ProductPresenter.new(@product).build_display_data
+    @selected_variant = find_selected_variant || @product.default_variant
+    @product_data = build_product_data_for_variant(@selected_variant)
 
     setup_breadcrumbs
-    setup_seo_data
+    setup_seo_data(@product)
   end
 
   def update_variant
-    @product = Product.friendly.find(params[:id])
-
-    unless @product.available?
-      raise ActiveRecord::RecordNotFound
-    end
-
-    # Get selected variant based on form params
     @selected_variant = find_selected_variant || @product.default_variant
-    @product_data = Products::ProductPresenter.new(@product, selected_variant: @selected_variant).build_display_data
+    @product_data = build_product_data_for_variant(@selected_variant)
 
     respond_to do |format|
       format.turbo_stream do
@@ -37,39 +27,65 @@ class ProductsController < ApplicationController
 
   private
 
+  def set_product
+    @product = Product.includes(:product_variants).find_available!(params[:id])
+  end
+
+  def build_product_data_for_variant(selected_variant)
+    presenter = Products::ProductPresenter.new(@product)
+
+    static_data = Rails.cache.fetch(product_data_cache_key(@product), expires_in: 30.minutes) do
+      presenter.build_static_data
+    end
+
+    dynamic_data = presenter.build_dynamic_data(selected_variant: selected_variant)
+    static_data.merge_dynamic!(dynamic_data)
+  end
+
+  def product_data_cache_key(product)
+    [ product.cache_key_with_version, "product_static_data" ]
+  end
+
   def find_selected_variant
-    size_param = params[:size]
-    color_param = params[:color]
+    return if params[:size].blank? && params[:color].blank?
 
-    return nil unless size_param || color_param
-
-    @product.product_variants.find do |variant|
-      size_match = size_param.nil? || variant.size_key == size_param
-      color_match = color_param.nil? || variant.color_hex == color_param
-      size_match && color_match
+    if params[:color].present? && params[:size].blank?
+      variant_for_color_only
+    elsif params[:color].present? && params[:size].present?
+      variant_for_color_and_size
+    elsif params[:size].present?
+      variant_for_size_only
     end
   end
 
-  def setup_breadcrumbs
-    @breadcrumbs = [
-      { name: "Home", path: root_path }
-    ]
+  def variant_for_color_only
+    color_variants = @product.product_variants.where(color_hex: params[:color])
+    Products::DefaultVariantSelector.call(@product, scope: color_variants)
+  end
 
-    if @product.categories.any?
-      category = @product.categories.first
+  def variant_for_color_and_size
+    @product.product_variants.by_size_key(params[:size]).find_by(color_hex: params[:color])
+  end
+
+  def variant_for_size_only
+    @product.product_variants.by_size_key(params[:size]).first
+  end
+
+  def setup_breadcrumbs
+    @breadcrumbs = [ { name: "Home", path: root_path } ]
+
+    if (category = @product.categories.first)
       @breadcrumbs << { name: category.name, path: category_path(category) }
     end
 
-    if @product.brand
-      @breadcrumbs << { name: @product.brand.name, path: brand_path(@product.brand) }
+    if (brand = @product.brand)
+      @breadcrumbs << { name: brand.name, path: brand_path(brand) }
     end
 
     @breadcrumbs << { name: @product.name, path: nil }
   end
 
-  def setup_seo_data
-    @page_title = @product.meta_title.presence || "#{@product.name} | Beauty Store"
-    @meta_description = @product.meta_description.presence ||
-      "#{@product.description&.truncate(150)} Shop #{@product.name} at Beauty Store."
+  def product_data_cache_key(product)
+    [ product.cache_key_with_version, "product_static_data" ]
   end
 end
