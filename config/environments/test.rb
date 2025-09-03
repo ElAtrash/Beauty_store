@@ -33,6 +33,8 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
+  # Disable variant processing in tests for performance
+  config.active_storage.variant_processor = nil
 
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
@@ -53,4 +55,7 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Disable host authorization middleware completely for tests
+  config.host_authorization = { exclude: ->(request) { true } }
 end

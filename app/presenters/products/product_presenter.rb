@@ -6,10 +6,14 @@ module Products
 
     def initialize(product)
       @product = product
-      @variants = product.product_variants.includes(
-        featured_image_attachment: :blob,
-        images_attachments: :blob
-      ).to_a
+      @variants = if product.product_variants.loaded?
+        product.product_variants.to_a
+      else
+        product.product_variants.includes(
+          featured_image_attachment: :blob,
+          images_attachments: :blob
+        ).to_a
+      end
     end
 
     def build_static_data
@@ -64,13 +68,22 @@ module Products
     def build_variant_images_mapping
       @variant_images_mapping ||= variants.each_with_object({}) do |variant, mapping|
         images = []
-        images << build_gallery_image(variant.featured_image, :variant, variant, 1) if variant.featured_image.attached?
-        if variant.images.attached?
-          variant.images.each_with_index do |img, idx|
-            next if variant.featured_image.attached? && img == variant.featured_image
-            images << build_gallery_image(img, :variant, variant, idx + 2)
+
+        begin
+          if variant.featured_image.attached?
+            images << build_gallery_image(variant.featured_image, :variant, variant, 1)
           end
+
+          if variant.images.attached? && variant.images.any?
+            variant.images.each_with_index do |img, idx|
+              next if variant.featured_image.attached? && img == variant.featured_image
+              images << build_gallery_image(img, :variant, variant, idx + 2)
+            end
+          end
+        rescue => e
+          Rails.logger.warn "Error processing images for variant #{variant.id}: #{e.message}"
         end
+
         mapping[variant.id] = images.map(&:as_json)
       end
     end

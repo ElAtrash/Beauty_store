@@ -38,6 +38,8 @@ end
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
+  config.include SessionTestHelper, type: :request
+  config.include SessionTestHelper, type: :system
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
@@ -54,6 +56,8 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.start
+    # Clear Current attributes to ensure clean state for Rails 8 authentication
+    Current.reset
   end
 
   config.after(:each) do

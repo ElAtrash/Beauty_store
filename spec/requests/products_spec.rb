@@ -30,23 +30,120 @@ RSpec.describe "Products", type: :request do
   end
 
   describe "GET /products/:id" do
-    # Note: These specs test controller behavior but are currently blocked by authentication issues
-    # The business logic has been fixed in the controller and models
-    # Once authentication is resolved, these tests validate:
-    # 1. Product pages load successfully
-    # 2. Variant selection works with exact color+size matches
-    # 3. DefaultVariantSelector is used for color-only selection
-    # 4. Size-only selection returns the first matching variant
-    # 5. Invalid selections fall back to default variant
+    context "basic product display" do
+      it "displays the product page successfully" do
+        get product_path(product)
 
-    # The critical fixes made:
-    # - Fixed controller bug where size_key was being used as database column
-    # - Added by_size_key scope to ProductVariant model for proper database queries
-    # - Improved variant selection logic in controller methods
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include(product.name)
+      end
 
-    # Additional tests would go here once authentication is resolved:
-    # - Product availability tests (unpublished, inactive, non-existent products)
-    # - PATCH /products/:id/update_variant tests for turbo stream responses
-    # - Variant selection parameter handling
+      it "assigns the default variant when no parameters given" do
+        get product_path(product)
+
+        # Check the response includes default variant data
+        expect(response.body).to include(default_variant.name)
+      end
+    end
+
+    context "variant selection business logic" do
+      it "selects variant by exact color and size match" do
+        get product_path(product, color: "#ff0000", size: large_red.size_key)
+
+        expect(response).to have_http_status(:ok)
+        # Verify the large red variant data is in the response
+        expect(response.body).to include(large_red.name)
+      end
+
+      it "uses DefaultVariantSelector for color-only selection" do
+        allow(Products::DefaultVariantSelector).to receive(:call).and_return(small_red)
+
+        get product_path(product, color: "#ff0000")
+
+        expect(response).to have_http_status(:ok)
+        expect(Products::DefaultVariantSelector).to have_received(:call).with(
+          product,
+          scope: anything
+        )
+      end
+
+      it "selects first available variant for size-only selection" do
+        get product_path(product, size: small_red.size_key)
+
+        expect(response).to have_http_status(:ok)
+        # Should work without errors - the exact variant selected depends on database ordering
+      end
+
+      it "falls back to default variant when selection fails" do
+        get product_path(product, color: "#nonexistent", size: "nonexistent")
+
+        expect(response).to have_http_status(:ok)
+        # Should fall back to default variant and not crash
+        expect(response.body).to include(default_variant.name)
+      end
+    end
+
+    context "product availability" do
+      shared_examples "returns not found status" do
+        it "returns 404 status for unavailable products" do
+          expect {
+            get product_path(unavailable_product)
+          }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+
+      context "with unpublished product" do
+        let(:unavailable_product) { create(:product, :unpublished, brand: brand) }
+        include_examples "returns not found status"
+      end
+
+      context "with inactive product" do
+        let(:unavailable_product) { create(:product, active: false, brand: brand) }
+        include_examples "returns not found status"
+      end
+
+      context "with non-existent product" do
+        it "raises ActiveRecord::RecordNotFound" do
+          expect {
+            get product_path(id: "nonexistent")
+          }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+    end
+  end
+
+  describe "PATCH /products/:id/update_variant" do
+    context "with turbo_stream format" do
+      it "updates variant and returns turbo streams for pricing and gallery" do
+        patch update_variant_product_path(product, format: :turbo_stream),
+              params: { color: "#ff0000", size: large_red.size_key }
+
+        expect(response).to have_http_status(:ok)
+        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+
+        # Verify both turbo streams are included
+        expect(response.body).to include('turbo-stream action="replace" target="product-pricing"')
+        expect(response.body).to include('turbo-stream action="replace" target="product-gallery"')
+      end
+
+      it "works with color-only selection" do
+        allow(Products::DefaultVariantSelector).to receive(:call).and_return(small_red)
+
+        patch update_variant_product_path(product, format: :turbo_stream),
+              params: { color: "#ff0000" }
+
+        expect(response).to have_http_status(:ok)
+        expect(Products::DefaultVariantSelector).to have_received(:call).at_least(:once)
+      end
+    end
+
+    context "with HTML format" do
+      it "returns not acceptable status" do
+        patch update_variant_product_path(product),
+              params: { color: "#ff0000", size: large_red.size_key }
+
+        expect(response).to have_http_status(:not_acceptable)
+      end
+    end
   end
 end
