@@ -1365,6 +1365,12 @@
   .gallery-modal-open .product-info-container {
     display: none !important;
   }
+  
+  /* Hide header when modal is open for full-screen experience */
+  .gallery-modal-open .site-header,
+  .gallery-modal-open .header-wrapper {
+    display: none !important;
+  }
 }
 
 @layer utilities {

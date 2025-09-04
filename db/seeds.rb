@@ -1,15 +1,6 @@
 # frozen_string_literal: true
 
-#
-# Comprehensive Beauty Store Seeds
-# Optimized for testing Homepage, Product Pages, Brand Search, and Brand Pages
-#
-
 puts "🌱 Starting comprehensive beauty store seeding..."
-
-# ===============================================================================
-# CORE BRANDS - 4 major brands with complete information
-# ===============================================================================
 
 puts "\n📍 Creating core brands..."
 
@@ -18,25 +9,25 @@ brands_data = [
     name: "Fenty Beauty",
     slug: "fenty-beauty",
     description: "Beauty for All. Fenty Beauty was founded in 2017 by Rihanna with the vision of inclusion for all women. We believe that every person deserves to feel beautiful and confident in their own skin.",
-    banner_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=675&fit=crop&auto=format&q=80"
+    banner_url: "https://picsum.photos/1200/675?random=1001"
   },
   {
     name: "Charlotte Tilbury",
     slug: "charlotte-tilbury",
     description: "Luxury makeup and skincare inspired by iconic beauty looks from the red carpet to the catwalk. Founded by celebrity makeup artist Charlotte Tilbury MBE, bringing professional artistry to everyone.",
-    banner_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&h=675&fit=crop&auto=format&q=80"
+    banner_url: "https://picsum.photos/1200/675?random=1002"
   },
   {
     name: "The Ordinary",
     slug: "the-ordinary",
     description: "Clinical formulations with integrity. DECIEM's The Ordinary offers clinical technologies at honest prices, with straightforward communication and effective, familiar ingredients.",
-    banner_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1200&h=675&fit=crop&auto=format&q=80"
+    banner_url: "https://picsum.photos/1200/675?random=1003"
   },
   {
     name: "Rare Beauty",
     slug: "rare-beauty",
     description: "Find comfort in your own skin. Founded by Selena Gomez, Rare Beauty celebrates uniqueness and promotes mental health awareness while creating high-quality, easy-to-use products.",
-    banner_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=1200&h=675&fit=crop&auto=format&q=80"
+    banner_url: "https://picsum.photos/1200/675?random=1004"
   }
 ]
 
@@ -47,7 +38,6 @@ brands_data.each do |brand_data|
     b.description = brand_data[:description]
   end
 
-  # Attach banner image
   if brand_data[:banner_url] && !brand.banner_image.attached?
     begin
       require 'open-uri'
@@ -61,7 +51,7 @@ brands_data.each do |brand_data|
       )
       puts "  ✅ #{brand.name} (with banner)"
     rescue => e
-      puts "  ⚠️  #{brand.name} (banner failed: #{e.message})"
+      puts "  ⚠️ #{brand.name} (banner failed: #{e.message})"
     end
   else
     puts "  ✅ #{brand.name}"
@@ -69,10 +59,6 @@ brands_data.each do |brand_data|
 
   brands[brand_data[:slug]] = brand
 end
-
-# ===============================================================================
-# CATEGORIES - Organized product categories
-# ===============================================================================
 
 puts "\n📍 Creating categories..."
 
@@ -96,10 +82,6 @@ categories_data.each do |cat_data|
   puts "  ✅ #{category.name}"
 end
 
-# ===============================================================================
-# HELPER METHODS - Create products with complete data and images
-# ===============================================================================
-
 def attach_variant_images(variant, image_urls)
   return unless image_urls&.any?
 
@@ -107,7 +89,6 @@ def attach_variant_images(variant, image_urls)
     next unless url
 
     if index == 0 && !variant.featured_image.attached?
-      # First image becomes featured image
       begin
         require 'open-uri'
         image_data = URI.open(url)
@@ -122,7 +103,6 @@ def attach_variant_images(variant, image_urls)
         puts "    ❌ Failed to attach featured image for #{variant.color || variant.name}: #{e.message}"
       end
     else
-      # Additional images go to images collection
       begin
         require 'open-uri'
         image_data = URI.open(url)
@@ -157,17 +137,14 @@ def create_complete_product(
     p.published_at = rand(1..30).days.ago
   end
 
-  # Update subtitle for existing products
   if product.persisted? && product.subtitle != subtitle
     product.update!(subtitle: subtitle)
   end
 
-  # Add to categories
   categories.each do |category|
     Categorization.find_or_create_by!(product: product, category: category)
   end
 
-  # Create variants
   if variants.any?
     variants.each_with_index do |variant_data, index|
       variant = ProductVariant.find_or_create_by!(product: product, name: variant_data[:name]) do |v|
@@ -181,14 +158,12 @@ def create_complete_product(
         v.size_unit = variant_data[:size_unit] if variant_data[:size_unit]
         v.size_type = variant_data[:size_type] if variant_data[:size_type]
 
-        # Smart default fields with realistic test data
         v.sales_count = variant_data[:sales_count] || rand(10..200)
         v.conversion_score = variant_data[:conversion_score] || rand(0.05..0.20).round(4)
         v.is_default = variant_data[:is_default] || false
         v.canonical_variant = variant_data[:canonical_variant] || false
       end
 
-      # Update color and size for existing variants
       updates_needed = {}
       updates_needed[:color] = variant_data[:color] if variant_data[:color] && variant.color != variant_data[:color]
       updates_needed[:color_hex] = variant_data[:color_hex] if variant_data[:color_hex] && variant.color_hex != variant_data[:color_hex]
@@ -200,33 +175,27 @@ def create_complete_product(
         variant.update!(updates_needed)
       end
 
-      # Attach variant images if provided
       if variant_data[:image_urls]
         attach_variant_images(variant, variant_data[:image_urls])
       elsif variant_data[:image_url]
-        # Fallback to single image_url for backward compatibility
         attach_variant_images(variant, [ variant_data[:image_url] ])
       elsif image_url && !variant.featured_image.attached?
-        # Use product's default image if no variant-specific image provided
         attach_variant_images(variant, [ image_url ])
       end
     end
   else
-    # Default variant
     ProductVariant.find_or_create_by!(product: product, name: "Standard") do |v|
       v.sku = "#{product.id}-STD-#{rand(100..999)}"
       v.price = Money.new(price * 100)
       v.stock_quantity = rand(10..100)
       v.position = 1
 
-      # Mark as default for single-variant products
       v.sales_count = rand(50..300)
       v.conversion_score = rand(0.08..0.18).round(4)
       v.is_default = true
       v.canonical_variant = true
     end
 
-    # Ensure default variant has an image too
     default_variant = product.product_variants.first
     if default_variant && !default_variant.featured_image.attached? && image_url
       attach_variant_images(default_variant, [ image_url ])
@@ -238,13 +207,8 @@ def create_complete_product(
   product
 end
 
-# ===============================================================================
-# FENTY BEAUTY PRODUCTS - Inclusive, diverse range
-# ===============================================================================
-
 puts "\n📍 Creating Fenty Beauty products..."
 
-# Pro Filt'r Foundation
 create_complete_product(
   name: "Pro Filt'r Soft Matte Longwear Foundation",
   subtitle: "Longwear foundation with 50 inclusive shades",
@@ -266,25 +230,24 @@ create_complete_product(
   variants: [
     {
       name: "110 - Fair with cool undertones", price: 36, color: "Fair Cool", color_hex: "#F4C2A1", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2001" ]
     },
     {
       name: "210 - Light with warm undertones", price: 36, color: "Light Warm", color_hex: "#E8B896", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2002" ]
     },
     {
       name: "290 - Medium with warm undertones", price: 36, color: "Medium Warm", color_hex: "#D4A574", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2003" ]
     },
     {
       name: "385 - Deep with cool undertones", price: 36, color: "Deep Cool", color_hex: "#A67C52", size_value: 32, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2004" ]
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2005"
 )
 
-# Gloss Bomb
 create_complete_product(
   name: "Gloss Bomb Universal Lip Luminizer",
   subtitle: "Explosive shine lip gloss for all skin tones",
@@ -307,21 +270,20 @@ create_complete_product(
   variants: [
     {
       name: "Fenty Glow - Universal nude", price: 21, color: "Universal Nude", color_hex: "#D4A574", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2006" ]
     },
     {
       name: "Fu$$y - Pinky peach", price: 21, color: "Pinky Peach", color_hex: "#F4A6A6", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2007" ]
     },
     {
       name: "Sweet Mouth - Sheer berry", price: 21, color: "Sheer Berry", color_hex: "#C85A8E", size_value: 9, size_unit: "ml", size_type: "volume",
-      image_urls: [ "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80" ]
+      image_urls: [ "https://picsum.photos/800/600?random=2008" ]
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2009"
 )
 
-# Match Stix Concealer
 create_complete_product(
   name: "Match Stix Matte Skinstick Concealer",
   subtitle: "Portable magnetic concealer that won't crease",
@@ -345,16 +307,11 @@ create_complete_product(
     { name: "Medium", price: 28, color: "Medium", color_hex: "#D4A574", size_value: 8, size_unit: "g", size_type: "weight" },
     { name: "Deep", price: 28, color: "Deep", color_hex: "#A67C52", size_value: 8, size_unit: "g", size_type: "weight" }
   ],
-  image_url: "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2010"
 )
-
-# ===============================================================================
-# CHARLOTTE TILBURY PRODUCTS - Luxury complete lines
-# ===============================================================================
 
 puts "\n📍 Creating Charlotte Tilbury products..."
 
-# Pillow Talk Lipstick
 create_complete_product(
   name: "Matte Revolution Lipstick - Pillow Talk",
   subtitle: "Award-winning bestselling lipstick",
@@ -380,10 +337,9 @@ create_complete_product(
     { name: "Walk of No Shame", price: 34, color: "Berry", color_hex: "#B85A8E", size_value: 3.5, size_unit: "g", size_type: "weight" },
     { name: "Red Carpet Red", price: 34, color: "Classic Red", color_hex: "#D4232A", size_value: 3.5, size_unit: "g", size_type: "weight" }
   ],
-  image_url: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2011"
 )
 
-# Hollywood Flawless Filter
 create_complete_product(
   name: "Hollywood Flawless Filter",
   subtitle: "Complexion booster for supermodel glow",
@@ -406,10 +362,9 @@ create_complete_product(
     { name: "Light/Medium", price: 49, color: "Light Medium", color_hex: "#F0D4B8", size_value: 30, size_unit: "ml", size_type: "volume" },
     { name: "Medium/Dark", price: 49, color: "Medium Dark", color_hex: "#C89B7B", size_value: 30, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2012"
 )
 
-# Magic Cream Moisturizer
 create_complete_product(
   name: "Magic Cream Moisturizer",
   subtitle: "Celebrity favorite red carpet moisturizer",
@@ -431,16 +386,11 @@ create_complete_product(
     { name: "50ml", price: 100, size_value: 50, size_unit: "ml", size_type: "volume" },
     { name: "15ml Travel", price: 35, size_value: 15, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2013"
 )
-
-# ===============================================================================
-# THE ORDINARY PRODUCTS - Clinical skincare focus
-# ===============================================================================
 
 puts "\n📍 Creating The Ordinary products..."
 
-# Niacinamide Serum
 create_complete_product(
   name: "Niacinamide 10% + Zinc 1%",
   subtitle: "High-strength blemish fighting formula",
@@ -461,10 +411,9 @@ create_complete_product(
   variants: [
     { name: "30ml", price: 7, size_value: 30, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2014"
 )
 
-# Hyaluronic Acid Serum
 create_complete_product(
   name: "Hyaluronic Acid 2% + B5",
   subtitle: "Multi-depth hydration with vitamin B5",
@@ -486,10 +435,9 @@ create_complete_product(
     { name: "30ml", price: 8, size_value: 30, size_unit: "ml", size_type: "volume" },
     { name: "60ml", price: 13, size_value: 60, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2015"
 )
 
-# Retinol Serum
 create_complete_product(
   name: "Retinol 0.5% in Squalane",
   subtitle: "Moderate-strength anti-aging serum",
@@ -510,16 +458,11 @@ create_complete_product(
   variants: [
     { name: "30ml", price: 10, size_value: 30, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2016"
 )
-
-# ===============================================================================
-# RARE BEAUTY PRODUCTS - Trendy, easy-to-use
-# ===============================================================================
 
 puts "\n📍 Creating Rare Beauty products..."
 
-# Soft Pinch Blush
 create_complete_product(
   name: "Soft Pinch Liquid Blush",
   subtitle: "Weightless liquid blush for natural flush",
@@ -543,10 +486,9 @@ create_complete_product(
     { name: "Bliss - Soft Peach", price: 23, color: "Peach", color_hex: "#F4A6A6", size_value: 15, size_unit: "ml", size_type: "volume" },
     { name: "Hope - Soft Pink", price: 23, color: "Pink", color_hex: "#E8B8AB", size_value: 15, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2017"
 )
 
-# Perfect Strokes Mascara
 create_complete_product(
   name: "Perfect Strokes Universal Volumizing Mascara",
   subtitle: "Universal mascara with hourglass brush",
@@ -569,10 +511,9 @@ create_complete_product(
     { name: "Black", price: 20, color: "Black", color_hex: "#000000", size_value: 10, size_unit: "ml", size_type: "volume" },
     { name: "Brown", price: 20, color: "Brown", color_hex: "#8B4513", size_value: 10, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2018"
 )
 
-# Kind Words Lip Liner
 create_complete_product(
   name: "Kind Words Matte Lip Liner",
   subtitle: "Long-wearing highly pigmented lip liner",
@@ -596,16 +537,11 @@ create_complete_product(
     { name: "Brave - Deep Berry", price: 14, color: "Berry", color_hex: "#B85A8E", size_value: 1.1, size_unit: "g", size_type: "weight" },
     { name: "Honest - Classic Red", price: 14, color: "Red", color_hex: "#D4232A", size_value: 1.1, size_unit: "g", size_type: "weight" }
   ],
-  image_url: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2019"
 )
-
-# ===============================================================================
-# ADDITIONAL PRODUCTS FOR TESTING - Various brands & categories
-# ===============================================================================
 
 puts "\n📍 Creating additional test products..."
 
-# High-end fragrance for pricing variety
 create_complete_product(
   name: "Fenty Eau de Parfum",
   subtitle: "Rihanna's signature warm spicy scent",
@@ -629,10 +565,9 @@ create_complete_product(
     { name: "50ml", price: 140, size_value: 50, size_unit: "ml", size_type: "volume" },
     { name: "10ml Travel", price: 40, size_value: 10, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2020"
 )
 
-# Professional brush for tools category
 create_complete_product(
   name: "Foundation Brush - Precision",
   subtitle: "Dense synthetic brush for flawless application",
@@ -654,16 +589,11 @@ create_complete_product(
   variants: [
     { name: "Standard", price: 28, size_value: 1, size_unit: "piece", size_type: "quantity" }
   ],
-  image_url: "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2021"
 )
-
-# ===============================================================================
-# PRODUCTS WITH EXTENSIVE VARIANTS & MULTIPLE IMAGES - For testing UI components
-# ===============================================================================
 
 puts "\n📍 Creating products with extensive variants and galleries..."
 
-# Foundation with 20+ shades - Testing extensive variant selection
 fenty_foundation_pro = create_complete_product(
   name: "Pro Filt'r Hydrating Longwear Foundation",
   subtitle: "Hydrating sister to the original Pro Filt'r",
@@ -708,17 +638,16 @@ fenty_foundation_pro = create_complete_product(
     { name: "370 - Deep with warm undertones", price: 39, color: "Deep Warm", color_hex: "#B38759", size_value: 32, size_unit: "ml", size_type: "volume" },
     { name: "385 - Deep with olive undertones", price: 39, color: "Deep Olive", color_hex: "#A67C52", size_value: 32, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2022"
 )
 
-# Attach multiple gallery images to foundation
 if fenty_foundation_pro
   gallery_urls = [
-    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=400&h=400&fit=crop"
+    "https://picsum.photos/400/400?random=101",
+    "https://picsum.photos/400/400?random=102",
+    "https://picsum.photos/400/400?random=103",
+    "https://picsum.photos/400/400?random=104",
+    "https://picsum.photos/400/400?random=105"
   ]
 
   gallery_urls.each_with_index do |url, index|
@@ -727,7 +656,7 @@ if fenty_foundation_pro
       image_data = URI.open(url)
       filename = "#{fenty_foundation_pro.slug}-gallery-#{index + 1}.jpg"
 
-      fenty_foundation_pro.images.attach(
+      fenty_foundation_pro.default_variant.images.attach(
         io: image_data,
         filename: filename,
         content_type: 'image/jpeg'
@@ -739,7 +668,6 @@ if fenty_foundation_pro
   end
 end
 
-# Eyeshadow palette with many shades - Testing color variants
 charlotte_palette = create_complete_product(
   name: "Luxury Palette - The Queen of Glow",
   subtitle: "12 mesmerizing shades for every occasion",
@@ -772,18 +700,17 @@ charlotte_palette = create_complete_product(
     { name: "Plum Perfect - Deep plum", price: 75, color: "Plum", color_hex: "#8E4585", size_value: 39, size_unit: "g", size_type: "weight" },
     { name: "Vintage Vamp - Burgundy", price: 75, color: "Burgundy", color_hex: "#800020", size_value: 39, size_unit: "g", size_type: "weight" }
   ],
-  image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2023"
 )
 
-# Attach multiple images to eyeshadow palette
 if charlotte_palette
   palette_gallery_urls = [
-    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=400&h=400&fit=crop"
+    "https://picsum.photos/400/400?random=201",
+    "https://picsum.photos/400/400?random=202",
+    "https://picsum.photos/400/400?random=203",
+    "https://picsum.photos/400/400?random=204",
+    "https://picsum.photos/400/400?random=205",
+    "https://picsum.photos/400/400?random=206"
   ]
 
   palette_gallery_urls.each_with_index do |url, index|
@@ -792,7 +719,7 @@ if charlotte_palette
       image_data = URI.open(url)
       filename = "#{charlotte_palette.slug}-gallery-#{index + 1}.jpg"
 
-      charlotte_palette.images.attach(
+      charlotte_palette.default_variant.images.attach(
         io: image_data,
         filename: filename,
         content_type: 'image/jpeg'
@@ -804,8 +731,7 @@ if charlotte_palette
   end
 end
 
-# Serum with multiple sizes - Testing size variants
-ordinary_vitamin_c = create_complete_product(
+create_complete_product(
   name: "Vitamin C Suspension 23% + HA Spheres 2%",
   subtitle: "Water-free stable vitamin C suspension",
   brand: brands["the-ordinary"],
@@ -829,11 +755,9 @@ ordinary_vitamin_c = create_complete_product(
     { name: "100ml - Professional", price: 32, size_value: 100, size_unit: "ml", size_type: "volume" },
     { name: "200ml - Salon Size", price: 55, size_value: 200, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2024"
 )
 
-
-# Liquid blush with many shades - Testing color dropdown
 rare_blush_collection = create_complete_product(
   name: "Soft Pinch Liquid Blush Collection",
   subtitle: "15 beautiful shades for every skin tone",
@@ -853,10 +777,9 @@ rare_blush_collection = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [],
-  image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2025"
 )
 
-# Create variants manually to have some out-of-stock shades
 if rare_blush_collection
   blush_variant_data = [
     { name: "Encourage - Soft coral", price: 23, color: "Coral", color_hex: "#FF7F7F", stock: 0, size_value: 15, size_unit: "ml", size_type: "volume" },
@@ -888,7 +811,6 @@ if rare_blush_collection
       v.size_type = variant_info[:size_type] if variant_info[:size_type]
     end
 
-    # Update stock and size for existing variants
     updates_needed = {}
     updates_needed[:stock_quantity] = variant_info[:stock] if variant.persisted? && variant.stock_quantity != variant_info[:stock]
     updates_needed[:color] = variant_info[:color] if variant_info[:color] && variant.color != variant_info[:color]
@@ -902,14 +824,13 @@ if rare_blush_collection
   end
 end
 
-# Attach multiple images to blush collection
 if rare_blush_collection
   blush_gallery_urls = [
-    "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=400&h=400&fit=crop"
+    "https://picsum.photos/400/400?random=301",
+    "https://picsum.photos/400/400?random=302",
+    "https://picsum.photos/400/400?random=303",
+    "https://picsum.photos/400/400?random=304",
+    "https://picsum.photos/400/400?random=305"
   ]
 
   blush_gallery_urls.each_with_index do |url, index|
@@ -918,7 +839,7 @@ if rare_blush_collection
       image_data = URI.open(url)
       filename = "#{rare_blush_collection.slug}-gallery-#{index + 1}.jpg"
 
-      rare_blush_collection.images.attach(
+      rare_blush_collection.default_variant.images.attach(
         io: image_data,
         filename: filename,
         content_type: 'image/jpeg'
@@ -930,7 +851,6 @@ if rare_blush_collection
   end
 end
 
-# Test product with out-of-stock color variants
 charlotte_out_of_stock = create_complete_product(
   name: "Pillow Talk Eyeshadow Palette - Limited Edition",
   subtitle: "4 mesmerizing shades with some sold out",
@@ -950,10 +870,9 @@ charlotte_out_of_stock = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [],
-  image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2026"
 )
 
-# Create variants manually to control stock levels
 if charlotte_out_of_stock
   out_of_stock_variant_data = [
     { name: "Pillow Talk - Rosy nude", color: "Rosy Nude", color_hex: "#E8B8AB", price: 55, stock: 12, size_value: 16, size_unit: "g", size_type: "weight" },
@@ -975,7 +894,6 @@ if charlotte_out_of_stock
       v.size_type = variant_info[:size_type] if variant_info[:size_type]
     end
 
-    # Update stock for existing variants
     if variant.persisted? && variant.stock_quantity != variant_info[:stock]
       variant.update!(stock_quantity: variant_info[:stock])
     end
@@ -986,7 +904,6 @@ end
 
 puts "  ✅ Added 5 products with extensive variants and multiple images"
 
-# Moisturizer with multiple sizes - Testing out-of-stock styling
 charlotte_moisturizer = create_complete_product(
   name: "Magic Cream Moisturizer Deluxe Collection",
   subtitle: "Award-winning Magic Cream in multiple sizes",
@@ -1005,10 +922,9 @@ charlotte_moisturizer = create_complete_product(
     cruelty_free: "Yes"
   },
   variants: [],
-  image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2027"
 )
 
-# Create variants manually to control stock levels
 if charlotte_moisturizer
   variant_data = [
     { name: "15ml Travel", price: 35, size_value: 15, size_unit: "ml", size_type: "volume", stock: 25 },
@@ -1033,13 +949,8 @@ if charlotte_moisturizer
   puts "  ✅ Magic Cream Moisturizer Deluxe Collection - Charlotte Tilbury (with out-of-stock variants)"
 end
 
-# ===============================================================================
-# PRODUCTS WITH ALL VARIANTS OUT OF STOCK - For OOS Testing
-# ===============================================================================
-
 puts "\n🚫 Creating products with all variants out of stock for OOS testing..."
 
-# Completely sold out lipstick collection
 sold_out_lipstick = create_complete_product(
   name: "Limited Edition Velvet Matte Lipstick Set",
   subtitle: "Sold out - Limited holiday collection",
@@ -1098,16 +1009,14 @@ sold_out_lipstick = create_complete_product(
       canonical_variant: false
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=600&fit=crop"
+  image_url: "https://picsum.photos/800/600?random=2028"
 )
 
-# Set all variants to out of stock
 if sold_out_lipstick
   sold_out_lipstick.product_variants.update_all(stock_quantity: 0)
   puts "  ✅ Limited Edition Velvet Matte Lipstick Set (ALL VARIANTS OUT OF STOCK)"
 end
 
-# Sold out skincare serum
 sold_out_serum = create_complete_product(
   name: "Miracle Recovery Serum",
   subtitle: "Temporarily out of stock - High demand item",
@@ -1160,10 +1069,9 @@ sold_out_serum = create_complete_product(
       canonical_variant: false
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2029"
 )
 
-# Set all variants to out of stock
 if sold_out_serum
   sold_out_serum.product_variants.update_all(stock_quantity: 0)
   puts "  ✅ Miracle Recovery Serum (ALL VARIANTS OUT OF STOCK)"
@@ -1228,22 +1136,16 @@ sold_out_foundation = create_complete_product(
       canonical_variant: false
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2030"
 )
 
-# Set all variants to out of stock
 if sold_out_foundation
   sold_out_foundation.product_variants.update_all(stock_quantity: 0)
   puts "  ✅ Perfect Match Foundation (ALL VARIANTS OUT OF STOCK)"
 end
 
-# ===============================================================================
-# PRODUCTS WITH SALES/DISCOUNTS/HIT STATUS - For testing promotional features
-# ===============================================================================
-
 puts "\n🔥 Creating products with sales, discounts, and hit status..."
 
-# Hit Product 1: Trending Foundation with 20% off
 hit_foundation_sale = create_complete_product(
   name: "Viral Glow Foundation - TikTok Famous",
   subtitle: "🔥 TRENDING NOW • 20% OFF Limited Time",
@@ -1289,20 +1191,18 @@ hit_foundation_sale = create_complete_product(
       sales_count: 780, conversion_score: 0.29
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2031"
 )
 
-# Update variants with sale pricing
 if hit_foundation_sale
   hit_foundation_sale.product_variants.each do |variant|
     variant.update!(
-      compare_at_price: Money.new(4200), # $42.00 original price
-      price: Money.new(3400)             # $34.00 sale price (20% off)
+      compare_at_price: Money.new(4200),
+      price: Money.new(3400)
     )
   end
 end
 
-# Hit Product 2: Bestselling Lipstick with 15% off
 hit_lipstick_sale = create_complete_product(
   name: "Pillow Talk Bestseller - Award Winner",
   subtitle: "🏆 #1 BESTSELLER • 15% OFF Flash Sale",
@@ -1343,20 +1243,18 @@ hit_lipstick_sale = create_complete_product(
       sales_count: 1200, conversion_score: 0.31
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2032"
 )
 
-# Update variants with sale pricing
 if hit_lipstick_sale
   hit_lipstick_sale.product_variants.each do |variant|
     variant.update!(
-      compare_at_price: Money.new(3400), # $34.00 original price
-      price: Money.new(2900)             # $29.00 sale price (15% off)
+      compare_at_price: Money.new(3400),
+      price: Money.new(2900)
     )
   end
 end
 
-# Hit Product 3: Viral Skincare with massive 30% discount
 hit_serum_sale = create_complete_product(
   name: "Miracle Glow Serum - Viral Sensation",
   subtitle: "✨ VIRAL HIT • 30% OFF Mega Sale",
@@ -1389,24 +1287,23 @@ hit_serum_sale = create_complete_product(
       sales_count: 1800, conversion_score: 0.41
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2033"
 )
 
 # Update variants with sale pricing
 if hit_serum_sale
   hit_serum_sale.product_variants.find_by(name: "Standard Size")&.update!(
-    compare_at_price: Money.new(2500), # $25.00 original price
-    price: Money.new(1800)             # $18.00 sale price (30% off)
+    compare_at_price: Money.new(2500),
+    price: Money.new(1800)
   )
 
   hit_serum_sale.product_variants.find_by(name: "Value Size")&.update!(
-    compare_at_price: Money.new(4500), # $45.00 original price
-    price: Money.new(3200)             # $32.00 sale price (30% off)
+    compare_at_price: Money.new(4500),
+    price: Money.new(3200)
   )
 end
 
-# Hit Product 4: Trending Blush Collection - Buy 2 Get 1 Free
-hit_blush_promo = create_complete_product(
+create_complete_product(
   name: "Soft Glow Liquid Blush - Trending Shades",
   subtitle: "🌟 TRENDING • Buy 2 Get 1 FREE",
   brand: brands["rare-beauty"],
@@ -1441,10 +1338,9 @@ hit_blush_promo = create_complete_product(
       sales_count: 1200, conversion_score: 0.39
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2034"
 )
 
-# Regular Product with Small Discount - Testing subtle sale styling
 small_discount_concealer = create_complete_product(
   name: "Perfect Coverage Concealer",
   subtitle: "5% off with code BEAUTY5",
@@ -1470,21 +1366,19 @@ small_discount_concealer = create_complete_product(
     { name: "Medium", price: 27, color: "Medium", color_hex: "#D7A47B", size_value: 9, size_unit: "ml", size_type: "volume" },
     { name: "Deep", price: 27, color: "Deep", color_hex: "#B0855A", size_value: 9, size_unit: "ml", size_type: "volume" }
   ],
-  image_url: "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2035"
 )
 
-# Update variants with small discount
 if small_discount_concealer
   small_discount_concealer.product_variants.each do |variant|
     variant.update!(
-      compare_at_price: Money.new(2800), # $28.00 original price
-      price: Money.new(2700)             # $27.00 sale price (5% off)
+      compare_at_price: Money.new(2800),
+      price: Money.new(2700)
     )
   end
 end
 
-# Bundle Deal Product - Testing bundle promotions
-bundle_skincare_set = create_complete_product(
+create_complete_product(
   name: "Complete Skincare Routine - Value Bundle",
   subtitle: "💝 BUNDLE DEAL • Save $25 when you buy the set",
   brand: brands["the-ordinary"],
@@ -1510,11 +1404,10 @@ bundle_skincare_set = create_complete_product(
       sales_count: 650, conversion_score: 0.25, is_default: true
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2036"
 )
 
-# Limited Edition with Premium Pricing
-limited_edition_palette = create_complete_product(
+create_complete_product(
   name: "Holiday Glam Eyeshadow Palette - Limited Edition",
   subtitle: "🎁 LIMITED EDITION • Only 1000 made worldwide",
   brand: brands["charlotte-tilbury"],
@@ -1541,7 +1434,7 @@ limited_edition_palette = create_complete_product(
       sales_count: 180, conversion_score: 0.15, is_default: true
     }
   ],
-  image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop"
+  image_url: "https://picsum.photos/400/400?random=2037"
 )
 
 puts "  ✅ Viral Glow Foundation (20% OFF - was $42, now $34)"
@@ -1552,13 +1445,8 @@ puts "  ✅ Perfect Coverage Concealer (5% OFF with code BEAUTY5)"
 puts "  ✅ Complete Skincare Routine Bundle (Save $25 - was $70, now $45)"
 puts "  ✅ Holiday Glam Limited Edition Palette ($85 - Premium/Exclusive)"
 
-# ===============================================================================
-# CREATE SAMPLE REVIEWS FOR REALISTIC TESTING
-# ===============================================================================
-
 puts "\n📍 Creating sample reviews..."
 
-# Sample user for reviews
 sample_user = User.find_or_create_by!(email_address: "reviewer@beautystore.com") do |user|
   user.first_name = "Beauty"
   user.last_name = "Enthusiast"
@@ -1566,7 +1454,6 @@ sample_user = User.find_or_create_by!(email_address: "reviewer@beautystore.com")
   user.password_confirmation = "password123"
 end
 
-# Add reviews to popular products
 popular_products = Product.limit(8)
 review_texts = [
   "Amazing product! Highly recommend for daily use.",
@@ -1590,14 +1477,8 @@ popular_products.each_with_index do |product, index|
   end
 end
 
-# ===============================================================================
-# FINAL STATS & SUMMARY
-# ===============================================================================
-
-# Test Products: Multiple Images Per Variant for Gallery Testing
 puts "\n🎨 Creating products with multiple images per variant for gallery testing..."
 
-# Test Product 1: Lipstick Collection with 4+ images per variant
 lipstick_collection = create_complete_product(
   name: "Professional Matte Lipstick Collection",
   subtitle: "Ultimate gallery test with 4+ images per shade",
@@ -1624,11 +1505,11 @@ lipstick_collection = create_complete_product(
       size_unit: "g",
       size_type: "weight",
       image_urls: [
-        "https://images.unsplash.com/photo-1631214540242-38addc4c5c5d?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1583047948021-5fb7e8dac7eb?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1622556498246-755f44ca76f3?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80"
+        "https://picsum.photos/800/600?random=2038",
+        "https://picsum.photos/800/600?random=2039",
+        "https://picsum.photos/800/600?random=2040",
+        "https://picsum.photos/800/600?random=2041",
+        "https://picsum.photos/800/600?random=2042"
       ],
       sales_count: 95,
       conversion_score: 0.09,
@@ -1643,10 +1524,10 @@ lipstick_collection = create_complete_product(
       size_unit: "g",
       size_type: "weight",
       image_urls: [
-        "https://images.unsplash.com/photo-1622556498246-755f44ca76f3?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&h=600&fit=crop&auto=format&q=80"
+        "https://picsum.photos/800/600?random=2043",
+        "https://picsum.photos/800/600?random=2044",
+        "https://picsum.photos/800/600?random=2045",
+        "https://picsum.photos/800/600?random=2046"
       ],
       sales_count: 150,
       conversion_score: 0.12,
@@ -1661,12 +1542,12 @@ lipstick_collection = create_complete_product(
       size_unit: "g",
       size_type: "weight",
       image_urls: [
-        "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80"
+        "https://picsum.photos/800/600?random=2047",
+        "https://picsum.photos/800/600?random=2048",
+        "https://picsum.photos/800/600?random=2049",
+        "https://picsum.photos/800/600?random=2050",
+        "https://picsum.photos/800/600?random=2051",
+        "https://picsum.photos/800/600?random=2052"
       ],
       sales_count: 75,
       conversion_score: 0.08,
@@ -1675,8 +1556,7 @@ lipstick_collection = create_complete_product(
   ]
 )
 
-# Test Product 2: Foundation with Multiple Images Per Variant
-foundation_collection = create_complete_product(
+create_complete_product(
   name: "Perfect Match Foundation Gallery Test",
   subtitle: "Foundation shades with comprehensive product imagery",
   brand: brands["fenty-beauty"],
@@ -1702,11 +1582,11 @@ foundation_collection = create_complete_product(
       size_unit: "ml",
       size_type: "volume",
       image_urls: [
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&h=600&fit=crop&auto=format&q=80"
+        "https://picsum.photos/800/600?random=2053",
+        "https://picsum.photos/800/600?random=2054",
+        "https://picsum.photos/800/600?random=2055",
+        "https://picsum.photos/800/600?random=2056",
+        "https://picsum.photos/800/600?random=2057"
       ],
       is_default: true
     },
@@ -1719,10 +1599,10 @@ foundation_collection = create_complete_product(
       size_unit: "ml",
       size_type: "volume",
       image_urls: [
-        "https://images.unsplash.com/photo-1583241800098-d4940f177abc?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&h=600&fit=crop&auto=format&q=80",
-        "https://images.unsplash.com/photo-1599948128020-9a44d83d1d13?w=800&h=600&fit=crop&auto=format&q=80"
+        "https://picsum.photos/800/600?random=2058",
+        "https://picsum.photos/800/600?random=2059",
+        "https://picsum.photos/800/600?random=2060",
+        "https://picsum.photos/800/600?random=2061"
       ]
     }
   ]
@@ -1750,7 +1630,6 @@ puts "\n🧪 Enhanced Variant System Test Data:"
 puts "  ✅ Smart Default Fields: Added to all variants with realistic test data"
 puts "  ✅ Test Scenarios Created:"
 
-# Test the smart default algorithm with the lipstick collection
 if lipstick_collection
   default_variant = lipstick_collection.default_variant
   puts "    • Matte Revolution Lipstick Collection (Mixed Stock):"
@@ -1758,12 +1637,11 @@ if lipstick_collection
   puts "      - Reason: #{default_variant.is_default? ? 'Explicitly marked default' : 'Algorithm selected'}"
   puts "      - Sales: #{default_variant.sales_count}, Conversion: #{default_variant.conversion_score}"
 
-  # Show all variants for context
   puts "      - All Variants:"
   lipstick_collection.product_variants.each do |variant|
     status_icons = []
     status_icons << "🏆" if variant.is_default?
-    status_icons << "⭐" if variant.canonical_variant?
+    status_icons << "⭐" if variant.canonical_variant
     status_icons << "📈" if variant.sales_count > 100
     status_icons << "🚫" unless variant.in_stock?
 
@@ -1771,7 +1649,6 @@ if lipstick_collection
   end
 end
 
-# Test OOS products
 puts "\n    • Out of Stock Products for OOS Testing:"
 oos_products = [ sold_out_lipstick, sold_out_serum, sold_out_foundation ].compact
 oos_products.each do |product|
@@ -1780,7 +1657,7 @@ oos_products.each do |product|
     puts "      - #{product.name}:"
     puts "        Default: #{default_variant.color.present? ? default_variant.color : default_variant.name} (#{default_variant.is_default? ? 'Marked Default' : 'Algorithm Selected'})"
     puts "        All Variants: #{product.product_variants.count} total, 0 in stock (100% OOS)"
-    puts "        OOS Fallback Logic: #{default_variant.is_default? ? 'Using marked default' : default_variant.canonical_variant? ? 'Using canonical' : 'Using best-selling'}"
+    puts "        OOS Fallback Logic: #{default_variant.is_default? ? 'Using marked default' : default_variant.canonical_variant ? 'Using canonical' : 'Using best-selling'}"
   end
 end
 

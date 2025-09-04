@@ -20,13 +20,16 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+  config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
+
+  # Disable browser filtering in test environment
+  config.force_ssl = false
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
@@ -50,4 +53,10 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Disable host authorization middleware completely for tests
+  config.host_authorization = { exclude: ->(request) { true } }
+
+  # Skip browser compatibility check for tests
+  config.force_ssl = false
 end

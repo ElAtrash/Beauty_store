@@ -1,11 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["mainImage", "currentIndex"]
+  static targets = ["mainImage", "currentIndex", "zoomModal", "zoomImageCard", "thumbnailContainer", "upArrow", "downArrow"]
 
   static values = {
     currentIndex: { type: Number, default: 0 },
-    totalImages: { type: Number, default: 1 }
+    totalImages: { type: Number, default: 1 },
+    thumbnailScrollOffset: { type: Number, default: 0 }
   }
 
   static classes = ["loading", "error"]
@@ -16,6 +17,20 @@ export default class extends Controller {
       this.setupKeyboardNavigation()
       this.images = this.loadInitialImages()
       this.announceImageChange()
+      
+      // Notify thumbnails controller of initial images (with slight delay to ensure other controllers are ready)
+      if (this.images && this.images.length > 0) {
+        setTimeout(() => {
+          this.dispatch('variantChanged', {
+            detail: {
+              images: this.images,
+              currentIndex: this.currentIndexValue,
+              totalImages: this.totalImagesValue
+            },
+            prefix: 'gallery'
+          })
+        }, 100)
+      }
     } catch (error) {
       this.handleError('Failed to initialize gallery', error)
     }
@@ -27,6 +42,9 @@ export default class extends Controller {
     }
     if (this.variantChangeHandler) {
       document.removeEventListener('variant:changed', this.variantChangeHandler)
+    }
+    if (this.thumbnailSelectHandler) {
+      document.removeEventListener('gallery:selectImage', this.thumbnailSelectHandler)
     }
   }
 
@@ -49,31 +67,92 @@ export default class extends Controller {
     }
   }
 
-  // Zoom functionality - delegates to modal controller
+  // Zoom functionality - opens modal directly
   zoomImage(event) {
     event?.stopPropagation()
     
-    // Find the modal controller and open it
-    const modalElement = document.querySelector('[data-controller*="products--gallery-modal"]')
-    if (modalElement) {
-      const modalController = this.application.getControllerForElementAndIdentifier(
-        modalElement, 
-        'products--gallery-modal'
-      )
+    if (this.hasZoomModalTarget) {
+      // Remove hidden class instead of setting hidden attribute
+      this.zoomModalTarget.classList.remove('hidden')
+      document.body.classList.add('gallery-modal-open')
       
-      if (modalController) {
-        modalController.openModal(event)
-      } else {
-        // Fallback: dispatch event for modal to listen to
-        this.dispatch('zoomRequested', {
-          detail: {
-            currentIndex: this.currentIndexValue,
-            images: this.images
-          }
-        })
-      }
-    } else {
-      console.warn('Gallery modal controller not found')
+      // Scroll to current image in modal
+      this.scrollToCurrentImageInModal()
+    }
+  }
+
+  closeZoom(event) {
+    event?.stopPropagation()
+    
+    if (this.hasZoomModalTarget) {
+      // Add hidden class instead of setting hidden attribute
+      this.zoomModalTarget.classList.add('hidden')
+      document.body.classList.remove('gallery-modal-open')
+    }
+  }
+
+  stopPropagation(event) {
+    event?.stopPropagation()
+  }
+
+  scrollToCurrentImageInModal() {
+    const currentImageCard = document.getElementById(`zoom-image-${this.currentIndexValue}`)
+    if (currentImageCard) {
+      currentImageCard.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  // Thumbnail scrolling methods (for modal context)
+  scrollThumbnailsUp(event) {
+    event?.preventDefault()
+    this.scrollThumbnails(-1)
+  }
+
+  scrollThumbnailsDown(event) {
+    event?.preventDefault()
+    this.scrollThumbnails(1)
+  }
+
+  scrollThumbnails(direction) {
+    if (!this.hasThumbnailContainerTarget) return
+
+    const container = this.thumbnailContainerTarget
+    const thumbnailHeight = 76 // 68px thumbnail + 8px spacing
+    const newOffset = this.thumbnailScrollOffsetValue + (direction * thumbnailHeight)
+    
+    // Calculate bounds
+    const maxOffset = Math.max(0, (this.totalImagesValue - 4) * thumbnailHeight)
+    const clampedOffset = Math.max(0, Math.min(newOffset, maxOffset))
+
+    // Apply transform
+    this.thumbnailScrollOffsetValue = clampedOffset
+    const innerContainer = container.children[0]
+    if (innerContainer) {
+      innerContainer.style.transform = `translateY(-${clampedOffset}px)`
+      innerContainer.style.transition = 'transform 0.3s ease'
+    }
+
+    // Update arrow visibility
+    this.updateArrowStates()
+  }
+
+  updateArrowStates() {
+    if (!this.hasThumbnailContainerTarget) return
+
+    const maxOffset = Math.max(0, (this.totalImagesValue - 4) * 76)
+    
+    // Update up arrow
+    if (this.hasUpArrowTarget) {
+      const upOpacity = this.thumbnailScrollOffsetValue > 0 ? '1' : '0.3'
+      this.upArrowTarget.style.opacity = upOpacity
+      this.upArrowTarget.disabled = this.thumbnailScrollOffsetValue <= 0
+    }
+
+    // Update down arrow
+    if (this.hasDownArrowTarget) {
+      const downOpacity = this.thumbnailScrollOffsetValue < maxOffset ? '1' : '0.3'
+      this.downArrowTarget.style.opacity = downOpacity
+      this.downArrowTarget.disabled = this.thumbnailScrollOffsetValue >= maxOffset
     }
   }
 
@@ -109,14 +188,25 @@ export default class extends Controller {
         index,
         imageUrl: this.getCurrentImageUrl(),
         totalImages: this.totalImagesValue
-      }
+      },
+      prefix: 'gallery'
     })
   }
 
   // Variant handling
   setupVariantListener() {
     this.variantChangeHandler = this.handleVariantChange.bind(this)
+    this.thumbnailSelectHandler = this.handleThumbnailSelect.bind(this)
+    
     document.addEventListener('variant:changed', this.variantChangeHandler)
+    document.addEventListener('gallery:selectImage', this.thumbnailSelectHandler)
+  }
+
+  handleThumbnailSelect(event) {
+    const { index } = event.detail
+    if (this.isValidIndex(index)) {
+      this.setCurrentImage(index)
+    }
   }
 
   handleVariantChange(event) {
@@ -139,7 +229,8 @@ export default class extends Controller {
         images,
         currentIndex: 0,
         totalImages: images.length
-      }
+      },
+      prefix: 'gallery'
     })
   }
 
@@ -175,7 +266,7 @@ export default class extends Controller {
         this.totalImagesValue = data.images?.length || 1
         return data.images || []
       } catch (error) {
-        console.warn('Failed to parse gallery data:', error)
+        // Failed to parse gallery data, continue with fallback
       }
     }
 
@@ -231,6 +322,7 @@ export default class extends Controller {
 
     liveRegion.textContent = `Image ${this.currentIndexValue + 1} of ${this.totalImagesValue} selected`
   }
+
 
   // Utilities
   isValidIndex(index) {

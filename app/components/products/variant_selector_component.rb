@@ -25,7 +25,7 @@ module Products
     end
 
     def has_sizes?
-      product.product_variants.any?(&:has_size?)
+      product.product_variants.any?(&:size?)
     end
 
     def has_colors? = variant_options[:colors].any?
@@ -44,7 +44,7 @@ module Products
     end
 
     def default_size_option
-      return nil unless product.default_variant&.has_size?
+      return nil unless product.default_variant&.size?
 
       preferred = product.default_variant.size_key
       default_option(variant_options[:sizes], preferred)

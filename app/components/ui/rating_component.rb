@@ -15,7 +15,7 @@ class UI::RatingComponent < ViewComponent::Base
   attr_reader :product, :style
 
   def rating
-    @rating ||= product.rating || 0
+    @rating ||= product.average_rating || 0
   end
 
   def review_count

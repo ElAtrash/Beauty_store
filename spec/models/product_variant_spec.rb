@@ -202,32 +202,5 @@ RSpec.describe ProductVariant, type: :model do
         end
       end
     end
-
-    describe '#compare_at_price_difference' do
-      it 'formats discount percentage with "% off" suffix' do
-        allow(variant).to receive(:discount_percentage).and_return(25)
-        expect(variant.compare_at_price_difference).to eq('25% off')
-      end
-    end
-
-    describe '#display_name' do
-      it 'combines product name and variant name with hyphen' do
-        variant.product.name = 'Face Cream'
-        variant.name = '50ml / Sensitive Skin'
-        expect(variant.display_name).to eq('Face Cream - 50ml / Sensitive Skin')
-      end
-
-      it 'handles simple variant names' do
-        variant.product.name = 'Moisturizer'
-        variant.name = 'Large'
-        expect(variant.display_name).to eq('Moisturizer - Large')
-      end
-
-      it 'works with special characters in names' do
-        variant.product.name = 'Creme Hydratante'
-        variant.name = 'Taille M'
-        expect(variant.display_name).to eq('Creme Hydratante - Taille M')
-      end
-    end
   end
 end

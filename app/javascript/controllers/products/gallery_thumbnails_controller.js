@@ -1,10 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["thumbnail", "mobileThumbnail", "container"]
+  static targets = ["thumbnail", "mobileThumbnail", "container", "thumbnailContainer", "upArrow", "downArrow"]
 
   static values = {
-    currentIndex: { type: Number, default: 0 }
+    currentIndex: { type: Number, default: 0 },
+    thumbnailScrollOffset: { type: Number, default: 0 }
   }
 
   static classes = ["selected", "loading", "error"]
@@ -13,8 +14,36 @@ export default class extends Controller {
     try {
       this.setupGalleryListeners()
       this.initializeThumbnails()
+      
+      // Fallback: wait a bit then try to get data from gallery if we haven't received variant event
+      setTimeout(() => {
+        if (this.thumbnailTargets.length === 0) {
+          this.syncWithGallery()
+        }
+      }, 200)
     } catch (error) {
       this.handleError('Failed to initialize thumbnails', error)
+    }
+  }
+
+  syncWithGallery() {
+    // Try to get gallery data directly
+    const scriptElement = document.getElementById('product-gallery-data')
+    if (scriptElement) {
+      try {
+        const data = JSON.parse(scriptElement.textContent)
+        if (data.images && data.images.length > 0) {
+          this.handleGalleryVariantChanged({
+            detail: {
+              images: data.images,
+              currentIndex: 0,
+              totalImages: data.images.length
+            }
+          })
+        }
+      } catch (error) {
+        // Failed to parse gallery data, continue without thumbnails
+      }
     }
   }
 
@@ -33,7 +62,6 @@ export default class extends Controller {
     const imageUrl = event.params.imageUrl
 
     if (isNaN(index) || index < 0) {
-      console.warn('Invalid thumbnail index:', index)
       return
     }
 
@@ -43,7 +71,8 @@ export default class extends Controller {
 
     // Notify main gallery controller
     this.dispatch('selectImage', {
-      detail: { index, imageUrl }
+      detail: { index, imageUrl },
+      prefix: 'gallery'
     })
   }
 
@@ -69,12 +98,14 @@ export default class extends Controller {
     this.currentIndexValue = currentIndex
     this.rebuildThumbnails(images)
     this.updateSelection(currentIndex)
+    this.updateArrowStates()
   }
 
   // Thumbnail state management
   initializeThumbnails() {
     this.updateSelection(this.currentIndexValue)
     this.setupAccessibility()
+    this.updateArrowStates()
   }
 
   updateSelection(activeIndex) {
@@ -111,6 +142,83 @@ export default class extends Controller {
         inline: 'center'
       })
     }
+  }
+
+  // Arrow-controlled scrolling for desktop thumbnails
+  scrollThumbnailsUp(event) {
+    event?.preventDefault()
+    this.scrollThumbnails(-1)
+  }
+
+  scrollThumbnailsDown(event) {
+    event?.preventDefault()
+    this.scrollThumbnails(1)
+  }
+
+  scrollThumbnails(direction) {
+    if (!this.hasThumbnailContainerTarget) {
+      return
+    }
+
+    const container = this.thumbnailContainerTarget
+    const thumbnailHeight = 76 // 68px thumbnail + 8px spacing
+    const visibleCount = 4 // Number of thumbnails visible at once
+    const scrollAmount = visibleCount * thumbnailHeight // Scroll by full set
+    
+    const newOffset = this.thumbnailScrollOffsetValue + (direction * scrollAmount)
+    
+    // Get total number of images from gallery controller
+    const totalImages = this.getTotalImagesCount()
+    
+    // Calculate bounds - allow scrolling until last set is visible
+    const maxOffset = Math.max(0, (totalImages - visibleCount) * thumbnailHeight)
+    const clampedOffset = Math.max(0, Math.min(newOffset, maxOffset))
+
+    // Apply transform
+    this.thumbnailScrollOffsetValue = clampedOffset
+    const innerContainer = container.children[0]
+    if (innerContainer) {
+      innerContainer.style.transform = `translateY(-${clampedOffset}px)`
+      innerContainer.style.transition = 'transform 0.3s ease'
+    }
+
+    // Update arrow visibility
+    this.updateArrowStates()
+  }
+
+  updateArrowStates() {
+    if (!this.hasThumbnailContainerTarget) return
+
+    const totalImages = this.getTotalImagesCount()
+    const visibleCount = 4
+    const maxOffset = Math.max(0, (totalImages - visibleCount) * 76)
+    
+    // Update up arrow
+    if (this.hasUpArrowTarget) {
+      const upOpacity = this.thumbnailScrollOffsetValue > 0 ? '1' : '0.3'
+      this.upArrowTarget.style.opacity = upOpacity
+      this.upArrowTarget.disabled = this.thumbnailScrollOffsetValue <= 0
+    }
+
+    // Update down arrow
+    if (this.hasDownArrowTarget) {
+      const downOpacity = this.thumbnailScrollOffsetValue < maxOffset ? '1' : '0.3'
+      this.downArrowTarget.style.opacity = downOpacity
+      this.downArrowTarget.disabled = this.thumbnailScrollOffsetValue >= maxOffset
+    }
+  }
+
+  getTotalImagesCount() {
+    // Try to get from thumbnail count first
+    const thumbnailCount = this.thumbnailTargets.length
+    if (thumbnailCount > 0) return thumbnailCount
+    
+    // Fallback to mobile thumbnails
+    const mobileThumbnailCount = this.mobileThumbnailTargets?.length || 0
+    if (mobileThumbnailCount > 0) return mobileThumbnailCount
+    
+    // Default fallback
+    return 1
   }
 
   // Dynamic thumbnail rebuilding for variants
@@ -182,8 +290,7 @@ export default class extends Controller {
 
     // Error handling
     img.onerror = () => {
-      console.warn('Failed to load thumbnail:', image.thumbnail_url || image.url)
-      // Could add placeholder logic here
+      // Could add placeholder logic here if needed
     }
 
     button.appendChild(img)

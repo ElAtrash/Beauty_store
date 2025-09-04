@@ -18,7 +18,6 @@ class BrandsController < ApplicationController
     @brands_service = BrandsService.new(letter: @letter, search: @search)
   end
 
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_brand_not_found
 
   def show
     @brand = find_brand
@@ -85,10 +84,5 @@ class BrandsController < ApplicationController
   def handle_invalid_filters
     flash.now[:error] = "Invalid filter parameters: #{@filter_form.errors.full_messages.join(', ')}"
     render :show, status: :unprocessable_entity
-  end
-
-  def handle_brand_not_found
-    flash[:error] = "Brand not found"
-    redirect_to brands_path
   end
 end
