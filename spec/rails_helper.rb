@@ -1,6 +1,6 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
+ENV['RAILS_ENV'] = 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
@@ -40,6 +40,19 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include SessionTestHelper, type: :request
   config.include SessionTestHelper, type: :system
+  config.include PerformanceHelpers
+
+  # Apply performance optimizations globally to prevent timeouts
+  config.before(:each) do
+    # Only stub expensive operations for specs that actually need them
+    # This prevents interference with database operations in job specs
+    stub_expensive_operations if described_class.to_s.include?('Request') || 
+                                   described_class.to_s.include?('System') ||
+                                   described_class.to_s.include?('Feature')
+
+    # Use inline job adapter for faster tests (avoid background job overhead)
+    ActiveJob::Base.queue_adapter = :test
+  end
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [

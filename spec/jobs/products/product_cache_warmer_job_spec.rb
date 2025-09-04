@@ -2,6 +2,7 @@
 
 RSpec.describe Products::ProductCacheWarmerJob, type: :job do
   include ActiveSupport::Testing::TimeHelpers
+  include PerformanceHelpers
 
   let!(:product) { create(:product, :published, name: "Test Product") }
   let!(:variants) { create_list(:product_variant, 3, product: product) }
@@ -12,11 +13,16 @@ RSpec.describe Products::ProductCacheWarmerJob, type: :job do
     product.reload
   end
 
+  # Only stub expensive operations for tests that actually create and process data
+  before(:each, :stub_performance) do
+    stub_expensive_operations
+  end
+
   after do
     Rails.cache.clear
   end
 
-  it "writes static product data to the cache" do
+  it "writes static product data to the cache", :stub_performance do
     expect(Rails.cache.read(cache_key)).to be_nil
 
     described_class.perform_now(product.id)
@@ -33,7 +39,7 @@ RSpec.describe Products::ProductCacheWarmerJob, type: :job do
     }.to raise_error(ActiveRecord::RecordNotFound)
   end
 
-  it "sets cache with expiration" do
+  it "sets cache with expiration", :stub_performance do
     described_class.perform_now(product.id)
 
     expect(Rails.cache.read(cache_key)).to be_present
@@ -43,7 +49,7 @@ RSpec.describe Products::ProductCacheWarmerJob, type: :job do
     end
   end
 
-  it "includes all expected static data fields" do
+  it "includes all expected static data fields", :stub_performance do
     described_class.perform_now(product.id)
 
     cached_data = Rails.cache.read(cache_key)
@@ -58,12 +64,14 @@ RSpec.describe Products::ProductCacheWarmerJob, type: :job do
     expect(cached_data.variant_options).to be_nil
   end
 
-  it "performs efficiently without N+1 queries" do
+  it "performs efficiently without N+1 queries", :stub_performance do
     product_with_many_variants = create(:product, :published)
     create_list(:product_variant, 10, product: product_with_many_variants)
 
     expect {
       described_class.perform_now(product_with_many_variants.id)
-    }.to change { Rails.cache.read([ product_with_many_variants.cache_key_with_version, "product_static_data" ]) }.from(nil).to(be_present)
+    }.to change {
+      Rails.cache.read([ product_with_many_variants.cache_key_with_version, "product_static_data" ])
+    }.from(nil).to(be_present)
   end
 end

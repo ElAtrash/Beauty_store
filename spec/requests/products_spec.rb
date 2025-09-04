@@ -84,29 +84,27 @@ RSpec.describe "Products", type: :request do
     end
 
     context "product availability" do
-      shared_examples "returns not found status" do
-        it "returns 404 status for unavailable products" do
-          expect {
-            get product_path(unavailable_product)
-          }.to raise_error(ActiveRecord::RecordNotFound)
+      shared_examples "handles unavailable product" do
+        it "returns 404 for unavailable products" do
+          get product_path(unavailable_product)
+          expect(response).to have_http_status(:not_found)
         end
       end
 
       context "with unpublished product" do
         let(:unavailable_product) { create(:product, :unpublished, brand: brand) }
-        include_examples "returns not found status"
+        include_examples "handles unavailable product"
       end
 
       context "with inactive product" do
         let(:unavailable_product) { create(:product, active: false, brand: brand) }
-        include_examples "returns not found status"
+        include_examples "handles unavailable product"
       end
 
       context "with non-existent product" do
-        it "raises ActiveRecord::RecordNotFound" do
-          expect {
-            get product_path(id: "nonexistent")
-          }.to raise_error(ActiveRecord::RecordNotFound)
+        it "returns 404 for non-existent product" do
+          get product_path(id: "nonexistent")
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
