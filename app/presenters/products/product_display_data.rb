@@ -30,11 +30,14 @@ module Products
       stock_data
     end
 
+    def variant_available?(variant_id)
+      stock_info(variant_id)[:available]
+    end
+
     def as_json(_options = {})
       {
         product_info: product_info,
         default_variant: default_variant,
-        all_variants: all_variants,
         variant_images: variant_images,
         price_matrix: price_matrix,
         stock_matrix: stock_matrix,
@@ -58,15 +61,11 @@ module Products
       target_id = variant_id || default_variant&.dig(:id)
       return nil unless target_id
 
-      matrix[target_id] || matrix[default_variant[:id]]
+      matrix[target_id] || (default_variant && matrix[default_variant[:id]])
     end
   end
 
   ProductInfo = Struct.new(:name, :subtitle, :brand_name, :reviews_count, :rating, keyword_init: true)
 
-  VariantOption = Struct.new(:name, :value, :available, :type, :variant_id, keyword_init: true) do
-    def available?
-      available
-    end
-  end
+  VariantOption = Struct.new(:name, :value, :type, :variant_id, keyword_init: true)
 end

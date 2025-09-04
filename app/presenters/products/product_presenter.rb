@@ -19,18 +19,41 @@ module Products
     def build_static_data
       ProductDisplayData.new(
         product_info: build_product_info,
-        all_variants: build_all_variants_data,
-        variant_images: build_variant_images_mapping
+        all_variants: build_all_variants_data
       )
     end
 
     def build_dynamic_data(selected_variant:)
       ProductDisplayData.new(
         default_variant: build_variant_data(selected_variant),
+        variant_images: build_selected_variant_images(selected_variant),
         price_matrix: build_price_matrix,
         stock_matrix: build_stock_matrix,
         variant_options: build_variant_options
       )
+    end
+
+    def build_variant_images_mapping
+      @variant_images_mapping ||= variants.each_with_object({}) do |variant, mapping|
+        images = []
+
+        begin
+          if variant.featured_image.attached?
+            images << build_gallery_image(variant.featured_image, :variant, variant, 1)
+          end
+
+          if variant.images.attached? && variant.images.any?
+            variant.images.each_with_index do |img, idx|
+              next if variant.featured_image.attached? && img == variant.featured_image
+              images << build_gallery_image(img, :variant, variant, idx + 2)
+            end
+          end
+        rescue => e
+          Rails.logger.warn "Error processing images for variant #{variant.id}: #{e.message}"
+        end
+
+        mapping[variant.id] = images.map(&:as_json)
+      end
     end
 
     private
@@ -65,27 +88,27 @@ module Products
       @all_variants_data ||= variants.map { |v| build_variant_data(v) }
     end
 
-    def build_variant_images_mapping
-      @variant_images_mapping ||= variants.each_with_object({}) do |variant, mapping|
-        images = []
+    def build_selected_variant_images(selected_variant)
+      return {} unless selected_variant
 
-        begin
-          if variant.featured_image.attached?
-            images << build_gallery_image(variant.featured_image, :variant, variant, 1)
-          end
+      images = []
 
-          if variant.images.attached? && variant.images.any?
-            variant.images.each_with_index do |img, idx|
-              next if variant.featured_image.attached? && img == variant.featured_image
-              images << build_gallery_image(img, :variant, variant, idx + 2)
-            end
-          end
-        rescue => e
-          Rails.logger.warn "Error processing images for variant #{variant.id}: #{e.message}"
+      begin
+        if selected_variant.featured_image.attached?
+          images << build_gallery_image(selected_variant.featured_image, :variant, selected_variant, 1)
         end
 
-        mapping[variant.id] = images.map(&:as_json)
+        if selected_variant.images.attached? && selected_variant.images.any?
+          selected_variant.images.each_with_index do |img, idx|
+            next if selected_variant.featured_image.attached? && img == selected_variant.featured_image
+            images << build_gallery_image(img, :variant, selected_variant, idx + 2)
+          end
+        end
+      rescue => e
+        Rails.logger.warn "Error processing images for variant #{selected_variant.id}: #{e.message}"
       end
+
+      { selected_variant.id => images.map(&:as_json) }
     end
 
     def build_gallery_image(attachment, type, variant = nil, index = 1)
@@ -107,8 +130,8 @@ module Products
 
     def build_variant_options(selected_variant = nil)
       {
-        colors: unique_color_variants.map { |v| VariantOption.new(name: v.color, value: v.color_hex, available: v.in_stock?, type: :color) },
-        sizes: unique_sizes.map { |v| VariantOption.new(name: v.formatted_size_value || v.size_value.to_s, value: v.size_key, available: v.in_stock?, type: v.size_type&.to_sym || :size, variant_id: v.id) }
+        colors: unique_color_variants.map { |v| VariantOption.new(name: v.color, value: v.color_hex, type: :color, variant_id: v.id) },
+        sizes: unique_sizes.map { |v| VariantOption.new(name: v.formatted_size_value || v.size_value.to_s, value: v.size_key, type: v.size_type&.to_sym || :size, variant_id: v.id) }
       }
     end
 

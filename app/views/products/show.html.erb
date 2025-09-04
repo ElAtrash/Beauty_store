@@ -13,7 +13,7 @@
     <section>
       <div class="product-layout">
         <!-- Product Gallery -->
-        <%= render "products/gallery", product: @product, selected_variant: @product.default_variant %>
+        <%= render "products/gallery", product: @product, selected_variant: @selected_variant %>
         <!-- Product Info -->
         <div class="product-info-section">
           <%= render Products::ProductInfoComponent.new(product: @product, product_data: @product_data) %>

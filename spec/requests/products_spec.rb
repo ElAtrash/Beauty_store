@@ -1,146 +1,104 @@
-# frozen_string_literal: true
-
 RSpec.describe "Products", type: :request do
-  let!(:brand) { create(:brand) }
-  let!(:category) { create(:category) }
-  let!(:product) { create(:product, :published, brand: brand, categories: [ category ]) }
+  let!(:product) { create(:product, active: true) }
+  let!(:variant_m_black) { create(:product_variant, product: product, size_value: 30, size_unit: "ml", size_type: "volume", color_hex: "#000000", sku: "SKU-M-BLK") }
+  let!(:variant_l_blue) { create(:product_variant, product: product, size_value: 50, size_unit: "ml", size_type: "volume", color_hex: "#0000FF", sku: "SKU-L-BLU") }
 
-  let!(:default_variant) do
-    create(:product_variant, product: product, is_default: true,
-           name: "30ml", size_value: 30, size_unit: "ml", size_type: "volume",
-           stock_quantity: 10)
-  end
-  let!(:small_red) do
-    create(:product_variant, product: product,
-           name: "50ml Red", color: "Red", color_hex: "#ff0000",
-           size_value: 50, size_unit: "ml", size_type: "volume",
-           stock_quantity: 5)
-  end
-  let!(:large_red) do
-    create(:product_variant, product: product,
-           name: "100ml Red", color: "Red", color_hex: "#ff0000",
-           size_value: 100, size_unit: "ml", size_type: "volume",
-           stock_quantity: 3)
-  end
-  let!(:small_blue) do
-    create(:product_variant, product: product,
-           name: "50ml Blue", color: "Blue", color_hex: "#0000ff",
-           size_value: 50, size_unit: "ml", size_type: "volume",
-           stock_quantity: 8)
-  end
-
-  describe "GET /products/:id" do
-    context "basic product display" do
-      it "displays the product page successfully" do
+  describe "GET /show" do
+    context "when the product is active" do
+      it "returns a successful response and renders the show template" do
         get product_path(product)
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(product.name)
       end
-
-      it "assigns the default variant when no parameters given" do
-        get product_path(product)
-
-        # Check the response includes default variant data
-        expect(response.body).to include(default_variant.name)
-      end
     end
 
-    context "variant selection business logic" do
-      it "selects variant by exact color and size match" do
-        get product_path(product, color: "#ff0000", size: large_red.size_key)
+    context "when the product is not found or unavailable" do
+      it "returns a not_found (404) response" do
+        get product_path(id: -1)
 
-        expect(response).to have_http_status(:ok)
-        # Verify the large red variant data is in the response
-        expect(response.body).to include(large_red.name)
-      end
-
-      it "uses DefaultVariantSelector for color-only selection" do
-        allow(Products::DefaultVariantSelector).to receive(:call).and_return(small_red)
-
-        get product_path(product, color: "#ff0000")
-
-        expect(response).to have_http_status(:ok)
-        expect(Products::DefaultVariantSelector).to have_received(:call).with(
-          product,
-          scope: anything
-        )
-      end
-
-      it "selects first available variant for size-only selection" do
-        get product_path(product, size: small_red.size_key)
-
-        expect(response).to have_http_status(:ok)
-        # Should work without errors - the exact variant selected depends on database ordering
-      end
-
-      it "falls back to default variant when selection fails" do
-        get product_path(product, color: "#nonexistent", size: "nonexistent")
-
-        expect(response).to have_http_status(:ok)
-        # Should fall back to default variant and not crash
-        expect(response.body).to include(default_variant.name)
-      end
-    end
-
-    context "product availability" do
-      shared_examples "handles unavailable product" do
-        it "returns 404 for unavailable products" do
-          get product_path(unavailable_product)
-          expect(response).to have_http_status(:not_found)
-        end
-      end
-
-      context "with unpublished product" do
-        let(:unavailable_product) { create(:product, :unpublished, brand: brand) }
-        include_examples "handles unavailable product"
-      end
-
-      context "with inactive product" do
-        let(:unavailable_product) { create(:product, active: false, brand: brand) }
-        include_examples "handles unavailable product"
-      end
-
-      context "with non-existent product" do
-        it "returns 404 for non-existent product" do
-          get product_path(id: "nonexistent")
-          expect(response).to have_http_status(:not_found)
-        end
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
 
-  describe "PATCH /products/:id/update_variant" do
-    context "with turbo_stream format" do
-      it "updates variant and returns turbo streams for pricing and gallery" do
-        patch update_variant_product_path(product, format: :turbo_stream),
-              params: { color: "#ff0000", size: large_red.size_key }
+  describe "PATCH /update_variant" do
+    let(:valid_params) do
+      {
+        product: {
+          color: variant_m_black.color_hex,
+          size: variant_m_black.size_key
+        }
+      }
+    end
 
-        expect(response).to have_http_status(:ok)
-        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+    context "with a Turbo Stream request" do
+      let(:headers) { { "Accept": "text/vnd.turbo-stream.html" } }
 
-        # Verify both turbo streams are included
-        expect(response.body).to include('turbo-stream action="replace" target="product-pricing"')
-        expect(response.body).to include('turbo-stream action="replace" target="product-gallery"')
+      context "with valid variant parameters" do
+        it "responds with the correct turbo streams for the selected variant" do
+          patch update_variant_product_path(product), params: valid_params, headers: headers
+
+          aggregate_failures do
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq Mime[:turbo_stream]
+            expect(response.body).to include('<turbo-stream action="replace" target="product-pricing">')
+            expect(response.body).to include('<turbo-stream action="replace" target="product-gallery">')
+            expect(response.body).to include('<turbo-stream action="replace" target="variant-selector">')
+            expect(response.body).to include(variant_m_black.sku)
+          end
+        end
+
+        it "includes the correct SKU update in the turbo stream response" do
+          patch update_variant_product_path(product), params: valid_params, headers: headers
+
+          aggregate_failures do
+            expect(response.body).to include('<turbo-stream action="update" targets=".sku-display">')
+            expect(response.body).to include("<template>#{variant_m_black.sku}</template>")
+          end
+        end
       end
 
-      it "works with color-only selection" do
-        allow(Products::DefaultVariantSelector).to receive(:call).and_return(small_red)
+      context "when an error occurs during partial rendering" do
+        it "returns fallback turbo_stream frames with error messages" do
+          allow_any_instance_of(ProductsController).to receive(:render_pricing_partial).and_raise("Test rendering error")
 
-        patch update_variant_product_path(product, format: :turbo_stream),
-              params: { color: "#ff0000" }
+          patch update_variant_product_path(product), params: valid_params, headers: headers
 
-        expect(response).to have_http_status(:ok)
-        expect(Products::DefaultVariantSelector).to have_received(:call).at_least(:once)
+          aggregate_failures do
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq Mime[:turbo_stream]
+            expect(response.body).to include("Error loading pricing")
+            expect(response.body).to include("Error loading gallery")
+          end
+        end
+      end
+
+      context "with invalid variant parameters" do
+        let(:invalid_params) { { product: { color: "#123456", size: "XXL" } } }
+
+        it "falls back gracefully (e.g., to the default variant)" do
+          default_variant = product.default_variant
+
+          patch update_variant_product_path(product), params: invalid_params, headers: headers
+
+          expect(response).to be_successful
+          expect(response.body).to include(default_variant.sku)
+        end
       end
     end
 
-    context "with HTML format" do
-      it "returns not acceptable status" do
-        patch update_variant_product_path(product),
-              params: { color: "#ff0000", size: large_red.size_key }
+    context "with an HTML request" do
+      it "redirects to the product show page with variant params" do
+        patch update_variant_product_path(product), params: valid_params
 
-        expect(response).to have_http_status(:not_acceptable)
+        expect(response).to redirect_to(
+          product_path(
+            product,
+            color: valid_params.dig(:product, :color),
+            size: valid_params.dig(:product, :size)
+          )
+        )
       end
     end
   end

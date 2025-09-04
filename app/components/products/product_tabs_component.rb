@@ -67,7 +67,7 @@ class Products::ProductTabsComponent < ViewComponent::Base
       concat content_tag(:h3, product.name.upcase, class: "text-xl font-bold")
 
       concat(content_tag(:p, class: "text-sm text-subtle") do
-        "SKU: ".html_safe + content_tag(:span, product.product_code, class: "sku-display", data: { "products--variant-selector-target" => "skuDisplay" })
+        "SKU: ".html_safe + content_tag(:span, product.product_code, class: "sku-display")
       end)
 
       concat content_tag(:div, simple_format(product.description, {}, class: "text-secondary leading-relaxed"), class: "mt-4")
