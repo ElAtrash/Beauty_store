@@ -7,22 +7,13 @@ module Products
       @variant_options = (variant_options || {}).reverse_merge(sizes: [], colors: [])
       @stock_info = stock_info
       @product_data = product_data
+      @selected_variant = extract_selected_variant_from_product_data
     end
 
     private
 
-    attr_reader :product, :variant_options, :stock_info, :product_data
+    attr_reader :product, :variant_options, :stock_info, :product_data, :selected_variant
 
-    def product_data_json
-      data_hash = product_data.as_json
-      json_string = data_hash.to_json
-
-      json_string.html_safe
-    rescue JSON::GeneratorError, NoMethodError => e
-      Rails.logger.error "Error generating product_data_json: #{e.message}"
-      Rails.logger.error "ProductData: #{product_data.inspect}"
-      "{}".html_safe
-    end
 
     def has_sizes?
       product.product_variants.any?(&:size?)
@@ -39,18 +30,35 @@ module Products
     end
 
     def first_color_option
-      preferred = product.default_variant&.color_hex
+      preferred = selected_variant&.color_hex || product.default_variant&.color_hex
       default_option(variant_options[:colors], preferred)
     end
 
     def default_size_option
-      return nil unless product.default_variant&.size?
+      return nil unless selected_variant&.size? || product.default_variant&.size?
 
-      preferred = product.default_variant.size_key
+      preferred = selected_variant&.size_key || product.default_variant&.size_key
       default_option(variant_options[:sizes], preferred)
     end
 
+    def variant_available?(variant_id)
+      product_data.variant_available?(variant_id)
+    end
+
     private
+
+    def extract_selected_variant_from_product_data
+      # The selected variant is stored in default_variant from the dynamic data
+      return unless product_data.respond_to?(:default_variant)
+
+      variant_data = product_data.default_variant
+      return unless variant_data && variant_data[:id]
+
+      product.product_variants.find_by(id: variant_data[:id])
+    rescue => e
+      Rails.logger.debug "Could not extract selected variant from product_data: #{e.message}"
+      nil
+    end
 
     def default_option(options, preferred_value)
       options.find { |opt| opt.value == preferred_value } || options.first

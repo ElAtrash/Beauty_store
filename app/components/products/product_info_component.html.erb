@@ -7,12 +7,11 @@
   <!-- Price + Stock -->
   <%= render "products/pricing", product_data: product_data %>
   <!-- Variant Selection -->
-  <%= render Products::VariantSelectorComponent.new(
-        product: product,
-        variant_options: variant_options,
-        stock_info: stock_info,
-        product_data: product_data
-      ) %>
+  <%= render "products/variant_selector", 
+      product: product, 
+      variant_options: variant_options, 
+      stock_info: stock_info, 
+      product_data: product_data %>
   <!-- Product Actions -->
   <div class="product-actions flex items-center gap-3"
        data-controller="cart-controls"

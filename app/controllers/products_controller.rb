@@ -6,7 +6,6 @@ class ProductsController < ApplicationController
   def show
     @selected_variant = find_selected_variant || @product.default_variant
     @product_data = build_product_data_for_variant(@selected_variant)
-
     setup_breadcrumbs
     setup_seo_data(@product)
   end
@@ -17,10 +16,10 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.replace("product-pricing", partial: "products/pricing", locals: { product_data: @product_data }),
-          turbo_stream.replace("product-gallery", partial: "products/gallery", locals: { product: @product, selected_variant: @selected_variant })
-        ]
+        render turbo_stream: build_variant_update_streams
+      end
+      format.html do
+        redirect_to product_path(@product, color: params.dig(:product, :color), size: params.dig(:product, :size))
       end
     end
   end
@@ -31,6 +30,41 @@ class ProductsController < ApplicationController
     @product = Product.includes(:product_variants).find_available!(params[:id])
   end
 
+  def build_variant_update_streams
+    [
+      turbo_stream.replace("product-pricing", html: render_pricing_partial),
+      turbo_stream.replace("product-gallery", html: render_gallery_partial),
+      turbo_stream.replace("variant-selector", html: render_variant_selector_partial),
+      turbo_stream.update_all(".sku-display", html: @selected_variant.sku)
+    ]
+  rescue => e
+    Rails.logger.error "UpdateVariant: Error rendering partials - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    [
+      turbo_stream.replace("product-pricing", html: "<div>Error loading pricing for #{@selected_variant.name}</div>"),
+      turbo_stream.replace("product-gallery", html: "<div>Error loading gallery for #{@selected_variant.name}</div>"),
+      turbo_stream.replace("variant-selector", html: "<div>Error loading variant selector for #{@selected_variant.name}</div>"),
+      turbo_stream.update_all(".sku-display", html: @selected_variant.sku)
+    ]
+  end
+
+  def render_pricing_partial
+    render_to_string(partial: "products/pricing", locals: { product_data: @product_data }, formats: [ :html ])
+  end
+
+  def render_gallery_partial
+    render_to_string(partial: "products/gallery", locals: { product: @product, selected_variant: @selected_variant }, formats: [ :html ])
+  end
+
+  def render_variant_selector_partial
+    render_to_string(partial: "products/variant_selector", locals: {
+      product: @product,
+      variant_options: @product_data.variant_options,
+      stock_info: @product_data.stock_info,
+      product_data: @product_data
+    }, formats: [ :html ])
+  end
+
   def build_product_data_for_variant(selected_variant)
     presenter = Products::ProductPresenter.new(@product)
 
@@ -39,36 +73,44 @@ class ProductsController < ApplicationController
     end
 
     dynamic_data = presenter.build_dynamic_data(selected_variant: selected_variant)
-    static_data.merge_dynamic!(dynamic_data)
+    product_data = static_data.merge_dynamic!(dynamic_data)
+
+    monitor_response_size(product_data)
+    product_data
   end
 
   def product_data_cache_key(product)
     [ product.cache_key_with_version, "product_static_data" ]
   end
 
-  def find_selected_variant
-    return if params[:size].blank? && params[:color].blank?
+  def monitor_response_size(product_data)
+    json_size = product_data.as_json.to_json.length
+    size_kb = (json_size / 1024.0).round(2)
 
-    if params[:color].present? && params[:size].blank?
-      variant_for_color_only
-    elsif params[:color].present? && params[:size].present?
-      variant_for_color_and_size
-    elsif params[:size].present?
-      variant_for_size_only
+    if size_kb > 50
+      Rails.logger.warn "ProductData: Large response payload for product #{@product.id}: #{size_kb} KB (#{@product.product_variants.count} variants)"
+    elsif size_kb > 20
+      Rails.logger.info "ProductData: Medium response payload for product #{@product.id}: #{size_kb} KB"
     end
+
+    Rails.logger.debug "ProductData: Payload size for product #{@product.id}: #{size_kb} KB"
   end
 
-  def variant_for_color_only
-    color_variants = @product.product_variants.where(color_hex: params[:color])
-    Products::DefaultVariantSelector.call(@product, scope: color_variants)
-  end
+  def find_selected_variant
+    size = params.dig(:product, :size)
+    color = params.dig(:product, :color)
 
-  def variant_for_color_and_size
-    @product.product_variants.by_size_key(params[:size]).find_by(color_hex: params[:color])
-  end
+    return if size.blank? && color.blank?
 
-  def variant_for_size_only
-    @product.product_variants.by_size_key(params[:size]).first
+    scope = @product.product_variants
+    scope = scope.by_size_key(size) if size.present?
+    scope = scope.where(color_hex: color) if color.present?
+
+    if color.present? && size.blank?
+      Products::DefaultVariantSelector.call(@product, scope: scope)
+    else
+      scope.first
+    end
   end
 
   def setup_breadcrumbs
@@ -83,9 +125,5 @@ class ProductsController < ApplicationController
     end
 
     @breadcrumbs << { name: @product.name, path: nil }
-  end
-
-  def product_data_cache_key(product)
-    [ product.cache_key_with_version, "product_static_data" ]
   end
 end

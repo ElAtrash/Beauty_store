@@ -46,7 +46,7 @@ RSpec.configure do |config|
   config.before(:each) do
     # Only stub expensive operations for specs that actually need them
     # This prevents interference with database operations in job specs
-    stub_expensive_operations if described_class.to_s.include?('Request') || 
+    stub_expensive_operations if described_class.to_s.include?('Request') ||
                                    described_class.to_s.include?('System') ||
                                    described_class.to_s.include?('Feature')
 

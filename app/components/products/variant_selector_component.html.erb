@@ -3,7 +3,6 @@
   <%= form_with model: product, url: update_variant_product_path(product), method: :patch, local: false,
       data: {
         "products--variant-selector-target": "form",
-        turbo_frame: "_self",
         action: "change->products--variant-selector#submitForm"
       } do |form| %>
     <!-- Product Options Section -->
@@ -22,16 +21,16 @@
                     class: "sr-only peer",
                     data: { 
                       "products--variant-selector-target": "sizeOption",
-                      "available": size_option.available?
+                      "available": variant_available?(size_option.variant_id)
                     } %>
                 <!-- Size Button -->
-                <div class="size-option <%= size_option.available? ? 'size-option--available peer-checked:size-option--selected' : 'size-option--unavailable peer-checked:size-option--selected' %>">
+                <div class="size-option <%= variant_available?(size_option.variant_id) ? 'size-option--available peer-checked:size-option--selected' : 'size-option--unavailable peer-checked:size-option--selected' %>">
                   <!-- Size Text -->
-                  <span class="<%= 'text-subtle' unless size_option.available? %> text-center leading-tight">
+                  <span class="<%= 'text-subtle' unless variant_available?(size_option.variant_id) %> text-center leading-tight">
                     <%= size_option.name %>
                   </span>
                   <!-- Unavailable Diagonal Strikethrough -->
-                  <% unless size_option.available? %>
+                  <% unless variant_available?(size_option.variant_id) %>
                     <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 50">
                       <line x1="0" y1="0" x2="50" y2="50" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
@@ -81,17 +80,17 @@
               <div class="py-1 max-h-64 overflow-y-auto scrollbar-thin">
                 <% variant_options[:colors].each do |color_option| %>
                   <button type="button"
-                          class="color-dropdown-menu-item <%= 'color-dropdown-menu-item--out-of-stock' unless color_option.available? %> w-full text-left focus:outline-none transition-colors space-x-3 group"
+                          class="color-dropdown-menu-item <%= 'color-dropdown-menu-item--out-of-stock' unless variant_available?(color_option.variant_id) %> w-full text-left focus:outline-none transition-colors space-x-3 group"
                           data-action="click->products--color-dropdown#selectColor"
                     data-value="<%= color_option.value %>"
                     data-name="<%= color_option.name %>"
                     data-color-hex="<%= color_option.value %>">
                     <!-- Color Circle -->
-                    <div class="color-circle <%= 'color-circle--out-of-stock' unless color_option.available? %>"
+                    <div class="color-circle <%= 'color-circle--out-of-stock' unless variant_available?(color_option.variant_id) %>"
                         style="--selected-color: <%= color_option.value.downcase %>;">
                     </div>
                     <!-- Color Name -->
-                    <span class="<%= color_option.available? ? 'group-hover:text-interactive' : '' %> transition-colors"><%= color_option.name %></span>
+                    <span class="<%= variant_available?(color_option.variant_id) ? 'group-hover:text-interactive' : '' %> transition-colors"><%= color_option.name %></span>
                   </button>
                 <% end %>
               </div>
@@ -101,8 +100,4 @@
       <% end %>
     </div>
   <% end %>
-  <!-- data for dynamic variant updates -->
-  <script type="application/json" id="product-data" class="hidden">
-    <%= product_data_json %>
-  </script>
 </div>

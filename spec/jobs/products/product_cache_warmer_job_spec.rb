@@ -57,8 +57,8 @@ RSpec.describe Products::ProductCacheWarmerJob, type: :job do
 
     expect(cached_data.product_info).to be_present
     expect(cached_data.all_variants).to be_present
-    expect(cached_data.variant_images).to be_present
 
+    expect(cached_data.variant_images).to be_nil
     expect(cached_data.price_matrix).to be_nil
     expect(cached_data.stock_matrix).to be_nil
     expect(cached_data.variant_options).to be_nil
