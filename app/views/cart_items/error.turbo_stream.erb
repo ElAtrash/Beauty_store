@@ -1,0 +1,16 @@
+<%= turbo_stream.prepend "notifications" do %>
+  <div class="notification notification-error" data-controller="auto-dismiss" data-auto-dismiss-delay-value="5000">
+    <div class="flex items-center">
+      <%= render UI::IconComponent.new(name: :close, css_class: "w-5 h-5 mr-2") %>
+      <div>
+        <% if @errors.is_a?(Array) %>
+          <% @errors.each do |error| %>
+            <div><%= error %></div>
+          <% end %>
+        <% else %>
+          <%= @error_message || @errors %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

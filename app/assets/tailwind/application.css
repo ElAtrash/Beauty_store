@@ -44,7 +44,8 @@
   --z-mobile-menu: 110;
   --z-modal-overlay: 115;
   --z-modal: 120;
-  --z-auth-popup: 130;
+  --z-sidebar-popup: 130;
+  --z-notification: 140;
 
   --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-family-arabic: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -1024,7 +1025,35 @@
 
   .auth-sidebar {
     @apply fixed top-0 right-0 w-full sm:w-[35%] h-full bg-white shadow-xl transform transition-transform duration-300;
-    z-index: var(--z-auth-popup);
+    z-index: var(--z-sidebar-popup);
+  }
+
+  .cart-sidebar {
+    @apply fixed top-0 right-0 w-full h-full bg-white shadow-xl transform transition-transform duration-300 translate-x-full;
+    z-index: var(--z-sidebar-popup);
+  }
+
+  /* Responsive cart sidebar widths */
+  @media (min-width: 640px) {
+    .cart-sidebar {
+      width: 85%;
+      max-width: 500px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .cart-sidebar {
+      width: 60%;
+      max-width: 550px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cart-sidebar {
+      width: 48%;
+      min-width: 480px;
+      max-width: 650px;
+    }
   }
 
   .mobile-menu-panel {
@@ -1073,6 +1102,27 @@
   }
 
   [data-auth-popup="open"] body {
+    overflow: hidden;
+  }
+
+  /* Cart Popup State Management */
+  [data-cart-popup="closed"] .cart-popup-overlay {
+    @apply opacity-0 pointer-events-none;
+  }
+
+  [data-cart-popup="closed"] .cart-popup-panel {
+    @apply translate-x-full;
+  }
+
+  [data-cart-popup="open"] .cart-popup-overlay {
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  [data-cart-popup="open"] .cart-popup-panel {
+    @apply translate-x-0;
+  }
+
+  [data-cart-popup="open"] body {
     overflow: hidden;
   }
 
@@ -1171,7 +1221,6 @@
     height: 20px;
     border-radius: 50%;
     border: 2px solid var(--color-black);
-    /* Black border as requested */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     pointer-events: auto;
     margin-top: -9px;
@@ -1365,15 +1414,146 @@
   .gallery-modal-open .product-info-container {
     display: none !important;
   }
-  
+
   /* Hide header when modal is open for full-screen experience */
   .gallery-modal-open .site-header,
   .gallery-modal-open .header-wrapper {
     display: none !important;
   }
+
+  /* Cart Badge Styles */
+  .cart-badge {
+    @apply absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1;
+    line-height: 1;
+  }
+
+  /* Cart State Management */
+  [data-cart-state="initial"] .quantity-controls {
+    @apply hidden;
+  }
+
+  [data-cart-state="quantity"] .quantity-controls {
+    @apply flex;
+  }
+
+  /* Cart Loading States */
+  .cart-loading .add-to-cart-button,
+  .cart-quantity-form.loading {
+    @apply opacity-60 transition-opacity duration-200;
+  }
+
+  .cart-loading .add-to-cart-button {
+    @apply cursor-wait;
+  }
+
+  /* Cart Error States */
+  .cart-error .quantity-controls {
+    @apply border-red-500 bg-red-50;
+  }
+
+  /* Notification Styles */
+  .notification {
+    position: fixed;
+    top: 5rem;
+    right: 1rem;
+    z-index: var(--z-notification);
+    max-width: 24rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    animation: slideInFromRight 400ms ease-out forwards;
+    pointer-events: auto;
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .notification-success {
+    background-color: var(--color-interactive-primary);
+    color: white;
+    border: 1px solid var(--color-interactive-primary);
+  }
+
+  .notification-error {
+    background-color: rgb(254 242 242);
+    color: rgb(153 27 27);
+    border: 1px solid rgb(254 202 202);
+  }
+
+  .notification-info {
+    background-color: rgb(239 246 255);
+    color: rgb(30 64 175);
+    border: 1px solid rgb(191 219 254);
+  }
+
+  /* Auto-dismiss animation */
+  .notification[data-auto-dismiss-active] {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  /* Cart item styles  */
+  .cart-item {
+    @apply border-b border-gray-100 py-6 overflow-hidden;
+    word-wrap: break-word;
+  }
+
+  .cart-item:last-child {
+    @apply border-b-0;
+  }
+
+  /* Cart quantity controls */
+  .cart-quantity-form button {
+    @apply transition-all duration-200 hover:bg-gray-50;
+  }
+
+  /* Cart Focus & Accessibility Styles */
+  .cart-sidebar:focus-within {
+    @apply outline-none;
+  }
+
+  .cart-popup button:focus-visible,
+  .cart-sidebar button:focus-visible {
+    @apply outline-2 outline-offset-2 outline-interactive-primary;
+  }
+
+  .cart-quantity-form button:focus-visible {
+    @apply ring-2 ring-interactive-primary ring-offset-1;
+  }
+
+  /* Prevent body scroll when popup is open */
+  body.overflow-hidden {
+    overflow: hidden;
+  }
 }
 
 @layer utilities {
+
+  /* Cart Item Animation */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  @keyframes fade-in-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .text-beauty-primary {
     color: var(--color-beauty-primary);
   }
@@ -1561,30 +1741,22 @@
     color: var(--color-text-subtle);
   }
 
-  /* Cart Controls State Management */
-  .product-actions[data-cart-state="initial"] .quantity-controls {
-    display: none;
+  .product-cart-actions {
+    transition: all 0.3s ease-in-out;
   }
 
-  .product-actions[data-cart-state="initial"] .add-to-cart-button {
-    display: flex;
+  /* Cart form submission loading states */
+  .cart-add-form[data-turbo-submitting] .add-to-cart-button,
+  .cart-quantity-form[data-turbo-submitting] button {
+    @apply opacity-60;
   }
 
-  .product-actions[data-cart-state="quantity"] .quantity-controls {
-    display: flex;
-    flex: 1;
-    height: 3.125rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    background-color: var(--color-black);
-    color: var(--color-white);
-    font-weight: 500;
-    align-items: center;
-    justify-content: space-between;
+  .product-actions {
+    @apply transition-opacity duration-200;
   }
 
-  .product-actions[data-cart-state="quantity"] .add-to-cart-button {
-    display: none;
+  .product-actions:has([data-turbo-submitting]) {
+    @apply opacity-80;
   }
 
   /* Stock Status Styling */
@@ -1598,12 +1770,6 @@
 
   [data-stock-status="out_of_stock"] {
     color: rgb(239 68 68);
-  }
-
-  /* Cart Feedback Animation */
-  .quantity-controls[data-feedback="added"] {
-    background-color: rgb(34 197 94) !important;
-    transition: background-color 0.3s ease;
   }
 
   /* Gallery Thumbnail States */
@@ -1629,19 +1795,16 @@
     opacity: 1;
   }
 
-  /* Gallery Arrow States */
   [data-products--gallery-target="upArrow"]:disabled,
   [data-products--gallery-target="downArrow"]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  /* Gallery Modal States */
   .gallery-modal-open {
     overflow: hidden;
   }
 
-  /* Thumbnail Visibility Control */
   [data-thumbnail-visible="false"] {
     display: none;
   }
@@ -1650,7 +1813,6 @@
     display: block;
   }
 
-  /* Modern Gallery Thumbnails with CSS Grid */
   .gallery-thumbnails-container {
     display: grid;
     grid-auto-flow: column;
@@ -1676,7 +1838,6 @@
     border-radius: 2px;
   }
 
-  /* Mobile thumbnails */
   .gallery-thumbnails-mobile {
     display: grid;
     grid-auto-flow: column;
@@ -1688,7 +1849,6 @@
     padding: 1rem 0;
   }
 
-  /* Thumbnail elements */
   .thumbnail-desktop,
   .thumbnail-mobile {
     scroll-snap-align: center;
@@ -1740,7 +1900,6 @@
     object-fit: cover;
   }
 
-  /* Modal thumbnails */
   .modal-thumbnail {
     scroll-snap-align: center;
     flex-shrink: 0;
@@ -1771,12 +1930,10 @@
     object-fit: cover;
   }
 
-  /* Modal container improvements */
   .gallery-modal-open {
     overflow: hidden;
   }
 
-  /* Loading state */
   .gallery-thumbnails-loading {
     opacity: 0.5;
     pointer-events: none;

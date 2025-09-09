@@ -16,6 +16,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    session[:cart_token] = nil
     terminate_session
     redirect_to root_path
   end

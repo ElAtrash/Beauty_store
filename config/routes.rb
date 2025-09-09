@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :products, only: [ :show ] do
     member do
       patch :update_variant
+      get :cart_controls
     end
   end
   resources :categories, only: [ :index, :show ] do
@@ -25,6 +26,21 @@ Rails.application.routes.draw do
   end
   resources :brands, only: [ :index, :show ] do
     resources :products, only: [ :index ]
+  end
+
+  # Cart routes
+  resource :cart, only: [ :show, :destroy ] do
+    collection do
+      get :summary
+    end
+  end
+  resources :cart_items, only: [ :create, :update, :destroy ], path: "cart/items" do
+    member do
+      patch :update_quantity
+    end
+    collection do
+      delete :clear_all
+    end
   end
 
   # Authentication routes

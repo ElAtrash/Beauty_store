@@ -1,8 +1,20 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Base application controller
 export default class extends Controller {
   connect() {
-    // Application initialization logic can go here
+  }
+
+  openCart(event) {
+    if (event) {
+      event.preventDefault()
+    }
+
+    const cartPopup = document.querySelector('[data-controller~="cart-popup"]')
+    if (cartPopup) {
+      const controller = this.application.getControllerForElementAndIdentifier(cartPopup, 'cart-popup')
+      if (controller) {
+        controller.open()
+      }
+    }
   }
 }

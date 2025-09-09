@@ -16,8 +16,13 @@ module BeautyStore
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
-    # Add presenters directory to autoload paths
+    # Add presenters directory to autoload and eager load paths
     config.autoload_paths << Rails.root.join("app", "presenters")
+    config.eager_load_paths << Rails.root.join("app", "presenters")
+
+    # Add services directory to autoload and eager load paths
+    config.autoload_paths << Rails.root.join("app", "services")
+    config.eager_load_paths << Rails.root.join("app", "services")
 
     # Configuration for the application, engines, and railties goes here.
     #

@@ -85,94 +85,63 @@ RSpec.describe Cart, type: :model do
       end
     end
 
-    describe '#add_variant' do
+    describe '#ordered_items' do
       let!(:cart) { create(:cart) }
-      let(:variant) { create(:product_variant) }
+      let!(:older_item) { create(:cart_item, cart: cart, created_at: 2.days.ago) }
+      let!(:newer_item) { create(:cart_item, cart: cart, created_at: 1.day.ago) }
 
-      context 'when variant is not in cart' do
-        it 'creates a new cart item with default quantity 1' do
-          expect { cart.add_variant(variant) }.to change(cart.cart_items, :count).by(1)
-          cart_item = cart.cart_items.find_by(product_variant: variant)
-          expect(cart_item.quantity).to eq(1)
-        end
+      it 'returns cart items ordered by created_at' do
+        expect(cart.ordered_items).to eq([ older_item, newer_item ])
+      end
 
-        it 'creates a new cart item with specified quantity' do
-          cart.add_variant(variant, 3)
-          cart_item = cart.cart_items.find_by(product_variant: variant)
-          expect(cart_item.quantity).to eq(3)
+      it 'includes necessary associations to avoid N+1 queries' do
+        expect(cart.ordered_items.first.association(:product_variant)).to be_loaded
+        expect(cart.ordered_items.first.product_variant.association(:product)).to be_loaded
+        expect(cart.ordered_items.first.product_variant.product.association(:brand)).to be_loaded
+      end
+    end
+
+    describe '#formatted_total' do
+      context 'with no items' do
+        it 'returns $0.00' do
+          expect(cart.formatted_total).to eq('$0.00')
         end
       end
 
-      context 'when variant is already in cart' do
-        let!(:existing_item) { create(:cart_item, cart: cart, product_variant: variant, quantity: 2) }
+      context 'with cart items' do
+        let!(:cart) { create(:cart) }
+        let(:variant) { create(:product_variant, price: Money.new(2599)) } # $25.99
+        let!(:item) { create(:cart_item, cart: cart, product_variant: variant, quantity: 2) }
 
-        it 'increases the quantity of existing item with specified quantity' do
-          cart.add_variant(variant, 4)
-          expect(existing_item.reload.quantity).to eq(6)
-        end
-
-        it 'persists the updated quantity' do
-          cart.add_variant(variant, 2)
-          reloaded_item = cart.cart_items.find_by(product_variant: variant)
-          expect(reloaded_item.quantity).to eq(4)
-        end
-      end
-
-      context 'with multiple different variants' do
-        let(:variant2) { create(:product_variant) }
-
-        it 'adds multiple variants without affecting each other' do
-          cart.add_variant(variant, 2)
-          cart.add_variant(variant2, 3)
-
-          aggregate_failures do
-            expect(cart.cart_items.count).to eq(2)
-            expect(cart.cart_items.find_by(product_variant: variant).quantity).to eq(2)
-            expect(cart.cart_items.find_by(product_variant: variant2).quantity).to eq(3)
-          end
+        it 'returns formatted total price' do
+          expect(cart.formatted_total).to eq('$51.98')
         end
       end
     end
 
-    describe '#remove_variant' do
-      let!(:cart) { create(:cart) }
-      let(:variant) { create(:product_variant) }
-
-      context 'when variant exists in cart' do
-        let!(:cart_item) { create(:cart_item, cart: cart, product_variant: variant, quantity: 3) }
-
-        it 'removes the cart item completely' do
-          expect { cart.remove_variant(variant) }.to change(cart.cart_items, :count).by(-1)
-        end
-
-        it 'removes the specific variant' do
-          cart.remove_variant(variant)
-          expect(cart.cart_items.find_by(product_variant: variant)).to be_nil
+    describe '#display_quantity_text' do
+      context 'when cart is empty' do
+        it 'returns empty string' do
+          expect(cart.display_quantity_text).to eq('')
         end
       end
 
-      context 'when variant does not exist in cart' do
-        it 'does not raise an error' do
-          expect { cart.remove_variant(variant) }.not_to raise_error
-        end
+      context 'with single item' do
+        let!(:cart) { create(:cart) }
+        let!(:item) { create(:cart_item, cart: cart, quantity: 1) }
 
-        it 'does not change cart items count' do
-          expect { cart.remove_variant(variant) }.not_to change(cart.cart_items, :count)
+        it 'returns singular unit text' do
+          expect(cart.display_quantity_text).to eq('/ 1 unit')
         end
       end
 
-      context 'when removing one of multiple variants' do
-        let(:variant2) { create(:product_variant) }
-        let!(:item1) { create(:cart_item, cart: cart, product_variant: variant, quantity: 2) }
-        let!(:item2) { create(:cart_item, cart: cart, product_variant: variant2, quantity: 1) }
+      context 'with multiple items' do
+        let!(:cart) { create(:cart) }
+        let!(:item1) { create(:cart_item, cart: cart, quantity: 2) }
+        let!(:item2) { create(:cart_item, cart: cart, quantity: 3) }
 
-        it 'removes only the specified variant' do
-          cart.remove_variant(variant)
-          aggregate_failures do
-            expect(cart.cart_items.count).to eq(1)
-            expect(cart.cart_items.find_by(product_variant: variant)).to be_nil
-            expect(cart.cart_items.find_by(product_variant: variant2)).to be_present
-          end
+        it 'returns plural units text' do
+          expect(cart.display_quantity_text).to eq('/ 5 units')
         end
       end
     end

@@ -1,39 +1,43 @@
 import { Controller } from "@hotwired/stimulus"
+import { EventHandlerMixin } from "mixins/event_handler_mixin"
 
 export default class extends Controller {
-  static targets = [
-    "form",
-    "sizeOption",
-    "colorOption"
-  ]
-
-  static values = {
-    productId: Number
-  }
-
+  static targets = ["form", "sizeOption", "colorOption"]
+  static values = { productId: Number }
   static classes = ["loading", "error"]
 
   connect() {
-    try {
-      this.clearErrors()
-    } catch (error) {
-      this.handleError('Failed to initialize variant selector', error)
-    }
+    this.clearErrors()
+  }
+
+  disconnect() {
+    this.clearErrors()
   }
 
   submitForm() {
-    try {
+    EventHandlerMixin.handleEventSafely.call(this, null, () => {
       this.clearErrors()
       this.formTarget.requestSubmit()
       this.emitVariantChangeEvent()
-    } catch (error) {
-      this.handleError('Failed to submit form', error)
-    }
+    })
+  }
+
+  sizeOptionTargetConnected(element) {
+    element.addEventListener('change', this.handleVariantChange.bind(this))
+  }
+
+  colorOptionTargetConnected(element) {
+    element.addEventListener('change', this.handleVariantChange.bind(this))
+  }
+
+  handleVariantChange() {
+    this.submitForm()
   }
 
   emitVariantChangeEvent() {
     const event = new CustomEvent('variant:changed', {
       detail: {
+        productId: this.productIdValue,
         formSubmitted: true
       }
     })
@@ -42,30 +46,22 @@ export default class extends Controller {
   }
 
   handleOutOfStockNotification() {
-    alert('We\'ll notify you when it\'s back in stock.')
+    this.dispatch('stock-unavailable', {
+      detail: { message: "We'll notify you when it's back in stock." }
+    })
   }
 
   handleError(message, error = null) {
+    EventHandlerMixin.dispatchError.call(this, 'variant-selector-error', error || message)
+
     if (this.hasErrorClass) {
       this.element.classList.add(this.errorClass)
     }
-
-    this.dispatch('error', {
-      detail: {
-        message,
-        error: error?.message || error,
-        controller: 'variant-selector'
-      }
-    })
   }
 
   clearErrors() {
     if (this.hasErrorClass) {
       this.element.classList.remove(this.errorClass)
     }
-  }
-
-  disconnect() {
-    this.clearErrors()
   }
 }

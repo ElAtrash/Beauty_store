@@ -1,0 +1,13 @@
+<!-- Cart Popup (following auth popup pattern) -->
+<div data-controller="cart-popup" id="cart-popup">
+  <div class="modal-overlay cart-popup-overlay"
+       data-cart-popup-target="overlay"
+       data-action="click->cart-popup#close">
+  </div>
+  <div class="cart-sidebar cart-popup-panel"
+       data-cart-popup-target="panel">
+  <div id="cart-popup-body" class="flex flex-col h-full">
+    <%= render "carts/popup_body", cart: cart %>
+  </div>
+  </div>
+</div>

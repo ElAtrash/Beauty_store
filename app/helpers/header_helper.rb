@@ -66,17 +66,18 @@ module HeaderHelper
     attributes
   end
 
-  # Dynamic badge counts (replace hardcoded values)
+  # Dynamic badge counts
   def header_badge_count(type)
     case type
     when :cart
-      # TODO: Replace with actual cart item count from session/user
-      2
+      count = cart_item_count
+      count > 0 ? count : nil
     when :favorites, :wishlist
       # TODO: Replace with actual favorites count from user
-      3
+      count = 0
+      count > 0 ? count : nil
     else
-      0
+      nil
     end
   end
 end
