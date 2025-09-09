@@ -1,5 +1,7 @@
 <!-- Variant Selection Form -->
-<div>
+<div data-controller="products--variant-selector" 
+     data-products--variant-selector-product-id-value="<%= product.id %>"
+     data-products--variant-selector-variants-value="<%= variants_for_js.to_json %>">
   <%= form_with model: product, url: update_variant_product_path(product), method: :patch, local: false,
       data: {
         "products--variant-selector-target": "form",

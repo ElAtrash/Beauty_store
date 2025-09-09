@@ -11,6 +11,8 @@ class ApplicationController < ActionController::Base
   before_action :set_current_session
   before_action :set_active_storage_url_options
 
+  helper_method :current_cart, :cart_item_count, :cart_total
+
   private
 
   def set_locale
@@ -68,5 +70,26 @@ class ApplicationController < ActionController::Base
 
   def render_not_found
     render file: Rails.public_path.join("404.html"), status: :not_found, layout: false
+  end
+
+  # Cart helper methods
+  def current_cart
+    return @current_cart if defined?(@current_cart)
+
+    @current_cart = Carts::FindOrCreateService.call(
+      user: Current.user,
+      session: session,
+      cart_token: session[:cart_token]
+    )
+
+    @current_cart
+  end
+
+  def cart_item_count
+    current_cart&.total_quantity || 0
+  end
+
+  def cart_total
+    current_cart&.total_price&.format || "$0.00"
   end
 end

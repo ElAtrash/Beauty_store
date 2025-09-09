@@ -12,48 +12,9 @@
       variant_options: variant_options, 
       stock_info: stock_info, 
       product_data: product_data %>
-  <!-- Product Actions -->
-  <div class="product-actions flex items-center gap-3"
-       data-controller="cart-controls"
-       data-cart-controls-target="productActions"
-       data-cart-controls-initial-state-value="initial"
-       data-action="variant:stock-changed@document->cart-controls#handleStockChange">
-    <div class="flex-1 space-y-2">
-      <!-- Add to Cart / Notify Me -->
-      <button type="button"
-              class="add-to-cart-button w-full"
-              data-cart-controls-target="addToCartButton"
-              data-action="click->cart-controls#<%= add_to_cart_action %>">
-        <span data-cart-controls-target="buttonText">
-          <%= add_to_cart_label %>
-        </span>
-      </button>
-      <!-- Quantity Controls -->
-      <div class="quantity-controls flex items-center justify-between border rounded-lg px-2 py-1"
-           data-cart-controls-target="quantityControls">
-        <button type="button"
-                class="w-8 h-8 flex items-center justify-center rounded-full"
-                data-action="click->cart-controls#decrementQuantity"
-                data-cart-controls-target="decrementButton">
-          <%= render UI::IconComponent.new(name: :minus, css_class: "w-4 h-4") %>
-        </button>
-        <span class="flex-1 text-center font-medium text-lg"
-              data-cart-controls-target="quantityDisplay">1</span>
-        <button type="button"
-                class="w-8 h-8 flex items-center justify-center rounded-full"
-                data-action="click->cart-controls#incrementQuantity"
-                data-cart-controls-target="incrementButton">
-          <%= render UI::IconComponent.new(name: :plus, css_class: "w-4 h-4") %>
-        </button>
-      </div>
-      <input type="hidden" name="quantity" value="1"
-             data-cart-controls-target="quantityInput">
-    </div>
-    <!-- Wishlist -->
-    <button type="button"
-            class="wishlist-button"
-            title="Add to Wishlist">
-      <%= render UI::IconComponent.new(name: :heart, css_class: "w-6 h-6") %>
-    </button>
-  </div>
+  <!-- Product Actions with Turbo Frame -->
+  <%= render "products/cart_actions", 
+      product: product, 
+      product_data: product_data, 
+      stock_info: stock_info %>
 </div>

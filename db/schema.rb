@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_28_222406) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_180416) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,8 +60,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_28_222406) do
     t.integer "quantity", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "price_snapshot_cents", default: 0, null: false
+    t.string "price_snapshot_currency", limit: 3, default: "USD", null: false
     t.index ["cart_id", "product_variant_id"], name: "index_cart_items_on_cart_id_and_product_variant_id", unique: true
     t.index ["cart_id"], name: "index_cart_items_on_cart_id"
+    t.index ["price_snapshot_cents"], name: "index_cart_items_on_price_snapshot_cents"
     t.index ["product_variant_id"], name: "index_cart_items_on_product_variant_id"
   end
 
@@ -71,7 +74,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_28_222406) do
     t.datetime "abandoned_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "session_token", limit: 32, null: false
     t.index ["session_id"], name: "index_carts_on_session_id"
+    t.index ["session_token"], name: "index_carts_on_session_token", unique: true
     t.index ["user_id"], name: "index_carts_on_user_id"
   end
 

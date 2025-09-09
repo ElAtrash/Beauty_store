@@ -1,7 +1,7 @@
 class ProductsController < ApplicationController
-  allow_unauthenticated_access only: %i[ show update_variant ]
+  allow_unauthenticated_access only: %i[ show update_variant cart_controls ]
 
-  before_action :set_product, only: %i[show update_variant]
+  before_action :set_product, only: %i[show update_variant cart_controls]
 
   def show
     @selected_variant = find_selected_variant || @product.default_variant
@@ -20,6 +20,22 @@ class ProductsController < ApplicationController
       end
       format.html do
         redirect_to product_path(@product, color: params.dig(:product, :color), size: params.dig(:product, :size))
+      end
+    end
+  end
+
+  def cart_controls
+    @selected_variant = @product.product_variants.find(params[:variant_id])
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "cart-actions-#{@product.id}",
+          html: render_to_string(
+            partial: "products/cart_actions",
+            locals: { product: @product, variant: @selected_variant }
+          )
+        )
       end
     end
   end
@@ -75,25 +91,11 @@ class ProductsController < ApplicationController
     dynamic_data = presenter.build_dynamic_data(selected_variant: selected_variant)
     product_data = static_data.merge_dynamic!(dynamic_data)
 
-    monitor_response_size(product_data)
     product_data
   end
 
   def product_data_cache_key(product)
     [ product.cache_key_with_version, "product_static_data" ]
-  end
-
-  def monitor_response_size(product_data)
-    json_size = product_data.as_json.to_json.length
-    size_kb = (json_size / 1024.0).round(2)
-
-    if size_kb > 50
-      Rails.logger.warn "ProductData: Large response payload for product #{@product.id}: #{size_kb} KB (#{@product.product_variants.count} variants)"
-    elsif size_kb > 20
-      Rails.logger.info "ProductData: Medium response payload for product #{@product.id}: #{size_kb} KB"
-    end
-
-    Rails.logger.debug "ProductData: Payload size for product #{@product.id}: #{size_kb} KB"
   end
 
   def find_selected_variant

@@ -1,30 +1,22 @@
 import { Controller } from "@hotwired/stimulus"
+import { TimeoutMixin } from "mixins/timeout_mixin"
 
 export default class extends Controller {
-  static targets = ["form"]
+  static values = {
+    delay: { type: Number, default: 1000 }
+  }
+
+  connect() {
+    TimeoutMixin.initializeTimeout.call(this)
+  }
+
+  disconnect() {
+    TimeoutMixin.cleanupOnDisconnect.call(this)
+  }
 
   submit() {
-    // Preserve existing URL parameters when submitting the form
-    const form = this.formTarget
-    const currentUrl = new URL(window.location)
-
-    const formData = new FormData(form)
-
-    const newParams = new URLSearchParams(currentUrl.search)
-
-    // Update only the form parameters, preserving existing ones
-    for (const [key, value] of formData) {
-      if (key === 'sort_by') {
-        newParams.set(key, value)
-      }
-    }
-
-    // Build the new URL
-    const newUrl = `${currentUrl.pathname}?${newParams.toString()}`
-
-    // Update the form action to include all parameters
-    form.action = newUrl
-
-    this.formTarget.requestSubmit()
+    TimeoutMixin.setTimeoutWithCleanup.call(this, () => {
+      this.element.requestSubmit()
+    }, this.delayValue)
   }
 }

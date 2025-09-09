@@ -14,6 +14,21 @@ module Products
 
     attr_reader :product, :variant_options, :stock_info, :product_data, :selected_variant
 
+    def variants_for_js
+      product.product_variants.map do |variant|
+        {
+          id: variant.id,
+          color: variant.color,
+          name: variant.name,
+          sku: variant.sku,
+          size_key: variant.size_key,
+          color_hex: variant.color_hex,
+          size_value: variant.size_value,
+          size_unit: variant.size_unit,
+          size_type: variant.size_type
+        }
+      end
+    end
 
     def has_sizes?
       product.product_variants.any?(&:size?)

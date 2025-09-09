@@ -1,0 +1,104 @@
+<%= turbo_frame_tag "cart-actions-#{product.id}",
+    class: "product-cart-actions",
+    data: {
+      controller: "cart-actions",
+      cart_actions_product_id_value: product.id,
+      action: "variant:changed@document->cart-actions#handleVariantChange variant:stock-changed@document->cart-actions#handleStockChange"
+    } do %>
+  <%
+    current_variant = if defined?(variant) && variant.present?
+      variant
+    elsif defined?(product_data) && product_data.present?
+      variant_id = product_data.default_variant&.dig(:id)
+      variant_id ? ProductVariant.find_by(id: variant_id) : nil
+    else
+      product.default_variant
+    end
+
+    cart_item = current_cart&.cart_items&.find_by(product_variant_id: current_variant&.id) if current_variant
+    stock_available = if defined?(stock_info) && stock_info.present?
+      stock_info[:available]
+    else
+      current_variant&.available?
+    end
+  %>
+  <% if cart_item.present? %>
+    <!-- Quantity Mode -->
+    <div class="product-actions flex items-start gap-3" data-cart-state="quantity">
+      <div class="flex-1">
+        <%= form_with model: cart_item,
+            url: update_quantity_cart_item_path(cart_item),
+            method: :patch,
+            data: {
+              turbo_frame: "cart-actions-#{product.id}",
+              action: "submit->cart-actions#handleFormSubmit"
+            },
+            class: "cart-quantity-form" do |form| %>
+          <div class="add-to-cart-button w-full flex items-center px-0">
+            <button type="submit"
+                    class="aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent"
+                    name="quantity_action"
+                    value="decrement">
+              <%= render UI::IconComponent.new(name: :minus, css_class: "w-5 h-5") %>
+            </button>
+            <span class="flex-1 text-center font-medium text-white">
+              <%= cart_item.quantity %>
+            </span>
+            <button type="submit"
+                    class="aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent"
+                    name="quantity_action"
+                    value="increment">
+              <%= render UI::IconComponent.new(name: :plus, css_class: "w-5 h-5") %>
+            </button>
+          </div>
+          <%= form.hidden_field :quantity, value: cart_item.quantity %>
+        <% end %>
+      </div>
+      <!-- Wishlist -->
+      <button type="button"
+              class="wishlist-button flex-shrink-0"
+              title="Add to Wishlist"
+              data-cart-actions-target="wishlistButton"
+              data-action="click->cart-actions#toggleWishlist">
+        <%= render UI::IconComponent.new(name: :heart, css_class: "w-6 h-6") %>
+      </button>
+    </div>
+  <% else %>
+    <!-- Initial Mode -->
+    <div class="product-actions flex items-center gap-3" data-cart-state="initial">
+      <div class="flex-1">
+        <%= form_with url: cart_items_path,
+            method: :post,
+            data: { turbo_frame: "cart-actions-#{product.id}" },
+            class: "cart-add-form" do |form| %>
+          <%= form.hidden_field :product_variant_id, value: current_variant&.id %>
+          <%= form.hidden_field :quantity, value: 1 %>
+          <% if stock_available %>
+            <%= form.submit "ADD TO CART",
+                class: "add-to-cart-button w-full",
+                data: {
+                  turbo_submits_with: "Adding...",
+                  disable_with: "Adding..."
+                } %>
+          <% else %>
+            <%= form.submit "NOTIFY ME",
+                class: "add-to-cart-button w-full notify-mode",
+                formaction: notify_out_of_stock_path,
+                data: {
+                  turbo_submits_with: "Notifying...",
+                  disable_with: "Notifying..."
+                } %>
+          <% end %>
+        <% end %>
+      </div>
+      <!-- Wishlist -->
+      <button type="button"
+              class="wishlist-button flex-shrink-0"
+              title="Add to Wishlist"
+              data-cart-actions-target="wishlistButton"
+              data-action="click->cart-actions#toggleWishlist">
+        <%= render UI::IconComponent.new(name: :heart, css_class: "w-6 h-6") %>
+      </button>
+    </div>
+  <% end %>
+<% end %>

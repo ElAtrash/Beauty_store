@@ -46,11 +46,13 @@
             icon: 'user',
             action: 'navigation--auth-popup#openProfile',
             aria_label: t('header.actions.profile')) %>
-        <%= render UI::HeaderActionButtonComponent.new(
-            icon: 'shopping_cart',
-            action: 'navigation--header-actions#openCart',
-            aria_label: t('header.actions.cart'),
-            badge: header_badge_count(:cart)) %>
+        <div id="cart-badge" class="relative">
+          <%= render UI::HeaderActionButtonComponent.new(
+              icon: 'shopping_cart',
+              action: 'application#openCart',
+              aria_label: t('header.actions.cart'),
+              badge: header_badge_count(:cart)) %>
+        </div>
       </div>
     </div>
     <!-- Mobile Header -->
@@ -82,11 +84,13 @@
           aria_label: t('header.actions.favorites'),
           badge: header_badge_count(:favorites)) %>
       <!-- Cart Icon -->
-      <%= render UI::HeaderActionButtonComponent.new(
-          icon: 'shopping_cart',
-          action: 'navigation--header-actions#openCart',
-          aria_label: t('header.actions.cart'),
-          badge: header_badge_count(:cart)) %>
+      <div id="mobile-cart-badge" class="relative">
+        <%= render UI::HeaderActionButtonComponent.new(
+            icon: 'shopping_cart',
+            action: 'application#openCart',
+            aria_label: t('header.actions.cart'),
+            badge: header_badge_count(:cart)) %>
+      </div>
     </div>
   </header>
   <nav class="navigation-wrapper hidden md:block transition-all duration-300" aria-label="<%= t('header.nav.main_navigation') %>" data-navigation--header-state-target="nav">
