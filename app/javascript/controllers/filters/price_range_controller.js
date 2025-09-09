@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { TimeoutMixin } from "mixins/timeout_mixin"
 
 export default class extends Controller {
   static targets = [
@@ -15,7 +16,14 @@ export default class extends Controller {
     debounceDelay: { type: Number, default: 50 }
   }
 
+  disconnect() {
+    this.clearCurrentTimeout()
+  }
+
   connect() {
+    Object.assign(this, TimeoutMixin)
+    this.initializeTimeout()
+    
     this.initialize()
   }
 
@@ -200,7 +208,7 @@ export default class extends Controller {
   }
 
   scheduleRangeUpdate() {
-    setTimeout(() => {
+    this.setTimeoutWithCleanup(() => {
       this.updateRange()
     }, this.debounceDelayValue)
   }

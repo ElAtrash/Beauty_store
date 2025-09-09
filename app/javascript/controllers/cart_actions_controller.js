@@ -5,6 +5,8 @@ export default class extends Controller {
   static targets = ["wishlistButton"]
 
   connect() {
+    Object.assign(this, EventHandlerMixin)
+
     document.addEventListener('variant:changed', this.handleVariantChange.bind(this))
   }
 
@@ -13,7 +15,7 @@ export default class extends Controller {
   }
 
   toggleWishlist(event) {
-    EventHandlerMixin.handleEventSafely.call(this, event, () => {
+    this.handleEventSafely(event, () => {
       this.dispatch("wishlist-toggle", {
         detail: {
           productId: this.data.get("productId"),

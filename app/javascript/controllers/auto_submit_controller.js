@@ -7,15 +7,17 @@ export default class extends Controller {
   }
 
   connect() {
-    TimeoutMixin.initializeTimeout.call(this)
+    Object.assign(this, TimeoutMixin)
+
+    this.initializeTimeout()
   }
 
   disconnect() {
-    TimeoutMixin.cleanupOnDisconnect.call(this)
+    this.cleanupOnDisconnect()
   }
 
   submit() {
-    TimeoutMixin.setTimeoutWithCleanup.call(this, () => {
+    this.setTimeoutWithCleanup(() => {
       this.element.requestSubmit()
     }, this.delayValue)
   }

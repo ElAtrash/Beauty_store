@@ -51,6 +51,7 @@ class ProductsController < ApplicationController
       turbo_stream.replace("product-pricing", html: render_pricing_partial),
       turbo_stream.replace("product-gallery", html: render_gallery_partial),
       turbo_stream.replace("variant-selector", html: render_variant_selector_partial),
+      turbo_stream.replace("cart-actions-#{@product.id}", html: render_cart_actions_partial),
       turbo_stream.update_all(".sku-display", html: @selected_variant.sku)
     ]
   rescue => e
@@ -60,6 +61,7 @@ class ProductsController < ApplicationController
       turbo_stream.replace("product-pricing", html: "<div>Error loading pricing for #{@selected_variant.name}</div>"),
       turbo_stream.replace("product-gallery", html: "<div>Error loading gallery for #{@selected_variant.name}</div>"),
       turbo_stream.replace("variant-selector", html: "<div>Error loading variant selector for #{@selected_variant.name}</div>"),
+      turbo_stream.replace("cart-actions-#{@product.id}", html: "<div>Error loading cart actions</div>"),
       turbo_stream.update_all(".sku-display", html: @selected_variant.sku)
     ]
   end
@@ -78,6 +80,14 @@ class ProductsController < ApplicationController
       variant_options: @product_data.variant_options,
       stock_info: @product_data.stock_info,
       product_data: @product_data
+    }, formats: [ :html ])
+  end
+
+  def render_cart_actions_partial
+    render_to_string(partial: "products/cart_actions", locals: {
+      product: @product,
+      variant: @selected_variant,
+      stock_info: @product_data.stock_info
     }, formats: [ :html ])
   end
 

@@ -5,8 +5,10 @@ export default class extends Controller {
   static values = { delay: { type: Number, default: 3000 } }
 
   connect() {
-    TimeoutMixin.initializeTimeout.call(this)
-    TimeoutMixin.setTimeoutWithCleanup.call(this, () => {
+    Object.assign(this, TimeoutMixin)
+
+    this.initializeTimeout()
+    this.setTimeoutWithCleanup(() => {
       this.dismiss()
     }, this.delayValue)
   }
@@ -20,6 +22,6 @@ export default class extends Controller {
   }
 
   disconnect() {
-    TimeoutMixin.cleanupOnDisconnect.call(this)
+    this.cleanupOnDisconnect()
   }
 }

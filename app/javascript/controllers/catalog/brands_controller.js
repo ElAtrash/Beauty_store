@@ -1,13 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
+import { TimeoutMixin } from "mixins/timeout_mixin"
 
 export default class extends Controller {
   static targets = ["searchInput"]
 
   connect() {
+    Object.assign(this, TimeoutMixin)
+    this.initializeTimeout()
+    
     document.addEventListener('turbo:frame-load', this.handleFrameLoad.bind(this))
   }
 
   disconnect() {
+    this.clearCurrentTimeout()
     document.removeEventListener('turbo:frame-load', this.handleFrameLoad.bind(this))
   }
 
@@ -24,11 +29,7 @@ export default class extends Controller {
   handleSearchInput(event) {
     const query = event.target.value.trim()
 
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout)
-    }
-
-    this.searchTimeout = setTimeout(() => {
+    this.setTimeoutWithCleanup(() => {
       if (query.length >= 2 || query.length === 0) {
         event.target.closest('form').requestSubmit()
       }

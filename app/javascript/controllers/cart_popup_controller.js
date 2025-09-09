@@ -6,6 +6,8 @@ export default class extends Controller {
   static targets = ["overlay", "panel"]
 
   connect() {
+    Object.assign(this, EventHandlerMixin)
+
     this.isOpen = false
     this.updatePopupState()
     KeyboardHandlerMixin.setupKeyboardListener.call(this)
@@ -24,21 +26,21 @@ export default class extends Controller {
   }
 
   toggle(event) {
-    EventHandlerMixin.handleEventSafely.call(this, event, () => {
+    this.handleEventSafely(event, () => {
       this.isOpen = !this.isOpen
       this.updatePopupState()
     })
   }
 
   close(event) {
-    EventHandlerMixin.handleEventSafely.call(this, event, () => {
+    this.handleEventSafely(event, () => {
       this.isOpen = false
       this.updatePopupState()
     })
   }
 
   open(event) {
-    EventHandlerMixin.handleEventSafely.call(this, event, () => {
+    this.handleEventSafely(event, () => {
       this.isOpen = true
       this.updatePopupState()
     })

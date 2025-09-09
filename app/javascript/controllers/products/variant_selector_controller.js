@@ -7,6 +7,8 @@ export default class extends Controller {
   static classes = ["loading", "error"]
 
   connect() {
+    Object.assign(this, EventHandlerMixin)
+
     this.clearErrors()
   }
 
@@ -15,7 +17,7 @@ export default class extends Controller {
   }
 
   submitForm() {
-    EventHandlerMixin.handleEventSafely.call(this, null, () => {
+    this.handleEventSafely(null, () => {
       this.clearErrors()
       this.formTarget.requestSubmit()
       this.emitVariantChangeEvent()

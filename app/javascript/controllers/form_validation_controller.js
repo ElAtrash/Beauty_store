@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { TimeoutMixin } from "mixins/timeout_mixin"
 
 export default class extends Controller {
   static values = {
@@ -6,7 +7,14 @@ export default class extends Controller {
     rules: Object
   }
 
+  disconnect() {
+    this.clearCurrentTimeout()
+  }
+
   connect() {
+    Object.assign(this, TimeoutMixin)
+    this.initializeTimeout()
+    
     this.interacted = new Set()
     this.fieldsCache = null
     this.errorContainers = new WeakMap()
@@ -27,7 +35,7 @@ export default class extends Controller {
 
     // Add validation delay to prevent immediate validation
     let validationEnabled = false
-    setTimeout(() => { validationEnabled = true }, 300)
+    this.setTimeoutWithCleanup(() => { validationEnabled = true }, 300)
 
     field.addEventListener('blur', () => {
       if (validationEnabled && this.wasRecentlyFocused(field)) {
