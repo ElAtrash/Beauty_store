@@ -1,0 +1,7 @@
+<button type="button"
+        class="wishlist-button flex-shrink-0"
+        title="Add to Wishlist"
+        data-cart-actions-target="wishlistButton"
+        data-action="click->cart-actions#toggleWishlist">
+  <%= render UI::IconComponent.new(name: :heart, css_class: "w-[var(--cart-icon-size)] h-[var(--cart-icon-size)]") %>
+</button>

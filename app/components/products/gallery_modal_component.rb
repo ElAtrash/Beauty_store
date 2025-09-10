@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Products::GalleryModalComponent < ViewComponent::Base
-  THUMBNAIL_SIZE = { width: 72, height: 72, spacing: 12 }.freeze
   MAX_VISIBLE_THUMBNAILS = 4
 
   def initialize(product:, gallery_images:, current_image_index: 0)
@@ -19,8 +18,7 @@ class Products::GalleryModalComponent < ViewComponent::Base
   end
 
   def thumbnail_container_height
-    visible_count = [ gallery_images.size, MAX_VISIBLE_THUMBNAILS ].min
-    visible_count * THUMBNAIL_SIZE[:height] + (visible_count - 1) * THUMBNAIL_SIZE[:spacing]
+    "calc(#{MAX_VISIBLE_THUMBNAILS} * (var(--thumb-size) + var(--thumb-gap)) - var(--thumb-gap))"
   end
 
   def show_thumbnail_arrows?

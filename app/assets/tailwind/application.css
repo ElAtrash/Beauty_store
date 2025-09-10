@@ -37,15 +37,38 @@
   /* Subtle background for disabled states */
 
   /* Z-Index Scale - Centralized layering system */
+  /* Layer 0: Base content (1-9) */
   --z-base: 1;
-  --z-header: 100;
-  --z-nav: 90;
-  --z-overlay: 105;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+
+  /* Layer 1: Navigation (50-99) */
+  --z-nav: 50;
+  --z-header: 60;
+
+  /* Layer 2: Overlays (100-199) */
+  --z-overlay: 100;
   --z-mobile-menu: 110;
-  --z-modal-overlay: 115;
-  --z-modal: 120;
-  --z-sidebar-popup: 130;
-  --z-notification: 140;
+  --z-modal-overlay: 120;
+  --z-modal: 130;
+  --z-sidebar-popup: 140;
+
+  /* Layer 3: Special Modals (200-299) */
+  --z-gallery-modal: 200;
+
+  /* Layer 4: System (300+) */
+  --z-notification: 300;
+  --z-toast: 310;
+  --z-tooltip: 320;
+
+  --thumb-size: 68px;
+  --thumb-gap: 8px;
+
+  /* Cart & Button Design Tokens */
+  --cart-icon-size: 1.5rem;
+  /* 24px - for cart action icons like heart, plus, minus */
+  --cart-button-icon-size: 1.25rem;
+  /* 20px - for icons inside cart buttons */
 
   --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-family-arabic: "Noto Sans Arabic", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -209,9 +232,21 @@
   }
 
   .sort-dropdown-menu {
-    @apply absolute top-full mt-2 right-0 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50;
+    @apply absolute top-full mt-2 right-0 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1;
+    z-index: var(--z-dropdown);
     @apply opacity-0 invisible transform scale-95 transition-all duration-200;
     @apply origin-top-right;
+  }
+
+  /* Dropdown menus */
+  .color-dropdown-menu,
+  .brand-dropdown-menu {
+    z-index: var(--z-dropdown);
+  }
+
+  /* Close buttons in modals */
+  .modal-close-button {
+    z-index: var(--z-dropdown);
   }
 
   .sort-dropdown-menu.show {
@@ -1405,20 +1440,54 @@
     width: 120px;
   }
 
+  .thumbnail-container-vertical {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+  }
+
+  .thumbnail-container-vertical .thumbnail-desktop {
+    scroll-snap-align: start;
+  }
+
   .gallery-modal-content {
-    @apply space-y-8;
-    padding: 40px 120px 140px;
+    @apply space-y-8 p-8;
+    min-height: 100vh;
   }
 
   /* Hide product info when modal is open to prevent overlay issues */
-  .gallery-modal-open .product-info-container {
-    display: none !important;
+  .gallery-modal-open .product-info-container,
+  .gallery-modal-open .product-info-section {
+    display: none;
   }
 
   /* Hide header when modal is open for full-screen experience */
   .gallery-modal-open .site-header,
   .gallery-modal-open .header-wrapper {
-    display: none !important;
+    display: none;
+  }
+
+  /* Gallery zoom modal */
+  .gallery-zoom-modal {
+    z-index: var(--z-gallery-modal);
+  }
+
+  /* Hide specific page sections when modal is open - target breadcrumbs, product info, tabs, and reviews */
+  .gallery-modal-open .product-info-section,
+  .gallery-modal-open .product-layout .product-info-section,
+  .gallery-modal-open section:has(.container),
+  .gallery-modal-open #reviews-section {
+    display: none;
+  }
+
+  /* Hide the product gallery thumbnails and controls when modal is open - but NOT modal thumbnails */
+  .gallery-modal-open .product-gallery-section .gallery-click-zone,
+  .gallery-modal-open .product-gallery-section [data-products--gallery-thumbnails-target="thumbnail"]:not(.gallery-zoom-modal [data-products--gallery-thumbnails-target="thumbnail"]),
+  .gallery-modal-open .product-gallery-section [data-products--gallery-thumbnails-target="upArrow"]:not(.gallery-zoom-modal [data-products--gallery-thumbnails-target="upArrow"]),
+  .gallery-modal-open .product-gallery-section [data-products--gallery-thumbnails-target="downArrow"]:not(.gallery-zoom-modal [data-products--gallery-thumbnails-target="downArrow"]),
+  .gallery-modal-open .product-gallery-section [data-products--gallery-thumbnails-target="thumbnailContainer"]:not(.gallery-zoom-modal [data-products--gallery-thumbnails-target="thumbnailContainer"]),
+  .gallery-modal-open .product-gallery-section img[data-products--gallery-target="mainImage"] {
+    display: none;
   }
 
   /* Cart Badge Styles */
@@ -1900,35 +1969,6 @@
     object-fit: cover;
   }
 
-  .modal-thumbnail {
-    scroll-snap-align: center;
-    flex-shrink: 0;
-    width: 3rem;
-    height: 3rem;
-    border: 2px solid transparent;
-    border-radius: 0.25rem;
-    overflow: hidden;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    background-color: rgb(249 250 251);
-  }
-
-  .modal-thumbnail:hover {
-    opacity: 1;
-    border-color: rgb(209 213 219);
-  }
-
-  .modal-thumbnail[data-selected="true"] {
-    border-color: rgb(255 255 255);
-    opacity: 1;
-  }
-
-  .modal-thumbnail-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .gallery-modal-open {
     overflow: hidden;
