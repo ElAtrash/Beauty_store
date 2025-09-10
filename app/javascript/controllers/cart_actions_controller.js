@@ -3,22 +3,54 @@ import { EventHandlerMixin } from "mixins/event_handler_mixin"
 
 export default class extends Controller {
   static targets = ["wishlistButton"]
+  static values = { productId: Number }
+  static actions = [
+    "variant:changed@document->handleVariantChange",
+    "variant:stock-changed@document->handleStockChange"
+  ]
 
   connect() {
     Object.assign(this, EventHandlerMixin)
-
-    document.addEventListener('variant:changed', this.handleVariantChange.bind(this))
+    this.setupEventListeners()
   }
 
   disconnect() {
-    document.removeEventListener('variant:changed', this.handleVariantChange.bind(this))
+    this.teardownEventListeners()
+  }
+
+  setupEventListeners() {
+    this.constructor.actions.forEach(action => {
+      const [eventName, handler] = action.split('->')
+      const method = handler.split('#')[1] || handler
+
+      if (eventName.includes('@document')) {
+        const event = eventName.replace('@document', '')
+        this[`_${method}Handler`] = this[method].bind(this)
+        document.addEventListener(event, this[`_${method}Handler`])
+      }
+    })
+  }
+
+  teardownEventListeners() {
+    this.constructor.actions.forEach(action => {
+      const [eventName, handler] = action.split('->')
+      const method = handler.split('#')[1] || handler
+
+      if (eventName.includes('@document')) {
+        const event = eventName.replace('@document', '')
+        if (this[`_${method}Handler`]) {
+          document.removeEventListener(event, this[`_${method}Handler`])
+          delete this[`_${method}Handler`]
+        }
+      }
+    })
   }
 
   toggleWishlist(event) {
     this.handleEventSafely(event, () => {
       this.dispatch("wishlist-toggle", {
         detail: {
-          productId: this.data.get("productId"),
+          productId: this.productIdValue,
           action: "toggle"
         }
       })
@@ -29,7 +61,7 @@ export default class extends Controller {
     const { variant } = event.detail
 
     if (variant && variant.product_id) {
-      this.data.set("productId", variant.product_id)
+      this.productIdValue = variant.product_id
     }
   }
 

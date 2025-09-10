@@ -1,38 +1,32 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["mainImage", "currentIndex", "zoomModal", "zoomImageCard", "thumbnailContainer", "upArrow", "downArrow"]
+  static targets = ["mainImage", "currentIndex", "zoomModal", "zoomImageCard", "modalThumbnail"]
 
   static values = {
     currentIndex: { type: Number, default: 0 },
-    totalImages: { type: Number, default: 1 },
-    thumbnailScrollOffset: { type: Number, default: 0 }
+    totalImages: { type: Number, default: 1 }
   }
 
-  static classes = ["loading", "error"]
+  static classes = []
 
   connect() {
-    try {
-      this.setupVariantListener()
-      this.setupKeyboardNavigation()
-      this.images = this.loadInitialImages()
-      this.announceImageChange()
-      
-      // Notify thumbnails controller of initial images (with slight delay to ensure other controllers are ready)
-      if (this.images && this.images.length > 0) {
-        setTimeout(() => {
-          this.dispatch('variantChanged', {
-            detail: {
-              images: this.images,
-              currentIndex: this.currentIndexValue,
-              totalImages: this.totalImagesValue
-            },
-            prefix: 'gallery'
-          })
-        }, 100)
-      }
-    } catch (error) {
-      this.handleError('Failed to initialize gallery', error)
+    this.setupVariantListener()
+    this.setupKeyboardNavigation()
+    this.images = this.loadInitialImages()
+    this.announceImageChange()
+
+    if (this.images && this.images.length > 0) {
+      setTimeout(() => {
+        this.dispatch('variantChanged', {
+          detail: {
+            images: this.images,
+            currentIndex: this.currentIndexValue,
+            totalImages: this.totalImagesValue
+          },
+          prefix: 'gallery'
+        })
+      }, 100)
     }
   }
 
@@ -46,9 +40,9 @@ export default class extends Controller {
     if (this.thumbnailSelectHandler) {
       document.removeEventListener('gallery:selectImage', this.thumbnailSelectHandler)
     }
+    document.body.classList.remove('gallery-modal-open')
   }
 
-  // Main navigation actions
   previousImage(event) {
     event?.stopPropagation()
     this.navigateToImage(-1)
@@ -59,7 +53,6 @@ export default class extends Controller {
     this.navigateToImage(1)
   }
 
-  // Navigate by index (called from thumbnails controller)
   selectImage(event) {
     const index = parseInt(event.params.index, 10)
     if (this.isValidIndex(index)) {
@@ -67,27 +60,25 @@ export default class extends Controller {
     }
   }
 
-  // Zoom functionality - opens modal directly
   zoomImage(event) {
     event?.stopPropagation()
-    
+
     if (this.hasZoomModalTarget) {
-      // Remove hidden class instead of setting hidden attribute
       this.zoomModalTarget.classList.remove('hidden')
       document.body.classList.add('gallery-modal-open')
-      
-      // Scroll to current image in modal
+
       this.scrollToCurrentImageInModal()
+      this.focusModal()
     }
   }
 
   closeZoom(event) {
     event?.stopPropagation()
-    
+
     if (this.hasZoomModalTarget) {
-      // Add hidden class instead of setting hidden attribute
       this.zoomModalTarget.classList.add('hidden')
       document.body.classList.remove('gallery-modal-open')
+      this.returnFocus(event)
     }
   }
 
@@ -102,61 +93,6 @@ export default class extends Controller {
     }
   }
 
-  // Thumbnail scrolling methods (for modal context)
-  scrollThumbnailsUp(event) {
-    event?.preventDefault()
-    this.scrollThumbnails(-1)
-  }
-
-  scrollThumbnailsDown(event) {
-    event?.preventDefault()
-    this.scrollThumbnails(1)
-  }
-
-  scrollThumbnails(direction) {
-    if (!this.hasThumbnailContainerTarget) return
-
-    const container = this.thumbnailContainerTarget
-    const thumbnailHeight = 76 // 68px thumbnail + 8px spacing
-    const newOffset = this.thumbnailScrollOffsetValue + (direction * thumbnailHeight)
-    
-    // Calculate bounds
-    const maxOffset = Math.max(0, (this.totalImagesValue - 4) * thumbnailHeight)
-    const clampedOffset = Math.max(0, Math.min(newOffset, maxOffset))
-
-    // Apply transform
-    this.thumbnailScrollOffsetValue = clampedOffset
-    const innerContainer = container.children[0]
-    if (innerContainer) {
-      innerContainer.style.transform = `translateY(-${clampedOffset}px)`
-      innerContainer.style.transition = 'transform 0.3s ease'
-    }
-
-    // Update arrow visibility
-    this.updateArrowStates()
-  }
-
-  updateArrowStates() {
-    if (!this.hasThumbnailContainerTarget) return
-
-    const maxOffset = Math.max(0, (this.totalImagesValue - 4) * 76)
-    
-    // Update up arrow
-    if (this.hasUpArrowTarget) {
-      const upOpacity = this.thumbnailScrollOffsetValue > 0 ? '1' : '0.3'
-      this.upArrowTarget.style.opacity = upOpacity
-      this.upArrowTarget.disabled = this.thumbnailScrollOffsetValue <= 0
-    }
-
-    // Update down arrow
-    if (this.hasDownArrowTarget) {
-      const downOpacity = this.thumbnailScrollOffsetValue < maxOffset ? '1' : '0.3'
-      this.downArrowTarget.style.opacity = downOpacity
-      this.downArrowTarget.disabled = this.thumbnailScrollOffsetValue >= maxOffset
-    }
-  }
-
-  // Core navigation logic
   navigateToImage(direction) {
     if (this.totalImagesValue <= 1) return
 
@@ -180,9 +116,15 @@ export default class extends Controller {
     this.currentIndexValue = index
     this.updateMainImage()
     this.updateCounter()
+    this.updateModalThumbnails()
+    
+    // If modal is open, scroll to the corresponding image
+    if (this.hasZoomModalTarget && !this.zoomModalTarget.classList.contains('hidden')) {
+      this.scrollToCurrentImageInModal()
+    }
+    
     this.announceImageChange()
 
-    // Notify other controllers (thumbnails, modal) of the change
     this.dispatch('imageChanged', {
       detail: {
         index,
@@ -193,11 +135,10 @@ export default class extends Controller {
     })
   }
 
-  // Variant handling
   setupVariantListener() {
     this.variantChangeHandler = this.handleVariantChange.bind(this)
     this.thumbnailSelectHandler = this.handleThumbnailSelect.bind(this)
-    
+
     document.addEventListener('variant:changed', this.variantChangeHandler)
     document.addEventListener('gallery:selectImage', this.thumbnailSelectHandler)
   }
@@ -213,7 +154,7 @@ export default class extends Controller {
     const { images } = event.detail
 
     if (!images || images.length === 0) {
-      return // Keep current gallery
+      return
     }
 
     this.images = images
@@ -223,7 +164,6 @@ export default class extends Controller {
     this.updateCounter()
     this.announceImageChange()
 
-    // Notify other controllers of variant change
     this.dispatch('variantChanged', {
       detail: {
         images,
@@ -234,17 +174,21 @@ export default class extends Controller {
     })
   }
 
-  // Keyboard navigation
   setupKeyboardNavigation() {
     this.keydownHandler = this.handleKeydown.bind(this)
     document.addEventListener('keydown', this.keydownHandler)
   }
 
   handleKeydown(event) {
-    // Only handle arrow keys when not in input/textarea
     if (['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return
 
     switch (event.key) {
+      case 'Escape':
+        if (this.hasZoomModalTarget && !this.zoomModalTarget.classList.contains('hidden')) {
+          this.closeZoom()
+          event.preventDefault()
+        }
+        break
       case 'ArrowLeft':
         this.previousImage()
         event.preventDefault()
@@ -256,9 +200,7 @@ export default class extends Controller {
     }
   }
 
-  // Image management
   loadInitialImages() {
-    // Try to get images from script tag or fall back to current main image
     const scriptElement = document.getElementById('product-gallery-data')
     if (scriptElement) {
       try {
@@ -270,7 +212,6 @@ export default class extends Controller {
       }
     }
 
-    // Fallback to single image
     this.totalImagesValue = 1
     return this.hasMainImageTarget ? [{
       url: this.mainImageTarget.src,
@@ -289,7 +230,6 @@ export default class extends Controller {
     const imageUrl = this.getCurrentImageUrl()
     if (!imageUrl) return
 
-    // Smooth transition
     this.mainImageTarget.style.opacity = '0.8'
 
     setTimeout(() => {
@@ -306,7 +246,18 @@ export default class extends Controller {
     }
   }
 
-  // Accessibility
+  updateModalThumbnails() {
+    this.modalThumbnailTargets.forEach((thumbnail, index) => {
+      if (index === this.currentIndexValue) {
+        thumbnail.dataset.selected = 'true'
+        thumbnail.setAttribute('aria-current', 'true')
+      } else {
+        thumbnail.dataset.selected = 'false'
+        thumbnail.removeAttribute('aria-current')
+      }
+    })
+  }
+
   announceImageChange() {
     if (this.totalImagesValue <= 1) return
 
@@ -323,32 +274,26 @@ export default class extends Controller {
     liveRegion.textContent = `Image ${this.currentIndexValue + 1} of ${this.totalImagesValue} selected`
   }
 
-
-  // Utilities
   isValidIndex(index) {
     return index >= 0 && index < this.totalImagesValue && !isNaN(index)
   }
 
-  // Error handling
   handleError(message, error = null) {
     console.error(`Gallery Controller: ${message}`, error)
-
-    if (this.hasErrorClass) {
-      this.element.classList.add(this.errorClass)
-    }
-
-    this.dispatch('error', {
-      detail: {
-        message,
-        error: error?.message || error,
-        controller: 'gallery'
-      }
-    })
   }
 
-  clearErrors() {
-    if (this.hasErrorClass) {
-      this.element.classList.remove(this.errorClass)
+  focusModal() {
+    if (this.hasZoomModalTarget) {
+      this.zoomModalTarget.focus()
+    }
+  }
+
+  returnFocus(event) {
+    if (event && event.target) {
+      const opener = document.querySelector('[data-action*="zoomImage"]')
+      if (opener) {
+        opener.focus()
+      }
     }
   }
 }

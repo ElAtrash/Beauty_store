@@ -1,47 +1,32 @@
 <%
-  # Thumbnail button partial for gallery component
-  # Supports desktop, mobile, and modal contexts
-
-  # Local variables expected:
-  # - image_data: Hash with attachment and metadata
-  # - index: Integer index of the image
-  # - context: Symbol (:desktop, :mobile, :modal)
-  # - product: Product instance
-  # - component: Parent component instance
-
-  # Configuration based on context
   case context
   when :desktop
-    button_classes = "block aspect-square bg-gray-50 rounded-md overflow-hidden border-2 border-transparent opacity-70 hover:opacity-100 hover:border-gray-300 focus:border-black focus:outline-none transition-all duration-200"
+    button_classes = "block aspect-square bg-gray-50 rounded-md overflow-hidden border-2 border-transparent opacity-70 hover:opacity-100 hover:border-gray-300 focus:border-black focus:outline-none transition-all duration-200 w-[theme(--thumb-size)] h-[theme(--thumb-size)]"
     target_name = "thumbnail"
     action_method = "selectThumbnail"
     controller_name = "products--gallery-thumbnails"
-    size_style = "width: 68px; height: 68px;"
   when :mobile
     button_classes = "flex-shrink-0 aspect-square w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border-2 border-transparent opacity-70 hover:opacity-100 hover:border-gray-300 focus:border-black focus:outline-none transition-all duration-200"
     target_name = "mobileThumbnail"
     action_method = "selectThumbnail"
     controller_name = "products--gallery-thumbnails"
-    size_style = ""
   when :modal
-    button_classes = "block aspect-square bg-white rounded-lg overflow-hidden border-2 border-transparent opacity-80 hover:opacity-100 hover:border-gray-300 focus:border-black focus:outline-none transition-all duration-200 shadow-sm"
-    target_name = "zoomThumbnail"
-    action_method = "selectImage"
-    controller_name = "products--gallery"
-    size_style = "width: 72px; height: 72px;"
+    button_classes = "block aspect-square bg-white rounded-lg overflow-hidden border-2 border-transparent opacity-80 hover:opacity-100 hover:border-gray-300 focus:border-black focus:outline-none transition-all duration-200 shadow-sm w-[theme(--thumb-size)] h-[theme(--thumb-size)]"
+    target_name = "thumbnail"
+    action_method = "selectThumbnail"
+    controller_name = "products--gallery-thumbnails"
   end
 %>
-
 <button type="button"
         class="<%= button_classes %>"
-        <% if size_style.present? %>style="<%= size_style %>"<% end %>
-        data-<%= controller_name %>-target="<%= target_name %>"
-        data-action="click-><%= controller_name %>#<%= action_method %>"
-        data-<%= controller_name %>-index-param="<%= index %>"
-        <% if context != :modal %>
-          data-<%= controller_name %>-image-url-param="<%= image_data.attached? ? component.image_url(image_data.attachment, size: :large) : component.placeholder_url %>"
-        <% end %>>
-
+        <% if target_name.present? %>data-<%= controller_name %>-target="<%= target_name %>"<% end %>
+        <% if context == :modal %>data-products--gallery-target="modalThumbnail"<% end %>
+        data-action="click-><%= controller_name %>#<%= action_method %><% if context == :modal %> click->products--gallery#selectImage<% end %>"
+  data-<%= controller_name %>-index-param="<%= index %>"
+  <% if context == :modal %>data-products--gallery-index-param="<%= index %>"<% end %>
+  data-<%= controller_name %>-image-url-param="<%= image_data.attached? ? component.image_url(image_data.attachment, size: :large) : component.placeholder_url %>"
+  <% if context == :modal %>data-products--gallery-image-url-param="<%= image_data.attached? ? component.image_url(image_data.attachment, size: :large) : component.placeholder_url %>"<% end %>
+  data-selected="<%= index == 0 ? 'true' : 'false' %>">
   <% if image_data.attached? %>
     <img src="<%= component.image_url(image_data.attachment, size: :thumbnail) %>"
          alt="<%= image_data.safe_alt %>"
