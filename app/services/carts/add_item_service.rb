@@ -73,10 +73,10 @@ class Carts::AddItemService
   end
 
   def success_result
-    Carts::BaseResult.new(resource: @cart_item, cart: cart, success: true)
+    BaseResult.new(resource: @cart_item, cart: cart, success: true)
   end
 
   def failure_result
-    Carts::BaseResult.new(errors: errors, success: false, cart: cart)
+    BaseResult.new(errors: errors, success: false, cart: cart)
   end
 end

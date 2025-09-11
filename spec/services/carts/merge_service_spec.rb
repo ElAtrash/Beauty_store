@@ -71,7 +71,7 @@ RSpec.describe Carts::MergeService do
 
         before do
           allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
-            instance_double(Carts::BaseResult,
+            instance_double(BaseResult,
               success?: true,
               failure?: false,
               errors: []
@@ -108,7 +108,7 @@ RSpec.describe Carts::MergeService do
 
         before do
           allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
-            instance_double(Carts::BaseResult,
+            instance_double(BaseResult,
               success?: false,
               failure?: true,
               errors: [ "Out of stock" ]
@@ -258,7 +258,7 @@ RSpec.describe Carts::MergeService do
 
         before do
           allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
-            instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+            instance_double(BaseResult, success?: true, failure?: false, errors: [])
           )
         end
 

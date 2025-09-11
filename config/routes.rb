@@ -43,6 +43,11 @@ Rails.application.routes.draw do
     end
   end
 
+  # Checkout routes
+  get "checkout", to: "checkout#new", as: :new_checkout
+  post "checkout", to: "checkout#create", as: :checkout
+  get "checkout/:id", to: "checkout#show", as: :checkout_confirmation
+
   # Authentication routes
   resource :session
   resources :passwords, param: :token

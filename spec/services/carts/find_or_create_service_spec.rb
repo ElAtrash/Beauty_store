@@ -34,7 +34,7 @@ RSpec.describe Carts::FindOrCreateService do
 
         before do
           allow(Carts::MergeService).to receive(:call).and_return(
-            instance_double(Carts::BaseResult,
+            instance_double(BaseResult,
               success?: true,
               failure?: false,
               merged_any_items?: true,
@@ -135,7 +135,7 @@ RSpec.describe Carts::FindOrCreateService do
 
       before do
         allow(Carts::MergeService).to receive(:call).and_return(
-          instance_double(Carts::BaseResult,
+          instance_double(BaseResult,
             success?: false,
             failure?: true,
             errors: [ "Merge validation failed" ],
@@ -193,7 +193,7 @@ RSpec.describe Carts::FindOrCreateService do
 
         before do
           allow(Carts::MergeService).to receive(:call).and_return(
-            instance_double(Carts::BaseResult,
+            instance_double(BaseResult,
               success?: true,
               failure?: false,
               merged_any_items?: false,

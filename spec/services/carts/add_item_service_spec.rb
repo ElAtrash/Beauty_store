@@ -14,7 +14,7 @@ RSpec.describe Carts::AddItemService do
 
   describe ".call" do
     context "with valid inputs" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -53,7 +53,7 @@ RSpec.describe Carts::AddItemService do
       context "when adding to existing cart item" do
         let!(:existing_item) { create(:cart_item, cart: cart, product_variant: product_variant, quantity: 3) }
         let(:existing_quantity_validation) do
-          instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+          instance_double(BaseResult, success?: true, failure?: false, errors: [])
         end
 
         before do
@@ -104,7 +104,7 @@ RSpec.describe Carts::AddItemService do
 
       context "when quantity validation fails" do
         let(:failed_validation) do
-          instance_double(Carts::BaseResult,
+          instance_double(BaseResult,
             success?: false,
             failure?: true,
             errors: [ "Quantity must be greater than 0", "Out of stock" ])
@@ -132,7 +132,7 @@ RSpec.describe Carts::AddItemService do
 
     context "with quantity parameter handling" do
       context "when quantity is not provided" do
-        let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+        let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
         before do
           allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -147,7 +147,7 @@ RSpec.describe Carts::AddItemService do
 
       context "when quantity is string" do
         let(:quantity) { "3" }
-        let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+        let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
         before do
           allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -165,7 +165,7 @@ RSpec.describe Carts::AddItemService do
         let(:quantity) { nil }
 
         it "converts to 0 and fails validation" do
-          failed_validation = instance_double(Carts::BaseResult,
+          failed_validation = instance_double(BaseResult,
             success?: false, failure?: true, errors: [ "Quantity must be greater than 0" ])
           allow(Carts::QuantityService).to receive(:validate_quantity).and_return(failed_validation)
 
@@ -178,7 +178,7 @@ RSpec.describe Carts::AddItemService do
     end
 
     context "error handling" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -225,7 +225,7 @@ RSpec.describe Carts::AddItemService do
     end
 
     context "transaction behavior" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -248,7 +248,7 @@ RSpec.describe Carts::AddItemService do
     end
 
     context "business logic edge cases" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)

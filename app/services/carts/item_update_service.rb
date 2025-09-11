@@ -86,7 +86,7 @@ class Carts::ItemUpdateService
   def destroy_item
     execute_cart_operation("remove") do
       @cart_item.destroy!
-      Carts::BaseResult.new(cart: @cart, success: true)
+      BaseResult.new(cart: @cart, success: true)
     end
   end
 
@@ -108,10 +108,10 @@ class Carts::ItemUpdateService
   end
 
   def success_result
-    Carts::BaseResult.new(resource: @cart_item, cart: @cart, success: true)
+    BaseResult.new(resource: @cart_item, cart: @cart, success: true)
   end
 
   def failure_result
-    Carts::BaseResult.new(errors: @errors, success: false, cart: @cart)
+    BaseResult.new(errors: @errors, success: false, cart: @cart)
   end
 end

@@ -14,7 +14,7 @@ RSpec.describe Carts::ItemUpdateService do
     subject(:result) { described_class.increment(cart_item) }
 
     context "when increment is allowed" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
@@ -42,7 +42,7 @@ RSpec.describe Carts::ItemUpdateService do
 
     context "when increment validation fails" do
       let(:failed_validation) do
-        instance_double(Carts::BaseResult,
+        instance_double(BaseResult,
           success?: false,
           failure?: true,
           errors: [ "No more items available" ])
@@ -118,7 +118,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "with valid positive quantity" do
       let(:new_quantity) { 5 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -142,7 +142,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when setting quantity to zero" do
       let(:new_quantity) { 0 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -161,7 +161,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when setting negative quantity" do
       let(:new_quantity) { -1 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -180,7 +180,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when validation fails" do
       let(:new_quantity) { 15 }
       let(:failed_validation) do
-        instance_double(Carts::BaseResult,
+        instance_double(BaseResult,
           success?: false,
           failure?: true,
           errors: [ "Quantity exceeds stock" ])
@@ -203,7 +203,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "with string quantity" do
       let(:new_quantity) { "7" }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -223,7 +223,7 @@ RSpec.describe Carts::ItemUpdateService do
     let(:additional_quantity) { 2 }
 
     context "when adding more is allowed" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -248,7 +248,7 @@ RSpec.describe Carts::ItemUpdateService do
 
     context "when validation fails" do
       let(:failed_validation) do
-        instance_double(Carts::BaseResult,
+        instance_double(BaseResult,
           success?: false,
           failure?: true,
           errors: [ "Would exceed maximum quantity" ])
@@ -271,7 +271,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when additional_quantity is not provided" do
       subject(:result) { described_class.add_more(cart_item) }
 
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
         allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
@@ -289,7 +289,7 @@ RSpec.describe Carts::ItemUpdateService do
   end
 
   describe "error handling" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
       allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
@@ -345,7 +345,7 @@ RSpec.describe Carts::ItemUpdateService do
   end
 
   describe "transaction behavior" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
       allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
@@ -369,7 +369,7 @@ RSpec.describe Carts::ItemUpdateService do
   end
 
   describe "unified error handling (execute_cart_operation)" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
       allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)

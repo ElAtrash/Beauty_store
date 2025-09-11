@@ -2,6 +2,8 @@ FactoryBot.define do
   factory :order do
     user
     email { user&.email_address || Faker::Internet.email }
+    phone_number { "+961 70 123 456" }
+    delivery_method { "courier" }
     status { "pending" }
     payment_status { "pending" }
     fulfillment_status { nil }
@@ -34,12 +36,12 @@ FactoryBot.define do
 
     trait :shipped do
       status { "shipped" }
-      fulfillment_status { "shipped" }
+      fulfillment_status { "dispatched" }
     end
 
     trait :delivered do
       status { "delivered" }
-      fulfillment_status { "delivered" }
+      fulfillment_status { "dispatched" }
     end
 
     trait :cancelled do
@@ -68,6 +70,14 @@ FactoryBot.define do
     trait :with_discount do
       discount_total { Money.new(1000) }
       total { subtotal + tax_total + shipping_total - discount_total }
+    end
+
+    trait :cod do
+      payment_status { "cod_due" }
+    end
+
+    trait :pickup do
+      delivery_method { "pickup" }
     end
   end
 end

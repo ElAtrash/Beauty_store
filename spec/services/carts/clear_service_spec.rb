@@ -21,7 +21,7 @@ RSpec.describe Carts::ClearService do
 
       before do
         allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-          instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+          instance_double(BaseResult, success?: true, failure?: false, errors: [])
         )
       end
 
@@ -100,7 +100,7 @@ RSpec.describe Carts::ClearService do
       let!(:cart_item) { create(:cart_item, cart: cart, quantity: 2) }
 
       before do
-        failed_result = instance_double(Carts::BaseResult,
+        failed_result = instance_double(BaseResult,
           success?: false,
           failure?: true,
           errors: [ "Out of stock validation failed" ]
@@ -159,7 +159,7 @@ RSpec.describe Carts::ClearService do
 
       before do
         allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-          instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+          instance_double(BaseResult, success?: true, failure?: false, errors: [])
         )
       end
 
@@ -171,7 +171,7 @@ RSpec.describe Carts::ClearService do
       context "when operation fails during transaction" do
         before do
           allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-            instance_double(Carts::BaseResult, success?: false, failure?: true, errors: [ "Failed" ])
+            instance_double(BaseResult, success?: false, failure?: true, errors: [ "Failed" ])
           )
         end
 
@@ -189,8 +189,8 @@ RSpec.describe Carts::ClearService do
         let!(:cart_item_2) { create(:cart_item, cart: cart, quantity: 1) }
 
         before do
-          success_result = instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
-          failed_result = instance_double(Carts::BaseResult, success?: false, failure?: true, errors: [ "Failed" ])
+          success_result = instance_double(BaseResult, success?: true, failure?: false, errors: [])
+          failed_result = instance_double(BaseResult, success?: false, failure?: true, errors: [ "Failed" ])
 
           allow(Carts::ItemUpdateService).to receive(:set_quantity)
             .with(cart_item_1, 0)
@@ -214,7 +214,7 @@ RSpec.describe Carts::ClearService do
         before do
           5.times { create(:cart_item, cart: cart, quantity: 1) }
           allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-            instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+            instance_double(BaseResult, success?: true, failure?: false, errors: [])
           )
         end
 
@@ -234,7 +234,7 @@ RSpec.describe Carts::ClearService do
 
         before do
           allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-            instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+            instance_double(BaseResult, success?: true, failure?: false, errors: [])
           )
         end
 
@@ -253,7 +253,7 @@ RSpec.describe Carts::ClearService do
 
       before do
         allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
-          instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+          instance_double(BaseResult, success?: true, failure?: false, errors: [])
         )
       end
 

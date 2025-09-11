@@ -44,9 +44,9 @@ class Carts::QuantityService
     end
 
     if errors.empty?
-      Carts::BaseResult.new(resource: quantity, success: true)
+      BaseResult.new(resource: quantity, success: true)
     else
-      Carts::BaseResult.new(errors: errors, success: false)
+      BaseResult.new(errors: errors, success: false)
     end
   end
 
@@ -77,9 +77,9 @@ class Carts::QuantityService
     end
 
     if errors.empty?
-      Carts::BaseResult.new(resource: new_quantity, success: true)
+      BaseResult.new(resource: new_quantity, success: true)
     else
-      Carts::BaseResult.new(errors: errors, success: false)
+      BaseResult.new(errors: errors, success: false)
     end
   end
 end

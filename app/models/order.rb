@@ -10,6 +10,7 @@ class Order < ApplicationRecord
 
   validates :number, presence: true, uniqueness: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :phone_number, presence: true
 
   enum :status, {
     pending: "pending",
@@ -23,7 +24,19 @@ class Order < ApplicationRecord
     payment_pending: "pending",
     paid: "paid",
     partially_paid: "partially_paid",
-    refunded: "refunded"
+    refunded: "refunded",
+    cod_due: "cod_due"
+  }
+
+  enum :delivery_method, {
+    courier: "courier",
+    pickup: "pickup"
+  }
+
+  enum :fulfillment_status, {
+    unfulfilled: "unfulfilled",
+    packed: "packed",
+    dispatched: "dispatched"
   }
 
   before_validation :generate_number, on: :create

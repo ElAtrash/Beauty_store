@@ -12,7 +12,7 @@ class Carts::ClearService
   end
 
   def call
-    return Carts::BaseResult.new(
+    return BaseResult.new(
       success: true,
       cart: @cart,
       cleared_variants: [],
@@ -40,7 +40,7 @@ class Carts::ClearService
       end
 
       if transaction_success
-        Carts::BaseResult.new(
+        BaseResult.new(
           success: true,
           cart: @cart,
           cleared_variants: @cleared_variants,
@@ -48,7 +48,7 @@ class Carts::ClearService
         )
       else
         Rails.logger.error "Carts::ClearService transaction rolled back: Failed to clear items"
-        Carts::BaseResult.new(
+        BaseResult.new(
           success: false,
           cart: @cart,
           errors: errors.presence || [ "We couldn't clear your cart. Please try again." ]
@@ -57,7 +57,7 @@ class Carts::ClearService
     rescue => e
       Rails.logger.error "Carts::ClearService unexpected error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      Carts::BaseResult.new(
+      BaseResult.new(
         success: false,
         cart: @cart,
         errors: [ "We couldn't clear your cart. Please try again." ]

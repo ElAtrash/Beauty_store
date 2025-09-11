@@ -77,7 +77,7 @@ class Carts::MergeService
   end
 
   def success_result
-    Carts::BaseResult.new(
+    BaseResult.new(
       cart: user_cart,
       success: true,
       merged_items_count: @merged_items_count
@@ -85,7 +85,7 @@ class Carts::MergeService
   end
 
   def failure_result
-    Carts::BaseResult.new(
+    BaseResult.new(
       errors: errors,
       success: false
     )
