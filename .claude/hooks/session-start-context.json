@@ -1,0 +1,31 @@
+{
+  "name": "Rails Session Context",
+  "description": "Load Rails project context at session start",
+  "events": ["SessionStart"],
+  "hooks": [
+    {
+      "type": "command",
+      "name": "Git Status Summary",
+      "command": "echo \"📊 Current branch: $(git branch --show-current)\"; echo \"📝 Recent commits:\"; git log --oneline -3; echo \"🔄 Working directory status:\"; git status --porcelain | head -5",
+      "description": "Show current git status and recent activity"
+    },
+    {
+      "type": "command",
+      "name": "Rails Environment Check", 
+      "command": "echo \"🚂 Rails version: $(bundle exec rails --version 2>/dev/null || echo 'Not available')\"; echo \"💎 Ruby version: $(ruby --version)\"; echo \"📦 Bundle status:\"; bundle check --quiet && echo \"✅ All gems installed\" || echo \"⚠️  Run bundle install\"",
+      "description": "Display Rails environment information"
+    },
+    {
+      "type": "command",
+      "name": "Database Status",
+      "command": "echo \"🗄️  Database status:\"; bundle exec rails db:version 2>/dev/null | grep \"Current version\" || echo \"⚠️  Database may need setup\"",
+      "description": "Check database migration status"
+    },
+    {
+      "type": "command",
+      "name": "Test Status",
+      "command": "echo \"🧪 Test suite:\"; if [ -f \"spec/spec_helper.rb\" ]; then echo \"✅ RSpec configured\"; else echo \"⚠️  No RSpec found\"; fi",
+      "description": "Verify test environment setup"
+    }
+  ]
+}
