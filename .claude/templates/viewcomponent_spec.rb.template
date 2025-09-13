@@ -1,0 +1,86 @@
+# ViewComponent RSpec Test Template
+
+RSpec.describe {{component_name}}Component, type: :component do
+  {{let_statements}}
+
+  describe "rendering" do
+    subject { render_inline(described_class.new({{constructor_args}})) }
+
+    it "renders the component" do
+      expect(subject).to have_css(".{{base_css_selector}}")
+    end
+
+    it "displays the {{main_element}}" do
+      expect(subject).to have_text({{expected_text}})
+    end
+
+    it "includes proper data attributes" do
+      expect(subject).to have_css("[data-{{data_attribute}}='{{expected_value}}']")
+    end
+  end
+
+  describe "variants" do
+    context "when variant is :primary" do
+      subject { render_inline(described_class.new({{constructor_args}}, variant: :primary)) }
+
+      it "applies primary variant classes" do
+        expect(subject).to have_css(".{{primary_css_class}}")
+      end
+    end
+
+    context "when variant is :secondary" do
+      subject { render_inline(described_class.new({{constructor_args}}, variant: :secondary)) }
+
+      it "applies secondary variant classes" do
+        expect(subject).to have_css(".{{secondary_css_class}}")
+      end
+    end
+  end
+
+  describe "conditional rendering" do
+    context "when {{condition_param}} is true" do
+      subject { render_inline(described_class.new({{constructor_args}}, {{condition_param}}: true)) }
+
+      it "shows the {{conditional_element}}" do
+        expect(subject).to have_css(".{{conditional_css_selector}}")
+      end
+    end
+
+    context "when {{condition_param}} is false" do
+      subject { render_inline(described_class.new({{constructor_args}}, {{condition_param}}: false)) }
+
+      it "hides the {{conditional_element}}" do
+        expect(subject).not_to have_css(".{{conditional_css_selector}}")
+      end
+    end
+  end
+
+  describe "edge cases" do
+    context "when {{edge_case_condition}}" do
+      {{edge_case_setup}}
+
+      it "{{edge_case_expectation}}" do
+        expect(subject).to {{edge_case_assertion}}
+      end
+    end
+  end
+end
+
+# Template Variables:
+# {{component_name}} - Component class name
+# {{let_statements}} - Factory/test data setup
+# {{constructor_args}} - Arguments for component initialization
+# {{base_css_selector}} - Main CSS selector for component
+# {{main_element}} - Primary element being tested
+# {{expected_text}} - Expected text content
+# {{data_attribute}} - Stimulus data attribute name
+# {{expected_value}} - Expected data attribute value
+# {{primary_css_class}} - CSS class for primary variant
+# {{secondary_css_class}} - CSS class for secondary variant
+# {{condition_param}} - Parameter for conditional rendering
+# {{conditional_element}} - Element that's conditionally shown
+# {{conditional_css_selector}} - CSS selector for conditional element
+# {{edge_case_condition}} - Description of edge case
+# {{edge_case_setup}} - Setup code for edge case
+# {{edge_case_expectation}} - Expected behavior description
+# {{edge_case_assertion}} - RSpec assertion for edge case

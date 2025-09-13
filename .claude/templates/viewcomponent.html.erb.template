@@ -1,0 +1,41 @@
+<div class="<%= component_classes %>" {{data_attributes}}>
+  <% if {{show_header}} %>
+    <div class="{{header_classes}}">
+      <h3 class="{{title_classes}}">
+        {{title_content}}
+      </h3>
+      
+      <% if {{show_subtitle}} %>
+        <p class="{{subtitle_classes}}">
+          {{subtitle_content}}
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="{{body_classes}}">
+    {{main_content}}
+  </div>
+
+  <% if {{show_actions}} %>
+    <div class="{{actions_classes}}">
+      {{actions_content}}
+    </div>
+  <% end %>
+</div>
+
+<%# Template Variables:
+{{data_attributes}} - data-controller, data-action attributes for Stimulus
+{{show_header}} - Conditional for header section
+{{header_classes}} - CSS classes for header
+{{title_classes}} - CSS classes for title
+{{title_content}} - Title content/logic
+{{show_subtitle}} - Conditional for subtitle
+{{subtitle_classes}} - CSS classes for subtitle
+{{subtitle_content}} - Subtitle content/logic
+{{body_classes}} - CSS classes for main body
+{{main_content}} - Main component content
+{{show_actions}} - Conditional for actions
+{{actions_classes}} - CSS classes for actions
+{{actions_content}} - Actions content (buttons, links, etc.)
+%>

@@ -1,0 +1,42 @@
+# ViewComponent Template
+# Usage: Generate ViewComponents with proper structure and testing
+
+class {{component_name}}Component < ViewComponent::Base
+  def initialize({{params}})
+    {{param_assignments}}
+  end
+
+  private
+
+  {{private_attr_readers}}
+
+  # Add your component logic here
+  # Example helper methods for CSS classes, conditional rendering, etc.
+  
+  def component_classes
+    base_classes = "{{base_css_classes}}"
+    variant_classes = case {{variant_param}}
+                     when :primary then "{{primary_classes}}"
+                     when :secondary then "{{secondary_classes}}"
+                     else "{{default_classes}}"
+                     end
+    "#{base_classes} #{variant_classes}".strip
+  end
+
+  def show_{{conditional_element}}?
+    {{conditional_logic}}
+  end
+end
+
+# Template Variables:
+# {{component_name}} - Name of the component (e.g., ProductCard)
+# {{params}} - Constructor parameters (e.g., product:, variant: :default)
+# {{param_assignments}} - Instance variable assignments
+# {{private_attr_readers}} - attr_reader declarations
+# {{base_css_classes}} - Base Tailwind classes
+# {{variant_param}} - Parameter for variants
+# {{primary_classes}} - Primary variant classes
+# {{secondary_classes}} - Secondary variant classes  
+# {{default_classes}} - Default variant classes
+# {{conditional_element}} - Name of conditional element
+# {{conditional_logic}} - Logic for conditional rendering
