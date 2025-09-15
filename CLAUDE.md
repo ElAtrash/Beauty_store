@@ -285,3 +285,88 @@ app/javascript/controllers/
 - **Maintainable**: All filter logic in one place, easy to understand and debug
 - **Performant**: Turbo Frames prevent unnecessary page reloads
 - **User-Friendly**: Smooth animations and preserved state
+
+## Unified Form System
+
+The application uses a **unified FormFieldComponent system** for consistent form handling across all forms.
+
+### FormFieldComponent
+
+**Location**: `app/components/form_field_component.rb` + `.html.erb`
+
+**Purpose**: Single source of truth for all form fields with built-in validation, asterisk handling, and error display.
+
+### Usage
+
+```erb
+<%= render FormFieldComponent.new(
+  form: form,
+  field: :email,
+  type: :email,
+  required: true,
+  placeholder: "Enter your email",
+  validation_rules: "email",
+  options: { helper_text: "We'll send order confirmation here" }
+) %>
+```
+
+### Supported Field Types
+
+- `:text` (default)
+- `:email`
+- `:phone` / `:tel`
+- `:password`
+- `:select`
+- `:textarea`
+
+### Validation Rules
+
+- `"required"` - Field is required
+- `"email"` - Email format validation
+- `"phone"` - Lebanon phone number validation  
+- `"password"` - Password requirements
+- `"passwordConfirmation"` - Password confirmation matching
+
+### Features
+
+✅ **Automatic asterisks**: Required fields show gray asterisks, red on errors
+✅ **Real-time validation**: Uses `form_validation_controller.js`
+✅ **Error handling**: Built-in error containers that toggle with validation
+✅ **Helper text**: Optional helper text below fields
+✅ **Accessibility**: ARIA labels and screen reader support
+✅ **Consistent styling**: Same look across all forms
+
+### CSS Architecture (Tailwind v4 Compatible)
+
+- **Direct utility classes**: No `@apply` directives that break in v4
+- **No `!important`**: Use direct utilities for reliable styling
+- **Component isolation**: Each component handles its own styling
+
+### Migration Pattern
+
+**Old manual approach:**
+```erb
+<div class="form-field form-field--required">
+  <span class="asterisk">*</span>
+  <%= form.text_field :name, class: "form-input" %>
+  <div class="error-message"></div>
+</div>
+```
+
+**New unified approach:**
+```erb
+<%= render FormFieldComponent.new(
+  form: form,
+  field: :name,
+  required: true,
+  validation_rules: "required"
+) %>
+```
+
+### Guidelines
+
+1. **Always use FormFieldComponent** for new forms
+2. **Migrate existing forms** when making changes
+3. **Use direct Tailwind utilities** instead of custom CSS classes
+4. **Avoid `!important`** - use proper CSS specificity instead
+5. **Test validation rules** in both success and error states
