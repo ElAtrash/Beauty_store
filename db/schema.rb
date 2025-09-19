@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_10_184642) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_16_154437) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -197,6 +197,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_10_184642) do
     t.string "delivery_method", default: "courier"
     t.string "courier_name"
     t.text "delivery_notes"
+    t.date "delivery_date"
+    t.string "delivery_time_slot"
+    t.datetime "delivery_scheduled_at"
     t.index ["delivery_method"], name: "index_orders_on_delivery_method"
     t.index ["number"], name: "index_orders_on_number", unique: true
     t.index ["phone_number"], name: "index_orders_on_phone_number"

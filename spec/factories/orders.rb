@@ -4,6 +4,8 @@ FactoryBot.define do
     email { user&.email_address || Faker::Internet.email }
     phone_number { "+961 70 123 456" }
     delivery_method { "courier" }
+    delivery_date { Date.tomorrow }
+    delivery_time_slot { "9:00 AM - 12:00 PM" }
     status { "pending" }
     payment_status { "pending" }
     fulfillment_status { nil }
@@ -78,6 +80,8 @@ FactoryBot.define do
 
     trait :pickup do
       delivery_method { "pickup" }
+      delivery_date { nil }
+      delivery_time_slot { nil }
     end
   end
 end

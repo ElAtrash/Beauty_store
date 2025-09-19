@@ -15,7 +15,18 @@ class Carts::FindOrCreateService
     cart = find_existing_cart || create_new_cart
     cart = merge_guest_cart_if_needed(cart)
     update_session(cart) if @session
-    cart
+
+    BaseResult.new(
+      success: true,
+      resource: cart,
+      cart: cart
+    )
+  rescue => e
+    Rails.logger.error "Cart creation failed: #{e.message}"
+    BaseResult.new(
+      success: false,
+      errors: [ "Unable to create cart" ]
+    )
   end
 
   private

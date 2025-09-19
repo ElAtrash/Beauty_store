@@ -11,6 +11,8 @@ class Order < ApplicationRecord
   validates :number, presence: true, uniqueness: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone_number, presence: true
+  validates :delivery_date, presence: true, if: :requires_delivery_scheduling?
+  validates :delivery_time_slot, presence: true, if: :requires_delivery_scheduling?
 
   enum :status, {
     pending: "pending",
@@ -40,6 +42,7 @@ class Order < ApplicationRecord
   }
 
   before_validation :generate_number, on: :create
+  before_save :set_delivery_scheduled_at
 
   scope :recent, -> { order(created_at: :desc) }
 
@@ -47,14 +50,14 @@ class Order < ApplicationRecord
     order_items.sum(:quantity)
   end
 
-  def can_be_cancelled?
-    pending? || processing?
-  end
-
   def calculate_totals!
     self.subtotal = order_items.sum(&:total_price)
     self.total = subtotal + tax_total + shipping_total - discount_total
     save!
+  end
+
+  def requires_delivery_scheduling?
+    courier? || (pickup? && delivery_date.present?)
   end
 
   private
@@ -66,5 +69,11 @@ class Order < ApplicationRecord
       self.number = "ORD-#{SecureRandom.hex(4).upcase}"
       break unless Order.exists?(number: number)
     end
+  end
+
+  def set_delivery_scheduled_at
+    return unless delivery_date && delivery_time_slot
+
+    self.delivery_scheduled_at = TimeSlotParser.parse_delivery_time(delivery_time_slot, delivery_date)
   end
 end

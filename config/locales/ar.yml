@@ -125,6 +125,33 @@ ar:
       unavailable: "السعر غير متوفر"
     color_dropdown:
       placeholder: "اختر لوناً"
+  delivery_schedule:
+    titles:
+      courier: "اختر وقت التوصيل"
+      pickup: "اختر وقت الاستلام"
+    subtitles:
+      courier: "اختر اليوم والوقت المفضل للتوصيل"
+      pickup: "اختر الوقت المناسب لاستلام طلبك"
+    placeholders:
+      courier: "اختر يوم ووقت التوصيل (غداً - 5 أيام)"
+      pickup: "الاستلام بين %{start_date} - %{end_date}"
+    relative_dates:
+      today: "اليوم"
+      tomorrow: "غداً"
+    date_formats:
+      display: "%A، %d %B %Y"
+      short: "%A، %d %b"
+      picker: "%d\n%a"
+  checkout:
+    order_placed_successfully: "تم إنشاء الطلب بنجاح!"
+    cart_empty: "السلة فارغة. يرجى إضافة منتجات قبل إتمام الطلب."
+  cart_items:
+    messages:
+      added_successfully: "تم إضافة المنتج إلى السلة بنجاح!"
+      cleared_successfully: "تم إفراغ السلة بنجاح"
+      not_found: "عنصر السلة غير موجود"
+      update_failed: "لا يمكن تحديث عنصر السلة"
+      cart_unavailable: "لا يمكن الوصول إلى السلة"
   javascript:
     auth_form:
       email_required: "البريد الإلكتروني مطلوب."

@@ -1,7 +1,7 @@
 module HeaderHelper
   def header_language_class(locale)
-    base_classes = "hover:text-interactive transition-colors bg-transparent border-none p-0 text-inherit font-inherit cursor-pointer text-sm appearance-none"
-    active_classes = "font-bold text-interactive"
+    base_classes = "header-language-btn"
+    active_classes = "header-language-btn--active"
 
     if I18n.locale == locale
       "#{base_classes} #{active_classes}"
@@ -37,7 +37,7 @@ module HeaderHelper
   end
 
   def header_nav_class(item_key)
-    "transition-colors font-medium hover:text-interactive"
+    "header-nav-link"
   end
 
   # Centralized page type detection
@@ -46,8 +46,12 @@ module HeaderHelper
       "brand"
     elsif controller_name == "products" && action_name == "show"
       "product"
-    else
+    elsif controller_name == "checkout"
+      "checkout"
+    elsif controller_name == "home" && action_name == "index"
       "home"
+    else
+      "page"
     end
   end
 

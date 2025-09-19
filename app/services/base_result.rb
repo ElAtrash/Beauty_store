@@ -35,4 +35,16 @@ class BaseResult
   def cleared_items_count
     metadata[:cleared_items_count] || 0
   end
+
+  def cart_summary_data
+    metadata[:cart_summary_data] || { total_quantity: 0, total_price: Money.new(0), items_count: 0 }
+  end
+
+  def notification
+    metadata[:notification]
+  end
+
+  def variant
+    metadata[:variant]
+  end
 end

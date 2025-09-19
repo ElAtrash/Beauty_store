@@ -47,6 +47,7 @@ Rails.application.routes.draw do
   get "checkout", to: "checkout#new", as: :new_checkout
   post "checkout", to: "checkout#create", as: :checkout
   get "checkout/:id", to: "checkout#show", as: :checkout_confirmation
+  post "checkout/delivery_schedule", to: "checkout#delivery_schedule", as: :checkout_delivery_schedule
 
   # Authentication routes
   resource :session

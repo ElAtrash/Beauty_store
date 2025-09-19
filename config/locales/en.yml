@@ -125,6 +125,33 @@ en:
       unavailable: "Price unavailable"
     color_dropdown:
       placeholder: "Select a shade"
+  delivery_schedule:
+    titles:
+      courier: "Choose delivery time"
+      pickup: "Choose pickup time"
+    subtitles:
+      courier: "Select your preferred delivery day and time slot"
+      pickup: "Choose when you'd like to pick up your order"
+    placeholders:
+      courier: "Choose delivery day and time (Tomorrow - 5 days)"
+      pickup: "Pick up between %{start_date} - %{end_date}"
+    relative_dates:
+      today: "Today"
+      tomorrow: "Tomorrow"
+    date_formats:
+      display: "%A, %B %d, %Y"
+      short: "%A, %b %d"
+      picker: "%d\n%a"
+  checkout:
+    order_placed_successfully: "Order placed successfully!"
+    cart_empty: "Your cart is empty. Please add items before checkout."
+  cart_items:
+    messages:
+      added_successfully: "Added to cart successfully!"
+      cleared_successfully: "Cart cleared successfully"
+      not_found: "Cart item not found"
+      update_failed: "Unable to update cart item"
+      cart_unavailable: "Unable to access cart"
   javascript:
     auth_form:
       email_required: "Email is required."

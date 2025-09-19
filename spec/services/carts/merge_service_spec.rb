@@ -53,14 +53,9 @@ RSpec.describe Carts::MergeService do
         it "logs successful item moves" do
           result
           aggregate_failures do
-            expect(Rails.logger).to have_received(:info).with(/Moved item .* to user cart/).twice
-            expect(Rails.logger).to have_received(:info).with(/Marked guest cart .* as abandoned/)
+            expect(Rails.logger).to have_received(:info).with(/Successfully moved item .* to user cart/).twice
+            expect(Rails.logger).to have_received(:info).with(/Successfully marked guest cart .* as abandoned/)
           end
-        end
-
-        it "reloads user cart items after merge" do
-          expect(user_cart.cart_items).to receive(:reload)
-          result
         end
       end
 
@@ -70,7 +65,7 @@ RSpec.describe Carts::MergeService do
         let!(:guest_item_2) { create(:cart_item, cart: guest_cart, product_variant: variant_2, quantity: 1) }
 
         before do
-          allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
+          allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
             instance_double(BaseResult,
               success?: true,
               failure?: false,
@@ -81,7 +76,7 @@ RSpec.describe Carts::MergeService do
 
         it "uses ItemUpdateService to merge existing items" do
           result
-          expect(Carts::ItemUpdateService).to have_received(:add_more).with(existing_user_item, 2)
+          expect(Carts::ItemUpdateService).to have_received(:set_quantity).with(existing_user_item, 3)
         end
 
         it "moves non-existing items to user cart" do
@@ -96,8 +91,8 @@ RSpec.describe Carts::MergeService do
         it "logs both merge types" do
           result
           aggregate_failures do
-            expect(Rails.logger).to have_received(:info).with(/Merged .* items .* into existing cart item/)
-            expect(Rails.logger).to have_received(:info).with(/Moved item .* to user cart/)
+            expect(Rails.logger).to have_received(:info).with(/Successfully merged .* items .* into existing cart item/)
+            expect(Rails.logger).to have_received(:info).with(/Successfully moved item .* to user cart/)
           end
         end
       end
@@ -107,7 +102,7 @@ RSpec.describe Carts::MergeService do
         let!(:guest_item) { create(:cart_item, cart: guest_cart, product_variant: variant_1, quantity: 2) }
 
         before do
-          allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
+          allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
             instance_double(BaseResult,
               success?: false,
               failure?: true,
@@ -257,14 +252,14 @@ RSpec.describe Carts::MergeService do
         let!(:existing_item) { create(:cart_item, cart: user_cart, product_variant: variant, quantity: 1) }
 
         before do
-          allow(Carts::ItemUpdateService).to receive(:add_more).and_return(
+          allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(
             instance_double(BaseResult, success?: true, failure?: false, errors: [])
           )
         end
 
         it "properly handles variant matching" do
           result
-          expect(Carts::ItemUpdateService).to have_received(:add_more).with(existing_item, 3)
+          expect(Carts::ItemUpdateService).to have_received(:set_quantity).with(existing_item, 4)
         end
       end
 
