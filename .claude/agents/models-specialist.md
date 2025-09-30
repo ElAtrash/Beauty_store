@@ -2,7 +2,6 @@
 name: models-specialist
 description: Use this agent when working on ActiveRecord models, migrations, and database design. Examples: <example>Context: User needs to create database models and relationships. user: 'I need to create a User model with posts and comments' assistant: 'I'll use the models-specialist agent to design the database schema and implement the ActiveRecord models with proper associations.' <commentary>Database modeling and ActiveRecord work requires the models-specialist agent.</commentary></example> <example>Context: User needs to optimize database queries. user: 'My queries are slow and causing N+1 problems' assistant: 'Let me use the models-specialist agent to analyze and optimize your database queries and add appropriate scopes.' <commentary>Query optimization and database performance are handled by the models-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: orange
 ---
 

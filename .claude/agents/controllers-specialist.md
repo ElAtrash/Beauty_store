@@ -2,7 +2,6 @@
 name: controllers-specialist
 description: Use this agent when working on Rails controllers and routing. Examples: <example>Context: User needs to implement RESTful controllers. user: 'I need to create a products controller with CRUD actions' assistant: 'I'll use the controllers-specialist agent to implement a RESTful products controller following Rails conventions.' <commentary>Controller implementation requires the controllers-specialist agent.</commentary></example> <example>Context: User needs authentication/authorization in controllers. user: 'I want to add authentication to my admin controllers' assistant: 'Let me use the controllers-specialist agent to implement proper authentication and authorization patterns.' <commentary>Controller security concerns are handled by the controllers-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: blue
 ---
 

@@ -2,7 +2,6 @@
 name: views-specialist
 description: Use this agent when working on Rails views, templates, layouts, and frontend presentation. Examples: <example>Context: User needs to create or improve view templates. user: 'I need to create a product listing page with filtering' assistant: 'I'll use the views-specialist agent to create clean ERB templates with proper partials and helper methods for the product listing.' <commentary>View templates and frontend presentation require the views-specialist agent.</commentary></example> <example>Context: User needs to organize view components and layouts. user: 'My views have too much logic and need better organization' assistant: 'Let me use the views-specialist agent to refactor your views with proper partials, helpers, and layout organization.' <commentary>View organization and template refactoring are handled by the views-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: cyan
 ---
 

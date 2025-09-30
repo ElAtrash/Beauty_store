@@ -2,7 +2,6 @@
 name: services-specialist
 description: Use this agent when working on service objects, business logic, and complex operations. Examples: <example>Context: User needs to extract complex business logic from controllers/models. user: 'My controller has too much logic for processing orders' assistant: 'I'll use the services-specialist agent to extract that business logic into a clean service object.' <commentary>Complex business logic extraction requires the services-specialist agent.</commentary></example> <example>Context: User needs to implement external API integrations. user: 'I need to integrate with a payment processing API' assistant: 'Let me use the services-specialist agent to create a service object for handling the payment API integration.' <commentary>External API integrations and complex operations are handled by the services-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: purple
 ---
 

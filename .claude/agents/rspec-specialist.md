@@ -2,7 +2,6 @@
 name: rspec-specialist
 description: Use this agent when working on RSpec tests, test coverage, and test-driven development. Examples: <example>Context: User needs to write comprehensive tests. user: 'I need to add test coverage for my User model' assistant: 'I'll use the rspec-specialist agent to create comprehensive RSpec tests for your User model including validations, associations, and business logic.' <commentary>Test writing and RSpec work requires the rspec-specialist agent.</commentary></example> <example>Context: User needs to implement TDD workflow. user: 'I want to implement a new feature using test-driven development' assistant: 'Let me use the rspec-specialist agent to guide you through the TDD process with proper RSpec test structure.' <commentary>Test-driven development and testing strategies are handled by the rspec-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: red
 ---
 

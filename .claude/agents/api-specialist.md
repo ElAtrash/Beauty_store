@@ -2,7 +2,6 @@
 name: api-specialist
 description: Use this agent when working on Rails API development, including RESTful design, serialization, authentication, and API best practices. Examples: <example>Context: User needs to implement API endpoints for mobile app. user: 'I need to create API endpoints for user authentication' assistant: 'I'll use the api-specialist agent to implement secure JWT-based authentication endpoints following Rails API best practices.' <commentary>API-specific work requires the api-specialist agent.</commentary></example> <example>Context: User needs to add API versioning. user: 'I want to version my API endpoints' assistant: 'Let me use the api-specialist agent to implement proper API versioning strategy.' <commentary>API versioning is a specialized concern best handled by the api-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: green
 ---
 

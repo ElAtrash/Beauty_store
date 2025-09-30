@@ -2,7 +2,6 @@
 name: stimulus-specialist
 description: Use this agent when working on Stimulus controllers, Turbo Frames/Streams, and frontend JavaScript interactions. Examples: <example>Context: User needs to add interactive frontend behavior. user: 'I need to add a dropdown menu with keyboard navigation' assistant: 'I'll use the stimulus-specialist agent to create a Stimulus controller for the interactive dropdown with proper keyboard support.' <commentary>Frontend interactivity and Stimulus controllers require the stimulus-specialist agent.</commentary></example> <example>Context: User needs Turbo Frame navigation. user: 'I want to load content dynamically without page refresh' assistant: 'Let me use the stimulus-specialist agent to implement Turbo Frames for seamless content loading.' <commentary>Turbo Frames and dynamic content loading are handled by the stimulus-specialist.</commentary></example>
 tools: Git, Bash, Glob, Grep, LS, Read, WebFetch, TodoWrite, Write, WebSearch, mcp__sql__execute-sql, mcp__sql__describe-table, mcp__sql__describe-functions, mcp__sql__list-tables, mcp__sql__get-function-definition, mcp__sql__upload-file, mcp__sql__delete-file, mcp__sql__list-files, mcp__sql__download-file, mcp__sql__create-bucket, mcp__sql__delete-bucket, mcp__sql__move-file, mcp__sql__copy-file, mcp__sql__generate-signed-url, mcp__sql__get-file-info, mcp__sql__list-buckets, mcp__sql__empty-bucket, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: claude-sonnet-4-20250514
 color: yellow
 ---
 
