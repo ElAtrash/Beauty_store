@@ -3,7 +3,21 @@
 RSpec.describe Modal::FilterComponent, type: :component do
   include ViewComponent::TestHelpers
 
-  let(:filter_form) { double('filter_form', brand: [], price_range: {}, in_stock: false) }
+  let(:filter_form) do
+    double('filter_form',
+           brand: [],
+           brands: [],
+           price_range: {},
+           price_range_min: nil,
+           price_range_max: nil,
+           in_stock: false,
+           product_types: [],
+           skin_types: [],
+           colors: [],
+           sizes: [],
+           filter_available?: true,
+           value_selected?: false)
+  end
   let(:products) { double('products') }
   let(:unfiltered_products) { double('unfiltered_products') }
 
@@ -112,7 +126,8 @@ RSpec.describe Modal::FilterComponent, type: :component do
         unfiltered_products: unfiltered_products,
         context: "brands",
         context_resource: nil,
-        turbo_frame_target: anything
+        turbo_frame_id: nil,
+        component: component
       ).and_return("Filter content")
 
       content = component.send(:content)
@@ -136,7 +151,8 @@ RSpec.describe Modal::FilterComponent, type: :component do
         unfiltered_products: unfiltered_products,
         context: "categories",
         context_resource: "skincare",
-        turbo_frame_target: "category-products"
+        turbo_frame_id: "category-products",
+        component: component
       ).and_return("Detailed filter content")
 
       content = component.send(:content)
