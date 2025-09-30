@@ -10,115 +10,13 @@ RSpec.describe Carts::ItemUpdateService do
     allow(Rails.logger).to receive(:error)
   end
 
-  describe ".increment" do
-    subject(:result) { described_class.increment(cart_item) }
-
-    context "when increment is allowed" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
-
-      before do
-        allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
-      end
-
-      it "increases quantity by 1" do
-        aggregate_failures do
-          expect(result).to be_success
-          expect(result.resource).to eq(cart_item)
-          expect(result.resource.quantity).to eq(4)
-          expect(result.cart).to eq(cart)
-        end
-      end
-
-      it "validates with QuantityService" do
-        result
-        expect(Carts::QuantityService).to have_received(:can_increment?).with(cart_item)
-      end
-
-      it "reloads cart items" do
-        expect(cart.cart_items).to receive(:reload)
-        result
-      end
-    end
-
-    context "when increment validation fails" do
-      let(:failed_validation) do
-        instance_double(Carts::BaseResult,
-          success?: false,
-          failure?: true,
-          errors: [ "No more items available" ])
-      end
-
-      before do
-        allow(Carts::QuantityService).to receive(:can_increment?).and_return(failed_validation)
-      end
-
-      it "returns failure with validation errors" do
-        aggregate_failures do
-          expect(result).to be_failure
-          expect(result.errors).to include("No more items available")
-          expect(result.cart).to eq(cart)
-        end
-      end
-
-      it "does not modify quantity" do
-        original_quantity = cart_item.quantity
-        result
-        expect(cart_item.reload.quantity).to eq(original_quantity)
-      end
-    end
-  end
-
-  describe ".decrement" do
-    subject(:result) { described_class.decrement(cart_item) }
-
-    context "when decrementing to positive quantity" do
-      it "decreases quantity by 1" do
-        aggregate_failures do
-          expect(result).to be_success
-          expect(result.resource).to eq(cart_item)
-          expect(result.resource.quantity).to eq(2)
-        end
-      end
-    end
-
-    context "when decrementing to zero" do
-      let(:cart_item) { create(:cart_item, cart: cart, product_variant: product_variant, quantity: 1) }
-
-      it "destroys the cart item" do
-        cart_item_id = cart_item.id
-        expect(result).to be_success
-        expect(result.cart).to eq(cart)
-        expect(CartItem.exists?(cart_item_id)).to be false
-      end
-
-      it "returns result without resource since item was destroyed" do
-        aggregate_failures do
-          expect(result).to be_success
-          expect(result.resource).to be_nil
-        end
-      end
-    end
-
-    context "when decrementing below zero" do
-      let(:cart_item) { create(:cart_item, cart: cart, product_variant: product_variant, quantity: 1) }
-
-      it "destroys the item instead of setting negative quantity" do
-        aggregate_failures do
-          cart_item_id = cart_item.id
-          expect(result).to be_success
-          expect(CartItem.exists?(cart_item_id)).to be false
-        end
-      end
-    end
-  end
-
   describe ".set_quantity" do
     subject(:result) { described_class.set_quantity(cart_item, new_quantity) }
 
     context "with valid positive quantity" do
       let(:new_quantity) { 5 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -142,7 +40,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when setting quantity to zero" do
       let(:new_quantity) { 0 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -161,7 +59,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when setting negative quantity" do
       let(:new_quantity) { -1 }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -180,7 +78,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "when validation fails" do
       let(:new_quantity) { 15 }
       let(:failed_validation) do
-        instance_double(Carts::BaseResult,
+        instance_double(BaseResult,
           success?: false,
           failure?: true,
           errors: [ "Quantity exceeds stock" ])
@@ -203,7 +101,7 @@ RSpec.describe Carts::ItemUpdateService do
     context "with string quantity" do
       let(:new_quantity) { "7" }
       let(:successful_validation) do
-        instance_double(Carts::BaseResult, success?: true, failure?: false, errors: [])
+        instance_double(BaseResult, success?: true, failure?: false, errors: [])
       end
 
       before do
@@ -217,82 +115,88 @@ RSpec.describe Carts::ItemUpdateService do
     end
   end
 
-  describe ".add_more" do
-    subject(:result) { described_class.add_more(cart_item, additional_quantity) }
+  describe ".call" do
+    subject(:result) { described_class.call(cart_item, params: params) }
 
-    let(:additional_quantity) { 2 }
-
-    context "when adding more is allowed" do
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    context "with valid increment params" do
+      let(:params) { { quantity_action: "increment" } }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
       before do
-        allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
+        allow(Carts::QuantityService).to receive(:can_set_quantity?).and_return(successful_validation)
       end
 
-      it "adds to existing quantity" do
+      it "delegates to increment method" do
+        aggregate_failures do
+          expect(result).to be_success
+          expect(result.resource.quantity).to eq(4)
+        end
+      end
+    end
+
+    context "with valid decrement params" do
+      let(:params) { { quantity_action: "decrement" } }
+
+      it "delegates to decrement method" do
+        aggregate_failures do
+          expect(result).to be_success
+          expect(result.resource.quantity).to eq(2)
+        end
+      end
+    end
+
+    context "with valid set_quantity params" do
+      let(:params) { { quantity: "5" } }
+      let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
+
+      before do
+        allow(Carts::QuantityService).to receive(:can_set_quantity?).and_return(successful_validation)
+      end
+
+      it "delegates to set_quantity method" do
         aggregate_failures do
           expect(result).to be_success
           expect(result.resource.quantity).to eq(5)
         end
       end
-
-      it "validates additional quantity with existing quantity" do
-        result
-        expect(Carts::QuantityService).to have_received(:validate_quantity).with(
-          additional_quantity,
-          product_variant: product_variant,
-          existing_quantity: 3
-        )
-      end
     end
 
-    context "when validation fails" do
-      let(:failed_validation) do
-        instance_double(Carts::BaseResult,
-          success?: false,
-          failure?: true,
-          errors: [ "Would exceed maximum quantity" ])
-      end
+    context "with invalid params" do
+      let(:params) { { unknown_action: "invalid" } }
 
-      before do
-        allow(Carts::QuantityService).to receive(:validate_quantity).and_return(failed_validation)
-      end
-
-      it "returns failure without modifying quantity" do
+      it "returns failure with invalid action type error" do
         aggregate_failures do
-          original_quantity = cart_item.quantity
           expect(result).to be_failure
-          expect(result.errors).to include("Would exceed maximum quantity")
-          expect(cart_item.reload.quantity).to eq(original_quantity)
+          expect(result.errors).to include(I18n.t("services.cart_item.invalid_action"))
+          expect(result.cart).to eq(cart)
         end
       end
+
+      it "does not modify the cart item" do
+        original_quantity = cart_item.quantity
+        result
+        expect(cart_item.reload.quantity).to eq(original_quantity)
+      end
     end
 
-    context "when additional_quantity is not provided" do
-      subject(:result) { described_class.add_more(cart_item) }
+    context "with no params" do
+      let(:params) { nil }
 
-      let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
-
-      before do
-        allow(Carts::QuantityService).to receive(:validate_quantity).and_return(successful_validation)
-      end
-
-      it "defaults to adding 1" do
-        result
-        expect(Carts::QuantityService).to have_received(:validate_quantity).with(
-          1,
-          product_variant: product_variant,
-          existing_quantity: 3
-        )
+      it "returns failure with invalid action type error" do
+        aggregate_failures do
+          expect(result).to be_failure
+          expect(result.errors).to include(I18n.t("services.cart_item.invalid_action"))
+          expect(result.cart).to eq(cart)
+        end
       end
     end
   end
 
   describe "error handling" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
-      allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
+      allow(Carts::QuantityService).to receive(:can_set_quantity?).and_return(successful_validation)
     end
 
     context "when ActiveRecord::RecordInvalid is raised" do
@@ -304,8 +208,8 @@ RSpec.describe Carts::ItemUpdateService do
 
       it "returns failure with user-friendly error and logs the validation error" do
         aggregate_failures do
-          result = described_class.increment(cart_item)
-          expect(result.errors).to include("We couldn't update your cart item. Please try again.")
+          result = described_class.call(cart_item, params: { quantity_action: "increment" })
+          expect(result.errors).to include(I18n.t("services.cart_item.update_failed"))
           expect(Rails.logger).to have_received(:error).with(/Carts::ItemUpdateService validation error/)
         end
       end
@@ -318,7 +222,7 @@ RSpec.describe Carts::ItemUpdateService do
 
       it "returns failure with user-friendly error and logs the error and backtrace" do
         aggregate_failures do
-          result = described_class.increment(cart_item)
+          result = described_class.call(cart_item, params: { quantity_action: "increment" })
           expect(result).to be_failure
           expect(result.errors).to include("Something went wrong. Please try again.")
           expect(Rails.logger).to have_received(:error).with(/Carts::ItemUpdateService unexpected error/)
@@ -336,7 +240,7 @@ RSpec.describe Carts::ItemUpdateService do
 
       it "returns failure with user-friendly error" do
         aggregate_failures do
-          result = described_class.decrement(cart_item)
+          result = described_class.call(cart_item, params: { quantity_action: "decrement" })
           expect(result).to be_failure
           expect(result.errors).to include("Something went wrong. Please try again.")
         end
@@ -345,15 +249,15 @@ RSpec.describe Carts::ItemUpdateService do
   end
 
   describe "transaction behavior" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
-      allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
+      allow(Carts::QuantityService).to receive(:can_set_quantity?).and_return(successful_validation)
     end
 
     it "wraps operations in transaction" do
       expect(ActiveRecord::Base).to receive(:transaction).and_call_original
-      described_class.increment(cart_item)
+      described_class.call(cart_item, params: { quantity_action: "increment" })
     end
 
     context "when operation fails" do
@@ -362,17 +266,17 @@ RSpec.describe Carts::ItemUpdateService do
       end
 
       it "rolls back changes" do
-        described_class.increment(cart_item)
+        described_class.call(cart_item, params: { quantity_action: "increment" })
         expect(cart_item.reload.quantity).to eq(cart_item.quantity)
       end
     end
   end
 
   describe "unified error handling (execute_cart_operation)" do
-    let(:successful_validation) { instance_double(Carts::BaseResult, success?: true, failure?: false, errors: []) }
+    let(:successful_validation) { instance_double(BaseResult, success?: true, failure?: false, errors: []) }
 
     before do
-      allow(Carts::QuantityService).to receive(:can_increment?).and_return(successful_validation)
+      allow(Carts::QuantityService).to receive(:can_set_quantity?).and_return(successful_validation)
     end
 
     context "with operation-specific error messages" do
@@ -381,16 +285,16 @@ RSpec.describe Carts::ItemUpdateService do
           ActiveRecord::RecordInvalid.new(cart_item)
         )
 
-        result = described_class.increment(cart_item)
-        expect(result.errors).to include("We couldn't update your cart item. Please try again.")
+        result = described_class.call(cart_item, params: { quantity_action: "increment" })
+        expect(result.errors).to include(I18n.t("services.cart_item.update_failed"))
       end
 
       it "includes operation type in error message for remove operations" do
         cart_item_to_remove = create(:cart_item, cart: cart, product_variant: product_variant, quantity: 1)
         allow_any_instance_of(CartItem).to receive(:destroy!).and_raise(ActiveRecord::RecordInvalid.new(cart_item_to_remove))
 
-        result = described_class.decrement(cart_item_to_remove)
-        expect(result.errors).to include("We couldn't remove your cart item. Please try again.")
+        result = described_class.call(cart_item_to_remove, params: { quantity_action: "decrement" })
+        expect(result.errors).to include(I18n.t("services.cart_item.remove_failed"))
       end
     end
   end

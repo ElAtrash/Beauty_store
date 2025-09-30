@@ -20,14 +20,16 @@
       .rtl .ltr-content { direction: ltr; text-align: left; }
     </style>
   </head>
-  <body class="bg-gray-50" data-controller="application">
+  <body class="bg-white" data-controller="application">
     <%= render 'shared/header' %>
     <!-- Notifications Container -->
-    <div id="notifications" class="fixed top-20 right-4 space-y-2" style="z-index: var(--z-notification);"></div>
+    <div id="notifications" class="fixed top-20 right-4 space-y-2" style="z-index: var(--z-notification);">
+      <%= render 'shared/flash_messages' %>
+    </div>
     <!-- JavaScript Trigger for Turbo Stream actions -->
     <div id="js-trigger" class="hidden"></div>
     <!-- Cart Popup -->
-    <%= render "shared/cart_popup", cart: current_cart %>
+    <%= render Cart::ModalWrapperComponent.new(cart: current_cart) %>
     <main class="flex-1">
       <%= yield %>
     </main>

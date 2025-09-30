@@ -1,0 +1,47 @@
+<div class="<%= container_classes %>">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-lg font-semibold text-text-primary">Order Status</h2>
+    <div class="flex items-center space-x-2">
+      <div class="w-24 bg-gray-200 rounded-full h-2">
+        <div class="<%= progress_bar_color %> h-2 rounded-full transition-all duration-300"
+             style="width: <%= progress_percentage %>%"></div>
+      </div>
+      <span class="text-xs font-medium text-text-secondary"><%= progress_percentage %>%</span>
+    </div>
+  </div>
+  <div class="relative" role="list" aria-label="Order progress timeline">
+    <% timeline_steps.each do |step| %>
+      <div class="<%= step_item_classes(step) %>"
+           role="listitem"
+           aria-label="<%= step[:title] %>: <%= step[:description] %>">
+        <!-- Connector line -->
+        <div class="<%= step_connector_classes(step) %>"></div>
+        <!-- Step icon -->
+        <div class="<%= step_icon_wrapper_classes(step) %>">
+          <%= render UI::IconComponent.new(
+                name: step_icon_name(step),
+                css_class: "w-5 h-5"
+              ) %>
+        </div>
+        <!-- Step content -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <p class="<%= step_title_classes(step) %>">
+                <%= step[:title] %>
+              </p>
+              <p class="<%= step_description_classes(step) %>">
+                <%= step[:description] %>
+              </p>
+              <% if step[:estimated_time] && !step[:completed] %>
+                <p class="text-xs text-text-subtle mt-1">
+                  Estimated: <%= step[:estimated_time] %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

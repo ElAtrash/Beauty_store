@@ -1,0 +1,22 @@
+<div class="<%= card_classes %>">
+  <div class="flex items-start <%= has_action? ? 'justify-between' : 'space-x-3' %>">
+    <div class="flex items-start space-x-3">
+      <%= render UI::IconComponent.new(name: icon, css_class: "icon-interactive w-5 h-5") %>
+      <div>
+        <div class="delivery-card-title"><%= title %></div>
+        <div class="delivery-card-subtitle"><%= subtitle %></div>
+      </div>
+    </div>
+    <% if has_action? %>
+      <% if action_url %>
+        <a <%= action_attributes.map { |k, v| "#{k}=\"#{v}\"" }.join(' ').html_safe %>>
+          <%= action_text %>
+        </a>
+      <% else %>
+        <button type="button" <%= action_attributes.map { |k, v| "#{k}=\"#{v}\"" }.join(' ').html_safe %>>
+          <%= action_text %>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</div>

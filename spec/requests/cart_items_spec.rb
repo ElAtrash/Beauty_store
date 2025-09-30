@@ -28,9 +28,23 @@ RSpec.describe "CartItems", type: :request do
             cart: cart
           )
         end
+        let(:sync_result) do
+          double(
+            cart: cart,
+            variant: another_variant,
+            cleared_variants: nil,
+            notification: {
+              type: "success",
+              message: "Added to cart successfully!",
+              delay: 3000
+            },
+            cart_summary_data: {}
+          )
+        end
 
         before do
           allow(Carts::AddItemService).to receive(:call).and_return(success_result)
+          allow(Carts::SyncService).to receive(:call).and_return(sync_result)
         end
 
         it "responds with turbo streams including notification" do
@@ -40,9 +54,9 @@ RSpec.describe "CartItems", type: :request do
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq Mime[:turbo_stream]
             expect(response.body).to include('<turbo-stream action="replace" target="cart-badge">')
-            expect(response.body).to include('<turbo-stream action="replace" target="cart-popup-body">')
+            expect(response.body).to include('<turbo-stream action="replace" target="cart-content">')
             expect(response.body).to include('<turbo-stream action="prepend" target="notifications">')
-            expect(response.body).to include("Added to cart!")
+            expect(response.body).to include("Added to cart successfully!")
             expect(response.body).to include('notification-success')
           end
         end
@@ -83,9 +97,23 @@ RSpec.describe "CartItems", type: :request do
           cart: cart
         )
       end
+      let(:sync_result) do
+        double(
+          cart: cart,
+          variant: another_variant,
+          cleared_variants: nil,
+          notification: {
+            type: "success",
+            message: "Added to cart successfully!",
+            delay: 3000
+          },
+          cart_summary_data: {}
+        )
+      end
 
       before do
         allow(Carts::AddItemService).to receive(:call).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
       end
 
       it "creates cart item and redirects back" do
@@ -96,26 +124,48 @@ RSpec.describe "CartItems", type: :request do
     end
   end
 
-  describe "PATCH /cart/items/:id/update_quantity" do
+  describe "PATCH /cart/items/:id" do
     context "with a Turbo Stream request" do
       let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
 
       context "when incrementing quantity" do
         let(:success_result) { double(success?: true, cart: cart) }
+        let(:sync_result) { double(cart: cart, variant: variant, cleared_variants: nil, notification: nil, cart_summary_data: {}) }
 
         before do
-          allow(Carts::ItemUpdateService).to receive(:increment).and_return(success_result)
+          allow(Carts::ItemUpdateService).to receive(:call).and_return(success_result)
+          allow(Carts::SyncService).to receive(:call).and_return(sync_result)
         end
 
         it "updates quantity and responds without notification" do
-          patch update_quantity_cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
+          patch cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
 
           aggregate_failures do
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq Mime[:turbo_stream]
             expect(response.body).to include('<turbo-stream action="replace" target="cart-badge">')
-            expect(response.body).to include('<turbo-stream action="replace" target="cart-popup-body">')
+            expect(response.body).to include('<turbo-stream action="replace" target="cart-content">')
             expect(response.body).not_to include('<turbo-stream action="prepend" target="notifications">')
+          end
+        end
+      end
+
+      context "when setting quantity via RESTful params" do
+        let(:success_result) { double(success?: true, cart: cart) }
+        let(:sync_result) { double(cart: cart, variant: variant, cleared_variants: nil, notification: nil, cart_summary_data: {}) }
+
+        before do
+          allow(Carts::ItemUpdateService).to receive(:call).and_return(success_result)
+          allow(Carts::SyncService).to receive(:call).and_return(sync_result)
+        end
+
+        it "updates quantity via RESTful parameters" do
+          patch cart_item_path(cart_item), params: { cart_item: { quantity: 5 } }, headers: headers
+
+          aggregate_failures do
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq Mime[:turbo_stream]
+            expect(Carts::ItemUpdateService).to have_received(:call).with(cart_item, params: anything)
           end
         end
       end
@@ -124,11 +174,11 @@ RSpec.describe "CartItems", type: :request do
         let(:failure_result) { double(success?: false, errors: [ "Unable to update quantity" ]) }
 
         before do
-          allow(Carts::ItemUpdateService).to receive(:increment).and_return(failure_result)
+          allow(Carts::ItemUpdateService).to receive(:call).and_return(failure_result)
         end
 
         it "responds with error" do
-          patch update_quantity_cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
+          patch cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
 
           expect(response).to have_http_status(:ok)
         end
@@ -140,9 +190,11 @@ RSpec.describe "CartItems", type: :request do
     context "with a Turbo Stream request" do
       let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
       let(:success_result) { double(success?: true, cart: cart) }
+      let(:sync_result) { double(cart: cart, variant: variant, cleared_variants: nil, notification: nil, cart_summary_data: {}) }
 
       before do
         allow(Carts::ItemUpdateService).to receive(:set_quantity).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
       end
 
       it "removes cart item without showing notification" do
@@ -152,7 +204,7 @@ RSpec.describe "CartItems", type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq Mime[:turbo_stream]
           expect(response.body).to include('<turbo-stream action="replace" target="cart-badge">')
-          expect(response.body).to include('<turbo-stream action="replace" target="cart-popup-body">')
+          expect(response.body).to include('<turbo-stream action="replace" target="cart-content">')
           expect(response.body).not_to include('<turbo-stream action="prepend" target="notifications">')
         end
       end
@@ -162,10 +214,24 @@ RSpec.describe "CartItems", type: :request do
   describe "DELETE /cart/items/clear_all" do
     context "with a Turbo Stream request" do
       let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
-      let(:success_result) { double(success?: true, cleared_variants: [ variant ]) }
+      let(:success_result) { double(success?: true, cart: cart, cleared_variants: [ variant ]) }
+      let(:sync_result) do
+        double(
+          cart: cart,
+          variant: nil,
+          cleared_variants: [ variant ],
+          notification: {
+            type: "success",
+            message: "Cart cleared successfully",
+            delay: 2000
+          },
+          cart_summary_data: {}
+        )
+      end
 
       before do
         allow(Carts::ClearService).to receive(:call).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
       end
 
       it "clears all cart items and shows notification" do
@@ -175,7 +241,7 @@ RSpec.describe "CartItems", type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq Mime[:turbo_stream]
           expect(response.body).to include('<turbo-stream action="replace" target="cart-badge">')
-          expect(response.body).to include('<turbo-stream action="replace" target="cart-popup-body">')
+          expect(response.body).to include('<turbo-stream action="replace" target="cart-content">')
           expect(response.body).to include('<turbo-stream action="prepend" target="notifications">')
           expect(response.body).to include("Cart cleared successfully")
         end
@@ -195,9 +261,23 @@ RSpec.describe "CartItems", type: :request do
           cart: cart
         )
       end
+      let(:sync_result) do
+        double(
+          cart: cart,
+          variant: another_variant,
+          cleared_variants: nil,
+          notification: {
+            type: "success",
+            message: "Added to cart successfully!",
+            delay: 3000
+          },
+          cart_summary_data: {}
+        )
+      end
 
       before do
         allow(Carts::AddItemService).to receive(:call).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
       end
 
       it "shows rich notification with product details" do
@@ -205,22 +285,24 @@ RSpec.describe "CartItems", type: :request do
 
         aggregate_failures do
           expect(response.body).to include('<turbo-stream action="prepend" target="notifications">')
-          expect(response.body).to include("Added to cart!")
+          expect(response.body).to include("Added to cart successfully!")
           expect(response.body).to include(product.name)
           expect(response.body).to include('notification-success')
         end
       end
     end
 
-    context "quantity updates (update_quantity action)" do
+    context "quantity updates (update action)" do
       let(:success_result) { double(success?: true, cart: cart) }
+      let(:sync_result) { double(cart: cart, variant: variant, cleared_variants: nil, notification: nil, cart_summary_data: {}) }
 
       before do
-        allow(Carts::ItemUpdateService).to receive(:increment).and_return(success_result)
+        allow(Carts::ItemUpdateService).to receive(:call).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
       end
 
       it "does not show any notification" do
-        patch update_quantity_cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
+        patch cart_item_path(cart_item), params: { quantity_action: "increment" }, headers: headers
 
         expect(response.body).not_to include('<turbo-stream action="prepend" target="notifications">')
       end

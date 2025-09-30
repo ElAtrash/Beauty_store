@@ -5,8 +5,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "resetButton",
-    "filterPopupOverlay",
-    "filterPopupPanel",
     "priceRange",
     "rangeMin",
     "rangeMax",
@@ -25,44 +23,33 @@ export default class extends Controller {
     this.initializeFromURL()
     this.initializePriceRange()
     this.updateResetButtonState()
-
-    // Keyboard navigation
-    this.handleKeydown = this.handleKeydown.bind(this)
-    document.addEventListener('keydown', this.handleKeydown)
   }
 
-  disconnect() {
-    document.removeEventListener('keydown', this.handleKeydown)
-  }
-
-  // Filter Popup Management
+  // Filter Management - works with Modal::BaseComponent
   openFilters() {
-    document.body.style.overflow = 'hidden'
-
-    // Re-sync form inputs when opening popup
+    // Re-sync form inputs when opening modal
     this.initializeFromURL()
     this.initializePriceRange()
-
-    if (this.hasFilterPopupOverlayTarget && this.hasFilterPopupPanelTarget) {
-      this.filterPopupOverlayTarget.classList.remove('opacity-0', 'pointer-events-none')
-      this.filterPopupOverlayTarget.classList.add('opacity-100')
-
-      this.filterPopupPanelTarget.classList.remove('-translate-x-full')
-      this.filterPopupPanelTarget.classList.add('translate-x-0')
-    }
-
     this.updateResetButtonState()
+
+    // Open the modal using the modal controller
+    const modal = document.querySelector('#filter-modal')
+    if (modal) {
+      const modalController = this.application.getControllerForElementAndIdentifier(modal, 'modal')
+      if (modalController) {
+        modalController.open()
+      }
+    }
   }
 
   closeFilters() {
-    document.body.style.overflow = ''
-
-    if (this.hasFilterPopupOverlayTarget && this.hasFilterPopupPanelTarget) {
-      this.filterPopupOverlayTarget.classList.add('opacity-0', 'pointer-events-none')
-      this.filterPopupOverlayTarget.classList.remove('opacity-100')
-
-      this.filterPopupPanelTarget.classList.add('-translate-x-full')
-      this.filterPopupPanelTarget.classList.remove('translate-x-0')
+    // Close the modal using the modal controller
+    const modal = document.querySelector('#filter-modal')
+    if (modal) {
+      const modalController = this.application.getControllerForElementAndIdentifier(modal, 'modal')
+      if (modalController) {
+        modalController.close()
+      }
     }
   }
 
@@ -468,9 +455,4 @@ export default class extends Controller {
     this.resetButtonTarget.disabled = !(hasUrlFilters || hasFormFilters)
   }
 
-  handleKeydown(event) {
-    if (event.key === 'Escape') {
-      this.closeFilters()
-    }
-  }
 }

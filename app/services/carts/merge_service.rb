@@ -10,6 +10,7 @@ class Carts::MergeService
     @guest_cart = guest_cart
     @errors = []
     @merged_items_count = 0
+    @log_queue = []
   end
 
   def call
@@ -20,17 +21,18 @@ class Carts::MergeService
       deactivate_guest_cart
     end
 
+    execute_queued_logs
     success_result
   rescue => e
     Rails.logger.error "Carts::MergeService error: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-    @errors.push("We couldn't merge your cart items. Please try again.")
+    @errors << "We couldn't merge your cart items. Please try again."
     failure_result
   end
 
   private
 
-  attr_reader :user_cart, :guest_cart, :errors, :merged_items_count
+  attr_reader :user_cart, :guest_cart, :errors, :merged_items_count, :log_queue
 
   def should_merge?
     return false unless guest_cart&.cart_items&.any?
@@ -45,20 +47,23 @@ class Carts::MergeService
   end
 
   def merge_cart_items
+    user_items_by_variant_id = user_cart.cart_items.includes(:product_variant).index_by(&:product_variant_id)
+
     guest_cart.cart_items.includes(:product_variant).each do |guest_item|
-      merge_cart_item(guest_item)
+      merge_cart_item(guest_item, user_items_by_variant_id)
     end
   end
 
-  def merge_cart_item(guest_item)
-    existing_item ||= user_cart.cart_items.find_by(product_variant: guest_item.product_variant)
+  def merge_cart_item(guest_item, user_items_by_variant_id)
+    existing_item = user_items_by_variant_id[guest_item.product_variant_id]
 
     if existing_item
-      result = Carts::ItemUpdateService.add_more(existing_item, guest_item.quantity)
+      new_quantity = existing_item.quantity + guest_item.quantity
+      result = Carts::ItemUpdateService.set_quantity(existing_item, new_quantity)
 
       if result.success?
         @merged_items_count += 1
-        Rails.logger.info "Carts::MergeService: Merged #{guest_item.quantity} items of #{guest_item.product_variant.name} into existing cart item"
+        queue_log(:info, "Successfully merged #{guest_item.quantity} items of #{guest_item.product_variant.name} into existing cart item")
       else
         Rails.logger.warn "Carts::MergeService: Failed to merge item #{guest_item.product_variant.name}: #{result.errors.join(', ')}"
         @errors.concat(result.errors)
@@ -66,18 +71,27 @@ class Carts::MergeService
     else
       guest_item.update!(cart: user_cart)
       @merged_items_count += 1
-      Rails.logger.info "Carts::MergeService: Moved item #{guest_item.product_variant.name} to user cart"
+      queue_log(:info, "Successfully moved item #{guest_item.product_variant.name} to user cart")
     end
   end
 
   def deactivate_guest_cart
     guest_cart.mark_as_abandoned!
-    user_cart.cart_items.reload
-    Rails.logger.info "Carts::MergeService: Marked guest cart #{guest_cart.session_token} as abandoned"
+    queue_log(:info, "Successfully marked guest cart #{guest_cart.session_token} as abandoned")
+  end
+
+  def queue_log(level, message)
+    @log_queue << { level: level, message: "Carts::MergeService: #{message}" }
+  end
+
+  def execute_queued_logs
+    @log_queue.each do |log_entry|
+      Rails.logger.public_send(log_entry[:level], log_entry[:message])
+    end
   end
 
   def success_result
-    Carts::BaseResult.new(
+    BaseResult.new(
       cart: user_cart,
       success: true,
       merged_items_count: @merged_items_count
@@ -85,7 +99,7 @@ class Carts::MergeService
   end
 
   def failure_result
-    Carts::BaseResult.new(
+    BaseResult.new(
       errors: errors,
       success: false
     )

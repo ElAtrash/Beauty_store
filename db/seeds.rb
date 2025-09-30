@@ -1687,3 +1687,166 @@ puts "  • Test various discount types: percentage off, bundle deals, promo cod
 puts "  • Check hit product badges and promotional messaging"
 puts "  • Browse brands to test enhanced product cards with mixed stock states"
 puts "  • Use filters to test improved variant handling across all scenarios"
+
+puts "\n📋 Creating test orders for fulfillment status testing..."
+
+# Get sample user and some products for orders
+sample_user = User.find_by(email_address: "reviewer@beautystore.com")
+if sample_user.nil?
+  sample_user = User.create!(
+    email_address: "reviewer@beautystore.com",
+    first_name: "Beauty",
+    last_name: "Enthusiast"
+  )
+end
+
+# Get some product variants for order items
+lipstick_variant = ProductVariant.joins(:product).where(products: { name: "Matte Revolution Lipstick" }).first
+foundation_variant = ProductVariant.joins(:product).where(products: { name: "Airbrush Flawless Foundation" }).first
+serum_variant = ProductVariant.joins(:product).where(products: { name: "Retinol 0.5% in Squalane" }).first
+
+# Fallback to any available variants if specific ones aren't found
+lipstick_variant ||= ProductVariant.limit(3).first
+foundation_variant ||= ProductVariant.limit(3).second
+serum_variant ||= ProductVariant.limit(3).third
+
+# Helper method to create order items
+def create_order_items(order, variants_data)
+  variants_data.each do |variant, quantity|
+    next unless variant
+    order.order_items.create!(
+      product_variant: variant,
+      quantity: quantity,
+      unit_price: variant.price,
+      total_price: variant.price * quantity,
+      product_name: variant.product.name,
+      variant_name: variant.color.present? ? variant.color : "Standard"
+    )
+  end
+  order.calculate_totals!
+end
+
+# 1. Unfulfilled Order (Just confirmed)
+puts "  • Creating UNFULFILLED order..."
+unfulfilled_order = Order.create!(
+  user: sample_user,
+  email: "customer1@beautystore.com",
+  phone_number: "+96170123456",
+  delivery_method: "courier",
+  payment_status: "cod_due",
+  fulfillment_status: "unfulfilled",
+  delivery_date: 3.days.from_now.to_date,
+  delivery_time_slot: "09:00-12:00",
+  shipping_address: {
+    address_line_1: "123 Beauty Street",
+    address_line_2: "Apt 4B",
+    landmarks: "Near ABC Mall"
+  }
+)
+create_order_items(unfulfilled_order, { lipstick_variant => 2, serum_variant => 1 })
+
+# 2. Processing Order (Being prepared)
+puts "  • Creating PROCESSING order..."
+processing_order = Order.create!(
+  user: sample_user,
+  email: "customer2@beautystore.com",
+  phone_number: "+96170234567",
+  delivery_method: "courier",
+  payment_status: "cod_due",
+  fulfillment_status: "processing",
+  delivery_date: 2.days.from_now.to_date,
+  delivery_time_slot: "12:00-15:00",
+  shipping_address: {
+    address_line_1: "456 Makeup Avenue",
+    landmarks: "Green Building"
+  }
+)
+create_order_items(processing_order, { foundation_variant => 1, lipstick_variant => 1 })
+
+# 3. Packed Order (Ready for shipping)
+puts "  • Creating PACKED order..."
+packed_order = Order.create!(
+  user: sample_user,
+  email: "customer3@beautystore.com",
+  phone_number: "+96170345678",
+  delivery_method: "pickup",
+  payment_status: "cod_due",
+  fulfillment_status: "packed"
+)
+create_order_items(packed_order, { serum_variant => 2, foundation_variant => 1 })
+
+# 4. Dispatched Order (Out for delivery/ready for pickup)
+puts "  • Creating DISPATCHED order..."
+dispatched_order = Order.create!(
+  user: sample_user,
+  email: "customer4@beautystore.com",
+  phone_number: "+96170456789",
+  delivery_method: "courier",
+  payment_status: "cod_due",
+  fulfillment_status: "dispatched",
+  delivery_date: 1.day.from_now.to_date,
+  delivery_time_slot: "18:00-21:00",
+  shipping_address: {
+    address_line_1: "789 Cosmetics Road",
+    address_line_2: "Building C, Floor 2"
+  }
+)
+create_order_items(dispatched_order, { lipstick_variant => 3 })
+
+# 5. Delivered Order (Completed delivery)
+puts "  • Creating DELIVERED order..."
+delivered_order = Order.create!(
+  user: sample_user,
+  email: "customer5@beautystore.com",
+  phone_number: "+96170567890",
+  delivery_method: "courier",
+  payment_status: "cod_due",
+  fulfillment_status: "delivered",
+  delivery_date: 1.day.ago.to_date,
+  delivery_time_slot: "09:00-12:00",
+  shipping_address: {
+    address_line_1: "321 Skincare Lane"
+  },
+  delivery_notes: "Leave at front door"
+)
+create_order_items(delivered_order, { foundation_variant => 1, serum_variant => 1 })
+
+# 6. Picked Up Order (Completed pickup)
+puts "  • Creating PICKED UP order..."
+picked_up_order = Order.create!(
+  user: sample_user,
+  email: "customer6@beautystore.com",
+  phone_number: "+96170678901",
+  delivery_method: "pickup",
+  payment_status: "cod_due",
+  fulfillment_status: "picked_up"
+)
+create_order_items(picked_up_order, { lipstick_variant => 1, foundation_variant => 1, serum_variant => 1 })
+
+# 7. Cancelled Order
+puts "  • Creating CANCELLED order..."
+cancelled_order = Order.create!(
+  user: sample_user,
+  email: "customer7@beautystore.com",
+  phone_number: "+96170789012",
+  delivery_method: "courier",
+  payment_status: "payment_pending",
+  fulfillment_status: "cancelled",
+  delivery_date: 2.days.from_now.to_date,
+  delivery_time_slot: "12:00-15:00",
+  shipping_address: {
+    address_line_1: "654 Beauty Boulevard"
+  }
+)
+create_order_items(cancelled_order, { serum_variant => 2 })
+
+puts "    ✅ Created 7 test orders with different fulfillment statuses"
+puts "\n📋 ORDER TESTING GUIDE:"
+puts "  • Visit /checkout/{order_number} to see different timeline states:"
+puts "    - #{unfulfilled_order.number}: UNFULFILLED (Order Confirmed current)"
+puts "    - #{processing_order.number}: PROCESSING (Processing current)"
+puts "    - #{packed_order.number}: PACKED (Ready for Pickup current)"
+puts "    - #{dispatched_order.number}: DISPATCHED (Shipped/Ready current)"
+puts "    - #{delivered_order.number}: DELIVERED (Delivered complete, NO 'What's Next?')"
+puts "    - #{picked_up_order.number}: PICKED UP (Picked Up complete, NO 'What's Next?')"
+puts "    - #{cancelled_order.number}: CANCELLED (NO 'What's Next?' container)"

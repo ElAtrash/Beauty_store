@@ -1,0 +1,17 @@
+<%= turbo_stream.append_all "body" do %>
+  <div class="notification fixed top-4 right-4 px-4 py-2 rounded shadow-lg z-50 text-white bg-red-500"
+       style="transition: all 0.3s ease"
+       data-controller="auto-dismiss"
+       data-auto-dismiss-delay-value="5000">
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-medium">
+        <%= local_assigns[:errors]&.first || "Failed to reorder items. Please try again." %>
+      </span>
+      <button type="button"
+              class="ml-4 text-white hover:text-gray-200 transition-colors"
+              data-action="click->auto-dismiss#dismiss"
+              aria-label="Dismiss notification">
+      </button>
+    </div>
+  </div>
+<% end %>

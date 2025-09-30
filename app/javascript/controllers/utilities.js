@@ -25,7 +25,7 @@ export function throttle(func, limit) {
 
 /**
  * Keyboard Handler Mixin for ESC key functionality
- * Provides consistent keyboard handling across popup/modal controllers
+ * Provides consistent keyboard handling across modal controllers
  */
 export const KeyboardHandlerMixin = {
   setupKeyboardListener() {

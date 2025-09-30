@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Carts::FindOrCreateService
+  include BaseService
+
   def self.call(user: nil, session: nil, cart_token: nil)
     new(user: user, session: session, cart_token: cart_token).call
   end
@@ -14,8 +16,12 @@ class Carts::FindOrCreateService
   def call
     cart = find_existing_cart || create_new_cart
     cart = merge_guest_cart_if_needed(cart)
-    update_session(cart) if @session
-    cart
+    update_session(cart) if session
+
+    success(resource: cart, cart: cart)
+  rescue => e
+    log_error("cart creation failed", e)
+    failure(I18n.t("services.errors.something_went_wrong"))
   end
 
   private

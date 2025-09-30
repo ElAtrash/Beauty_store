@@ -55,6 +55,8 @@ module Products
     end
 
     def blob_url(source)
+      return placeholder_url(:medium) if source.blank?
+
       Rails.application.routes.url_helpers.rails_blob_url(source, only_path: true)
     end
 

@@ -10,32 +10,34 @@ class Order < ApplicationRecord
 
   validates :number, presence: true, uniqueness: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-
-  enum :status, {
-    pending: "pending",
-    processing: "processing",
-    shipped: "shipped",
-    delivered: "delivered",
-    cancelled: "cancelled"
-  }
+  validates :phone_number, presence: true
+  validates :delivery_date, presence: true, if: :courier?
+  validates :delivery_time_slot, presence: true, if: :courier?
+  validate :delivery_time_slot_format, if: :courier?
 
   enum :payment_status, {
     payment_pending: "pending",
     paid: "paid",
-    partially_paid: "partially_paid",
-    refunded: "refunded"
+    refunded: "refunded",
+    cod_due: "cod_due"
+  }
+
+  enum :delivery_method, { courier: "courier", pickup: "pickup" }
+
+  enum :fulfillment_status, {
+    unfulfilled: "unfulfilled",
+    processing: "processing",
+    packed: "packed",
+    dispatched: "dispatched",
+    delivered: "delivered",
+    picked_up: "picked_up",
+    cancelled: "cancelled"
   }
 
   before_validation :generate_number, on: :create
 
-  scope :recent, -> { order(created_at: :desc) }
-
   def total_quantity
     order_items.sum(:quantity)
-  end
-
-  def can_be_cancelled?
-    pending? || processing?
   end
 
   def calculate_totals!
@@ -44,7 +46,31 @@ class Order < ApplicationRecord
     save!
   end
 
+  def formatted_total
+    total&.format || Money.new(0, "USD").format
+  end
+
+  def formatted_subtotal
+    subtotal&.format || Money.new(0, "USD").format
+  end
+
+  def formatted_shipping_total
+    shipping_total&.format || Money.new(0, "USD").format
+  end
+
+  def show_whats_next?
+    !delivered? && !picked_up? && !cancelled?
+  end
+
   private
+
+  def delivery_time_slot_format
+    return if delivery_time_slot.blank?
+
+    unless TimeSlotParser.valid_delivery_time_slot?(delivery_time_slot)
+      errors.add(:delivery_time_slot, "must be one of: 09:00-12:00, 12:00-15:00, 15:00-18:00, 18:00-21:00")
+    end
+  end
 
   def generate_number
     return if number.present?

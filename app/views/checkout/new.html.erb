@@ -1,0 +1,58 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Checkout Form -->
+    <div class="lg:col-span-2">
+      <% if @checkout_form.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <%= render UI::IconComponent.new(name: :exclamation_circle, css_class: "h-5 w-5 text-red-400") %>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @checkout_form.errors.full_messages.each do |error| %>
+                  <li><%= error %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      <%= render Checkout::FormComponent.new(checkout_form: @checkout_form, cart: @cart) %>
+    </div>
+    <!-- Order Summary Sidebar -->
+    <div class="lg:col-span-1">
+      <div class="sticky top-[76px]">
+        <div class="bg-white border border-gray-200 p-4 lg:p-6 shadow-lg">
+          <h2 class="text-lg lg:text-xl font-semibold mb-4 lg:mb-6 text-text-primary pb-2 lg:pb-3">Order Summary</h2>
+          <!-- Cart Items -->
+          <div class="space-y-2 mb-6" id="checkout-items">
+            <% @cart.cart_items.order(:created_at).each do |item| %>
+              <div id="cart-item-<%= item.id %>">
+                <%= render Cart::ItemComponent.new(cart_item: item) %>
+              </div>
+            <% end %>
+          </div>
+          <!-- Order Totals -->
+          <div class="border-t border-gray-200 pt-5 space-y-3" id="checkout-totals">
+            <div class="flex justify-between text-sm">
+              <span class="text-text-secondary">Subtotal (<%= @cart.total_quantity %> items)</span>
+              <span class="text-text-primary font-semibold"><%= @cart.formatted_total %></span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-text-secondary">Shipping</span>
+              <span class="text-text-muted">Free</span>
+            </div>
+            <div class="pt-3 -mx-6 px-6 py-4">
+              <div class="flex justify-between text-lg font-bold">
+                <span class="text-text-primary">Total</span>
+                <span class="text-interactive-primary"><%= @cart.formatted_total %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

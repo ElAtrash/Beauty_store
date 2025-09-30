@@ -1,0 +1,7 @@
+<%= turbo_stream.update "delivery-schedule" do %>
+  <%= render DeliveryScheduleInlineComponent.new(
+    delivery_method: @delivery_method,
+    selected_date: @checkout_form.delivery_date,
+    selected_time: @checkout_form.delivery_time_slot
+  ) %>
+<% end %>

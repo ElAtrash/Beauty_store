@@ -31,7 +31,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Quantity must be greater than 0")
+          expect(result.errors).to include(I18n.t("services.quantity.must_be_positive"))
         end
       end
 
@@ -40,7 +40,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Quantity must be greater than 0")
+          expect(result.errors).to include(I18n.t("services.quantity.must_be_positive"))
         end
       end
 
@@ -49,7 +49,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Quantity cannot exceed 99")
+          expect(result.errors).to include(I18n.t("services.quantity.exceeds_maximum", max: 99))
         end
       end
 
@@ -80,7 +80,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with stock error" do
           expect(result).to be_failure
-          expect(result.errors).to include("#{product_variant.product.name} - #{product_variant.name} is out of stock")
+          expect(result.errors).to include(I18n.t("services.quantity.out_of_stock", product_name: product_variant.product.name, variant_name: product_variant.name))
         end
       end
 
@@ -91,7 +91,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with availability error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Only 1 more items can be added for #{product_variant.product.name} - #{product_variant.name}")
+          expect(result.errors).to include(I18n.t("services.quantity.only_more_available", available: 1, product_name: product_variant.product.name, variant_name: product_variant.name))
         end
       end
 
@@ -101,7 +101,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with max quantity error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Cannot add more items. Maximum quantity is 99")
+          expect(result.errors).to include(I18n.t("services.quantity.cannot_add_more", max: 99))
         end
       end
 
@@ -112,7 +112,7 @@ RSpec.describe Carts::QuantityService do
 
         it "returns failure with no availability error" do
           expect(result).to be_failure
-          expect(result.errors).to include("No more items available for #{product_variant.product.name} - #{product_variant.name}")
+          expect(result.errors).to include(I18n.t("services.quantity.no_more_available", product_name: product_variant.product.name, variant_name: product_variant.name))
         end
       end
 
@@ -134,8 +134,8 @@ RSpec.describe Carts::QuantityService do
       it "includes all applicable errors" do
         aggregate_failures do
           expect(result).to be_failure
-          expect(result.errors).to include("Quantity must be greater than 0")
-          expect(result.errors).to include("#{product_variant.product.name} - #{product_variant.name} is out of stock")
+          expect(result.errors).to include(I18n.t("services.quantity.must_be_positive"))
+          expect(result.errors).to include(I18n.t("services.quantity.out_of_stock", product_name: product_variant.product.name, variant_name: product_variant.name))
         end
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("No more items available for #{product_variant.product.name} - #{product_variant.name}")
+        expect(result.errors).to include(I18n.t("services.quantity.no_more_available", product_name: product_variant.product.name, variant_name: product_variant.name))
       end
     end
 
@@ -172,7 +172,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("#{product_variant.product.name} - #{product_variant.name} is out of stock")
+        expect(result.errors).to include(I18n.t("services.quantity.out_of_stock", product_name: product_variant.product.name, variant_name: product_variant.name))
       end
     end
 
@@ -182,7 +182,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("Cannot add more items. Maximum quantity is 99")
+        expect(result.errors).to include(I18n.t("services.quantity.cannot_add_more", max: 99))
       end
     end
   end
@@ -216,7 +216,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("Quantity cannot be negative")
+        expect(result.errors).to include(I18n.t("services.quantity.cannot_be_negative"))
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("Quantity cannot exceed 99")
+        expect(result.errors).to include(I18n.t("services.quantity.exceeds_maximum", max: 99))
       end
     end
 
@@ -235,7 +235,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("Only 3 items available")
+        expect(result.errors).to include(I18n.t("services.quantity.only_available", available: 3))
       end
     end
 
@@ -245,7 +245,7 @@ RSpec.describe Carts::QuantityService do
 
       it "returns failure" do
         expect(result).to be_failure
-        expect(result.errors).to include("#{product_variant.product.name} - #{product_variant.name} is out of stock")
+        expect(result.errors).to include(I18n.t("services.quantity.out_of_stock", product_name: product_variant.product.name, variant_name: product_variant.name))
       end
     end
 

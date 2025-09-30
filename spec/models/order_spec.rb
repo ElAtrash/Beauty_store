@@ -35,17 +35,6 @@ RSpec.describe Order, type: :model do
     end
   end
 
-  describe 'scopes' do
-    describe '.recent' do
-      let!(:older_order) { create(:order, created_at: 2.days.ago) }
-      let!(:newer_order) { create(:order, created_at: 1.day.ago) }
-
-      it 'returns orders in descending order of creation date' do
-        expect(Order.recent).to eq([ newer_order, older_order ])
-      end
-    end
-  end
-
   describe '#total_quantity' do
     let(:order) { create(:order) }
 
@@ -61,39 +50,6 @@ RSpec.describe Order, type: :model do
     context 'with no order items' do
       it 'returns 0' do
         expect(order.total_quantity).to eq(0)
-      end
-    end
-  end
-
-  describe '#can_be_cancelled?' do
-    let(:order) { create(:order) }
-
-    context 'when order status allows cancellation' do
-      it 'returns true for pending orders' do
-        order.pending!
-        expect(order.can_be_cancelled?).to be true
-      end
-
-      it 'returns true for processing orders' do
-        order.processing!
-        expect(order.can_be_cancelled?).to be true
-      end
-    end
-
-    context 'when order status prevents cancellation' do
-      it 'returns false for shipped orders' do
-        order.shipped!
-        expect(order.can_be_cancelled?).to be false
-      end
-
-      it 'returns false for delivered orders' do
-        order.delivered!
-        expect(order.can_be_cancelled?).to be false
-      end
-
-      it 'returns false for already cancelled orders' do
-        order.cancelled!
-        expect(order.can_be_cancelled?).to be false
       end
     end
   end
@@ -155,6 +111,44 @@ RSpec.describe Order, type: :model do
         aggregate_failures do
           expect(order.subtotal).to eq(Money.new(0))
           expect(order.total).to eq(Money.new(250))
+        end
+      end
+    end
+  end
+
+  describe 'validations' do
+    describe 'delivery scheduling validations' do
+      context 'for courier orders' do
+        let(:order) { build(:order, delivery_method: 'courier') }
+
+        it 'requires delivery_date' do
+          order.delivery_date = nil
+          expect(order).not_to be_valid
+          expect(order.errors[:delivery_date]).to include("can't be blank")
+        end
+
+        it 'requires delivery_time_slot' do
+          order.delivery_time_slot = nil
+          expect(order).not_to be_valid
+          expect(order.errors[:delivery_time_slot]).to include("can't be blank")
+        end
+
+        it 'is valid with both delivery_date and delivery_time_slot' do
+          order.delivery_date = Date.tomorrow
+          order.delivery_time_slot = '09:00-12:00'
+          expect(order).to be_valid
+        end
+      end
+
+      context 'for pickup orders without delivery date' do
+        let(:order) { build(:order, delivery_method: 'pickup', delivery_date: nil, delivery_time_slot: nil) }
+
+        it 'does not require delivery_date' do
+          expect(order).to be_valid
+        end
+
+        it 'does not require delivery_time_slot' do
+          expect(order).to be_valid
         end
       end
     end

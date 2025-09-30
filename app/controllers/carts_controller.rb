@@ -18,7 +18,7 @@ class CartsController < ApplicationController
     @cart = current_cart
     @cart_summary = {
       total_quantity: @cart&.total_quantity || 0,
-      total_price: @cart&.total_price&.format || "$0.00",
+      total_price: @cart&.formatted_total || Money.new(0, "USD").format,
       items_count: @cart&.cart_items&.count || 0
     }
 

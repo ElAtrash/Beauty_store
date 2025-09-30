@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_180416) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_26_003449) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -177,7 +177,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_180416) do
     t.string "email", null: false
     t.string "status", default: "pending"
     t.string "payment_status", default: "pending"
-    t.string "fulfillment_status"
+    t.string "fulfillment_status", default: "unfulfilled"
     t.integer "subtotal_cents", default: 0, null: false
     t.string "subtotal_currency", default: "USD", null: false
     t.integer "tax_total_cents", default: 0, null: false
@@ -193,7 +193,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_180416) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "phone_number", null: false
+    t.string "delivery_method", default: "courier"
+    t.string "courier_name"
+    t.text "delivery_notes"
+    t.date "delivery_date"
+    t.string "delivery_time_slot"
+    t.index ["delivery_method"], name: "index_orders_on_delivery_method"
     t.index ["number"], name: "index_orders_on_number", unique: true
+    t.index ["phone_number"], name: "index_orders_on_phone_number"
     t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end

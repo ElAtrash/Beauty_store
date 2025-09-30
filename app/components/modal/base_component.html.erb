@@ -1,0 +1,48 @@
+<div id="<%= id %>"
+     class="<%= container_classes %>"
+     <%= tag.attributes(container_data_attributes) %>
+     <%= tag.attributes(aria_attributes) %>>
+  <!-- Overlay -->
+  <div class="<%= overlay_classes %> opacity-0 invisible pointer-events-none"
+       data-modal-target="overlay"
+       data-action="click->modal#closeOnBackdrop">
+  </div>
+  <!-- Panel -->
+  <div class="<%= panel_classes %>"
+       data-modal-target="panel">
+    <!-- Header -->
+    <div class="<%= header_classes %>">
+      <h2 id="<%= id %>-title" class="<%= title_classes %>">
+        <%= title %>
+      </h2>
+      <div id="<%= id %>-header-controls" class="flex items-center gap-3 shrink-0">
+        <% if has_header_action? %>
+          <div id="<%= id %>-header-actions" class="flex items-center gap-2">
+            <%= header_action %>
+            <%= header_actions if respond_to?(:header_actions, true) %>
+          </div>
+          <!-- Divider -->
+          <div class="w-px h-5 bg-gray-300"></div>
+        <% end %>
+        <button type="button"
+                class="<%= close_button_classes %>"
+                data-action="click->modal#close"
+          aria-label="Close">
+          <%= render UI::IconComponent.new(name: :close, css_class: "icon-interactive w-6 h-6") %>
+        </button>
+      </div>
+    </div>
+    <!-- Content -->
+    <div id="<%= id %>-content" class="<%= content_classes %>">
+      <%= body %>
+      <%= content if respond_to?(:content, true) %>
+    </div>
+    <!-- Footer -->
+    <% if has_footer? %>
+      <div id="<%= id %>-footer" class="<%= footer_classes %>">
+        <%= footer %>
+        <%= footer_content if respond_to?(:footer_content, true) %>
+      </div>
+    <% end %>
+  </div>
+</div>

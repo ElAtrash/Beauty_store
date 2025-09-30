@@ -1,0 +1,25 @@
+<div class="border border-gray-200 p-6 shadow-sm">
+  <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
+    <%= render UI::IconComponent.new(name: :user, css_class: "w-5 h-5 mr-2") %>
+    <%= t("order.contact.title") %>
+  </h2>
+  <div class="space-y-4">
+    <%= detail_row("order.contact.email", order.email) %>
+    <%= detail_row("order.contact.phone", order.phone_number) %>
+    <%= detail_row("order.contact.delivery_method", delivery_method_label) %>
+    <% if show_delivery_address? %>
+      <%= detail_row_with_content("order.contact.delivery_address") do %>
+        <p><%= address_line_1 %></p>
+        <% if address_line_2.present? %>
+          <p><%= address_line_2 %></p>
+        <% end %>
+        <% if landmarks.present? %>
+          <p class="text-text-muted"><%= landmarks %></p>
+        <% end %>
+      <% end %>
+      <% if show_delivery_notes? %>
+        <%= detail_row("order.contact.delivery_notes", order.delivery_notes) %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

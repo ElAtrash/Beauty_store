@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Carts::AddItemService
+  include BaseService
+
   def self.call(cart:, product_variant:, quantity: 1)
     new(cart: cart, product_variant: product_variant, quantity: quantity).call
   end
@@ -9,74 +11,50 @@ class Carts::AddItemService
     @cart = cart
     @product_variant = product_variant
     @quantity = quantity.to_i
-    @errors = []
   end
 
   def call
-    validate_inputs
-    return failure_result if errors.any?
+    validate_required_params(cart: cart, product_variant: product_variant)
+    return last_result if last_result&.failure?
+
+    validate_quantity_rules
+    return last_result if last_result&.failure?
 
     ActiveRecord::Base.transaction do
-      @cart_item = find_or_create_cart_item
-      update_quantity
+      @cart_item = cart.cart_items.find_or_initialize_by(product_variant: product_variant)
+      update_cart_item_quantity
       @cart_item.save!
+      success(resource: @cart_item, cart: cart)
     end
-
-    success_result
   rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Carts::AddItemService validation error: #{e.message}"
-    @errors.push("We couldn't add this item to your cart. Please try again.")
-    failure_result
+    log_error("validation error", e)
+    failure(I18n.t("services.errors.cart_item_add_failed"), cart: cart)
   rescue => e
-    Rails.logger.error "Carts::AddItemService unexpected error: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    @errors.push("Something went wrong. Please try again.")
-    failure_result
+    log_error("unexpected error", e)
+    failure(I18n.t("services.errors.something_went_wrong"), cart: cart)
   end
 
   private
 
-  attr_reader :cart, :product_variant, :quantity, :errors
+  attr_reader :cart, :product_variant, :quantity
 
-  def validate_inputs
-    @errors.push("Cart is required") unless cart
-    @errors.push("Product variant is required") unless product_variant
+  def validate_quantity_rules
+    existing_quantity = cart.cart_items.find_by(product_variant: product_variant)&.quantity || 0
 
-    return unless product_variant
-
-    result = Carts::QuantityService.validate_quantity(quantity,
+    result = Carts::QuantityService.validate_quantity(
+      quantity,
       product_variant: product_variant,
-      existing_quantity: 0)
+      existing_quantity: existing_quantity
+    )
 
-    @errors.concat(result.errors) if result.failure?
+    @last_result = result if result.failure?
   end
 
-  def find_or_create_cart_item
-    cart.cart_items.find_or_initialize_by(product_variant: product_variant)
-  end
-
-  def update_quantity
+  def update_cart_item_quantity
     if @cart_item.persisted?
-      result = Carts::QuantityService.validate_quantity(quantity,
-        product_variant: product_variant,
-        existing_quantity: @cart_item.quantity)
-
-      if result.failure?
-        @errors.concat(result.errors)
-        return
-      end
-
-      @cart_item.quantity = @cart_item.quantity + quantity
+      @cart_item.quantity += quantity
     else
       @cart_item.quantity = quantity
     end
-  end
-
-  def success_result
-    Carts::BaseResult.new(resource: @cart_item, cart: cart, success: true)
-  end
-
-  def failure_result
-    Carts::BaseResult.new(errors: errors, success: false, cart: cart)
   end
 end
