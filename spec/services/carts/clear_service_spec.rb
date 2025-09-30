@@ -86,12 +86,10 @@ RSpec.describe Carts::ClearService do
     context "when cart is nil" do
       let(:cart) { nil }
 
-      it "returns success with nil cart" do
+      it "returns failure when cart is required" do
         aggregate_failures do
-          expect(result).to be_success
-          expect(result.cart).to be_nil
-          expect(result.cleared_items_count).to eq(0)
-          expect(result.cleared_variants).to eq([])
+          expect(result).to be_failure
+          expect(result.errors).to include(I18n.t("services.errors.cart_required"))
         end
       end
     end
@@ -119,7 +117,7 @@ RSpec.describe Carts::ClearService do
       it "logs rollback error" do
         result
         expect(Rails.logger).to have_received(:error).with(
-          "Carts::ClearService transaction rolled back: Failed to clear items"
+          "Carts::ClearService Failed to clear item: Out of stock validation failed"
         )
       end
 
@@ -141,7 +139,7 @@ RSpec.describe Carts::ClearService do
         aggregate_failures do
           expect(result).to be_failure
           expect(result.cart).to eq(cart)
-          expect(result.errors).to include("We couldn't clear your cart. Please try again.")
+          expect(result.errors).to include(I18n.t("services.errors.something_went_wrong"))
         end
       end
 

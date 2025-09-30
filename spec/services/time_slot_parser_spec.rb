@@ -167,39 +167,46 @@ RSpec.describe TimeSlotParser do
 
     subject { described_class.parse_delivery_time(time_slot_string, date) }
 
-    context 'with valid time slot' do
+    context 'with valid 24-hour time slot' do
+      let(:time_slot_string) { '09:00-12:00' }
+
+      it 'returns formatted delivery schedule string' do
+        expected_string = 'Wednesday, Dec 25 - 09:00-12:00'
+        expect(subject).to eq(expected_string)
+      end
+    end
+
+    context 'with afternoon time slot' do
+      let(:time_slot_string) { '12:00-15:00' }
+
+      it 'correctly formats afternoon slot' do
+        expected_string = 'Wednesday, Dec 25 - 12:00-15:00'
+        expect(subject).to eq(expected_string)
+      end
+    end
+
+    context 'with evening time slot' do
+      let(:time_slot_string) { '18:00-21:00' }
+
+      it 'correctly formats evening slot' do
+        expected_string = 'Wednesday, Dec 25 - 18:00-21:00'
+        expect(subject).to eq(expected_string)
+      end
+    end
+
+    context 'with invalid time slot' do
+      let(:time_slot_string) { '10:00-14:00' }
+
+      it 'returns nil for invalid time slot' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'with AM/PM format' do
       let(:time_slot_string) { '9:00 AM - 12:00 PM' }
 
-      it 'returns datetime for start time on specified date' do
-        expected_datetime = Time.zone.parse('2024-12-25 09:00:00')
-        expect(subject).to eq(expected_datetime)
-      end
-    end
-
-    context 'with PM time' do
-      let(:time_slot_string) { '2:30 PM - 5:00 PM' }
-
-      it 'correctly handles PM times' do
-        expected_datetime = Time.zone.parse('2024-12-25 14:30:00')
-        expect(subject).to eq(expected_datetime)
-      end
-    end
-
-    context 'with midnight' do
-      let(:time_slot_string) { '12:00 AM - 2:00 AM' }
-
-      it 'correctly handles midnight' do
-        expected_datetime = Time.zone.parse('2024-12-25 00:00:00')
-        expect(subject).to eq(expected_datetime)
-      end
-    end
-
-    context 'with noon' do
-      let(:time_slot_string) { '12:00 PM - 2:00 PM' }
-
-      it 'correctly handles noon' do
-        expected_datetime = Time.zone.parse('2024-12-25 12:00:00')
-        expect(subject).to eq(expected_datetime)
+      it 'returns nil for AM/PM format' do
+        expect(subject).to be_nil
       end
     end
 
@@ -212,15 +219,12 @@ RSpec.describe TimeSlotParser do
     end
 
     context 'without date specified' do
-      let(:time_slot_string) { '9:00 AM - 12:00 PM' }
+      let(:time_slot_string) { '09:00-12:00' }
 
-      it 'uses current date' do
-        current_date = Date.current
+      it 'uses current date when no date provided' do
         result = described_class.parse_delivery_time(time_slot_string, nil)
-
-        expect(result.to_date).to eq(current_date)
-        expect(result.hour).to eq(9)
-        expect(result.min).to eq(0)
+        expect(result).to include(Date.current.strftime('%A, %b %d'))
+        expect(result).to include('09:00-12:00')
       end
     end
   end
@@ -551,6 +555,94 @@ RSpec.describe TimeSlotParser do
           expect(result[:start_datetime].hour).to eq(9)
           expect(result[:end_datetime].hour).to eq(12)
         end
+      end
+    end
+  end
+
+  describe '.parse_delivery_datetime' do
+    let(:date) { Date.new(2024, 12, 25) }
+
+    subject { described_class.parse_delivery_datetime(time_slot_string, date) }
+
+    context 'with valid time slot' do
+      let(:time_slot_string) { '9:00 AM - 12:00 PM' }
+
+      it 'returns datetime for start time on specified date' do
+        expected_datetime = Time.zone.parse('2024-12-25 09:00:00')
+        expect(subject).to eq(expected_datetime)
+      end
+    end
+
+    context 'with PM time' do
+      let(:time_slot_string) { '2:30 PM - 5:00 PM' }
+
+      it 'correctly handles PM times' do
+        expected_datetime = Time.zone.parse('2024-12-25 14:30:00')
+        expect(subject).to eq(expected_datetime)
+      end
+    end
+
+    context 'with midnight' do
+      let(:time_slot_string) { '12:00 AM - 2:00 AM' }
+
+      it 'correctly handles midnight' do
+        expected_datetime = Time.zone.parse('2024-12-25 00:00:00')
+        expect(subject).to eq(expected_datetime)
+      end
+    end
+
+    context 'with noon' do
+      let(:time_slot_string) { '12:00 PM - 2:00 PM' }
+
+      it 'correctly handles noon' do
+        expected_datetime = Time.zone.parse('2024-12-25 12:00:00')
+        expect(subject).to eq(expected_datetime)
+      end
+    end
+
+    context 'with invalid time slot' do
+      let(:time_slot_string) { 'invalid' }
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+  end
+
+  describe '.valid_delivery_time_slot?' do
+    context 'with valid time slots' do
+      it 'returns true for allowed morning slot' do
+        expect(described_class.valid_delivery_time_slot?('09:00-12:00')).to be true
+      end
+
+      it 'returns true for allowed afternoon slot' do
+        expect(described_class.valid_delivery_time_slot?('12:00-15:00')).to be true
+      end
+
+      it 'returns true for allowed late afternoon slot' do
+        expect(described_class.valid_delivery_time_slot?('15:00-18:00')).to be true
+      end
+
+      it 'returns true for allowed evening slot' do
+        expect(described_class.valid_delivery_time_slot?('18:00-21:00')).to be true
+      end
+    end
+
+    context 'with invalid time slots' do
+      it 'returns false for invalid time slot' do
+        expect(described_class.valid_delivery_time_slot?('10:00-14:00')).to be false
+      end
+
+      it 'returns false for AM/PM format' do
+        expect(described_class.valid_delivery_time_slot?('9:00 AM - 12:00 PM')).to be false
+      end
+
+      it 'returns false for generic terms' do
+        expect(described_class.valid_delivery_time_slot?('morning')).to be false
+      end
+
+      it 'returns false for nil' do
+        expect(described_class.valid_delivery_time_slot?(nil)).to be false
       end
     end
   end

@@ -1,0 +1,63 @@
+<div class="delivery-schedule-inline">
+  <% if show_inline_picker? %>
+    <div data-controller="delivery-schedule-inline"
+         data-delivery-schedule-inline-time-slots-value="<%= time_slots_data.to_json %>">
+      <!-- Date Selection -->
+      <div class="date-selector mb-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-3" id="date-selection-label">Select delivery date</h4>
+        <div class="flex gap-2 overflow-x-auto pb-2" role="group" aria-labelledby="date-selection-label">
+          <% delivery_service.available_dates.each do |date| %>
+            <button
+            type="button"
+            class="<%= date_button_classes(date) %>"
+            data-action="click->delivery-schedule-inline#selectDate"
+              data-date="<%= date.strftime('%Y-%m-%d') %>"
+              data-delivery-schedule-inline-target="dateButton"
+              aria-label="Select <%= date.strftime('%A, %B %d') %> for delivery"
+              <%= "disabled" if option_disabled?(date, time_slots_for_date(date).first[:time]) %>
+              >
+              <div class="text-lg font-semibold"><%= date_number(date) %></div>
+              <div class="text-xs uppercase"><%= date_day_abbr(date) %></div>
+            </button>
+          <% end %>
+        </div>
+      </div>
+      <!-- Time Slot Selection -->
+      <div class="time-selector" data-delivery-schedule-inline-target="timeSlotContainer" style="display: none;">
+        <h4 class="text-sm font-medium text-gray-900 mb-3" id="time-selection-label">Select delivery time</h4>
+        <div class="flex gap-2 overflow-x-auto pb-2" data-delivery-schedule-inline-target="timeSlotList" role="group" aria-labelledby="time-selection-label">
+        </div>
+      </div>
+      <!-- Placeholder Summary -->
+      <div class="mt-4" data-delivery-schedule-inline-target="placeholderSummary">
+        <%= render DeliveryCardComponent.new(
+          icon: :clock,
+          title: "Delivery Date & Time",
+          subtitle: I18n.t('delivery_schedule.placeholder.no_selection', default: 'No date/time selected yet'),
+          css_class: "delivery-placeholder"
+        ) %>
+      </div>
+      <!-- Selected Summary -->
+      <div class="mt-4 hidden" data-delivery-schedule-inline-target="selectedSummary">
+        <%= render DeliveryCardComponent.new(
+          icon: :clock,
+          title: "Delivery scheduled for:",
+          subtitle: '<div data-delivery-schedule-inline-target="selectedDisplay"></div>'.html_safe
+        ) %>
+      </div>
+    </div>
+    <!-- Close controller div -->
+  <% else %>
+    <!-- Pickup Display -->
+    <%= render DeliveryCardComponent.new(
+      icon: :clock,
+      title: "Pickup Schedule",
+      subtitle: I18n.t('delivery_schedule.pickup.schedule',
+                start_date: I18n.l(Date.current, format: :short),
+                end_date: I18n.l(Date.current + 2.days, format: :short),
+                hours: I18n.t('delivery_schedule.pickup.hours', default: '9:00 AM - 9:00 PM'),
+                default: "Pick up your order between %{start_date} and %{end_date}, %{hours}"),
+      variant: :pickup
+    ) %>
+  <% end %>
+</div>

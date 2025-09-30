@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
   before_action :set_current_session
   before_action :set_active_storage_url_options
 
-  helper_method :current_cart, :cart_item_count, :cart_total
+  helper_method :current_cart, :cart_item_count, :cart_title
 
   private
 
@@ -49,22 +49,22 @@ class ApplicationController < ActionController::Base
   def default_title_for(entity)
     case entity
     when Product
-      "#{entity.name} | Beauty Store"
+      "#{entity.name}#{StoreConfigurationService.seo_title_suffix}"
     when Brand
-      "#{entity.name} Products | Beauty Store"
+      "#{entity.name} Products#{StoreConfigurationService.seo_title_suffix}"
     else
-      "Beauty Store"
+      StoreConfigurationService.name
     end
   end
 
   def default_description_for(entity)
     case entity
     when Product
-      "#{entity.description&.truncate(150)} Shop #{entity.name} at Beauty Store."
+      "#{entity.description&.truncate(150)} Shop #{entity.name} at #{StoreConfigurationService.name}."
     when Brand
-      "Discover #{entity.name} beauty products. Shop the latest #{entity.name} collection at Beauty Store."
+      "Discover #{entity.name} beauty products. Shop the latest #{entity.name} collection at #{StoreConfigurationService.name}."
     else
-      "Premium beauty products at Beauty Store."
+      StoreConfigurationService.default_meta_description
     end
   end
 
@@ -76,20 +76,16 @@ class ApplicationController < ActionController::Base
   def current_cart
     return @current_cart if defined?(@current_cart)
 
-    @current_cart = Carts::FindOrCreateService.call(
+    result = Carts::FindOrCreateService.call(
       user: Current.user,
       session: session,
       cart_token: session[:cart_token]
     )
 
-    @current_cart
+    @current_cart = result.cart
   end
 
   def cart_item_count
     current_cart&.total_quantity || 0
-  end
-
-  def cart_total
-    current_cart&.total_price&.format || "$0.00"
   end
 end

@@ -21,6 +21,46 @@ module ApplicationHelper
     end
   end
 
+  def flash_type_class(type)
+    case type.to_s
+    when "notice", "success" then "success"
+    when "alert", "error" then "error"
+    when "warning" then "warning"
+    else "info"
+    end
+  end
+
+  def validation_translations_for_js
+    translations = {}
+
+    validation_keys = [
+      "field_required", "first_name_required", "last_name_required",
+      "email_required", "email_invalid", "phone_required", "phone_invalid",
+      "password_required", "password_too_short", "password_confirmation_required",
+      "passwords_dont_match", "address_required", "address_too_short",
+      "delivery_date_required", "validation_error"
+    ]
+
+    validation_keys.each do |key|
+      begin
+        translation_key = "validation.errors.#{key}"
+        translated_value = I18n.t(translation_key)
+
+        if translated_value != translation_key
+          translations[key] = translated_value
+        else
+          Rails.logger.warn "Missing validation translation: #{translation_key}"
+          translations[key] = key.humanize
+        end
+      rescue => e
+        Rails.logger.error "Error loading validation translation for #{key}: #{e.message}"
+        translations[key] = key.humanize
+      end
+    end
+
+    translations.to_json
+  end
+
   private
 
   def currency_symbol(currency)

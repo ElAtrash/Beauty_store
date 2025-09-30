@@ -89,7 +89,7 @@ RSpec.describe Carts::AddItemService do
 
         it "returns failure with error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Cart is required")
+          expect(result.errors).to include(I18n.t("services.errors.cart_required"))
         end
       end
 
@@ -98,7 +98,7 @@ RSpec.describe Carts::AddItemService do
 
         it "returns failure with error" do
           expect(result).to be_failure
-          expect(result.errors).to include("Product variant is required")
+          expect(result.errors).to include(I18n.t("services.errors.product_variant_required"))
         end
       end
 
@@ -194,7 +194,7 @@ RSpec.describe Carts::AddItemService do
         it "returns failure with user-friendly error" do
           aggregate_failures do
             expect(result).to be_failure
-            expect(result.errors).to include("We couldn't add this item to your cart. Please try again.")
+            expect(result.errors).to include(I18n.t("services.errors.cart_item_add_failed"))
           end
         end
 
@@ -212,7 +212,7 @@ RSpec.describe Carts::AddItemService do
         it "returns failure with user-friendly error" do
           aggregate_failures do
             expect(result).to be_failure
-            expect(result.errors).to include("Something went wrong. Please try again.")
+            expect(result.errors).to include(I18n.t("services.errors.something_went_wrong"))
           end
         end
 

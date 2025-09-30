@@ -49,7 +49,7 @@
         <div id="cart-badge" class="relative">
           <%= render UI::HeaderActionButtonComponent.new(
               icon: 'shopping_cart',
-              action: 'application#openCart',
+              action: 'navigation--header-actions#openCart',
               aria_label: t('header.actions.cart'),
               badge: header_badge_count(:cart)) %>
         </div>
@@ -87,13 +87,15 @@
       <div id="mobile-cart-badge" class="relative">
         <%= render UI::HeaderActionButtonComponent.new(
             icon: 'shopping_cart',
-            action: 'application#openCart',
+            action: 'navigation--header-actions#openCart',
             aria_label: t('header.actions.cart'),
             badge: header_badge_count(:cart)) %>
       </div>
     </div>
   </header>
-  <nav class="navigation-wrapper hidden md:block transition-all duration-300" aria-label="<%= t('header.nav.main_navigation') %>" data-navigation--header-state-target="nav">
+  <nav class="navigation-wrapper"
+       aria-label="<%= t('header.nav.main_navigation') %>"
+       data-navigation--header-state-target="nav">
     <div class="container mx-auto px-4">
       <%= render Header::NavigationListComponent.new(
           navigation_items: header_navigation_items,
@@ -101,5 +103,5 @@
     </div>
   </nav>
   <%= render Header::MobileMenuComponent.new(navigation_items: header_navigation_items) %>
-  <%= render AuthPopupComponent.new(current_user: Current.user) %>
+  <%= render Modal::AuthComponent.new(current_user: Current.user) %>
 </div>

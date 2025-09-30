@@ -1,0 +1,181 @@
+<div class="max-w-6xl mx-auto px-4 py-8 order-confirmation"
+     data-controller="order-actions"
+     data-order-actions-order-number-value="<%= @order.number %>"
+     data-order-actions-share-url-value="<%= request.url %>"
+     data-order-actions-share-title-value="<%= t('order_confirmation.hero.share_title') %>"
+     data-order-actions-share-text-value="<%= t('order_confirmation.hero.share_text') %>"
+     data-order-actions-reorder-url-value="<%= reorder_order_path(@order.number) %>">
+  <!-- Hero Section with Order Confirmation -->
+  <div class="text-center mb-8 bg-white border border-gray-200 p-8 shadow-sm">
+    <h3 class="text-2xl text-text-primary mb-2">
+      <%= t('order_confirmation.hero.thank_you') %></h3>
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <span class="text-xl font-semibold text-text-primary"><%= t('order_confirmation.hero.order_number_prefix') %><%= @order.number %></span>
+      <button data-action="click->order-actions#copyOrderNumber"
+              data-order-actions-target="copyButton"
+              class="btn-icon p-1 cursor-pointer"
+              title="<%= t('order_confirmation.hero.copy_order_number') %>"
+              aria-label="<%= t('order_confirmation.hero.copy_order_number_aria') %>">
+        <%= render UI::IconComponent.new(name: :clipboard, css_class: "icon-interactive w-5 h-5") %>
+      </button>
+    </div>
+    <p class="text-sm text-text-muted mb-4">
+      <%= t('order_confirmation.hero.placed_on') %> <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+    </p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left Column -->
+    <div class="space-y-6">
+      <!-- Order Status Timeline -->
+      <%= render OrderConfirmation::TimelineComponent.new(order: @order) %>
+      <!-- Contact & Delivery Information -->
+      <%= render OrderConfirmation::ContactComponent.new(order: @order) %>
+      <!-- Payment Information -->
+      <div class="border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
+          <%= render UI::IconComponent.new(name: :lock_closed, css_class: "w-5 h-5 mr-2") %>
+          <%= t('order_confirmation.sections.payment_information') %>
+        </h2>
+        <div>
+          <p class="text-sm font-medium text-text-secondary"><%= t('order_confirmation.payment.payment_method') %></p>
+          <p class="text-sm text-text-primary">
+            <% if @order.cod_due? %>
+              <%= @order.courier? ? t('order_confirmation.payment.cash_on_delivery') : t('order_confirmation.payment.cash_on_pickup') %>
+            <% else %>
+              <%= t('order_confirmation.payment.pending') %>
+            <% end %>
+          </p>
+          <% if @order.cod_due? %>
+            <p class="text-xs text-text-muted mt-1">
+              <%= t('order_confirmation.payment.amount_due') %> <strong><%= @order.formatted_total %></strong>
+            </p>
+          <% end %>
+        </div>
+      </div>
+      <!-- What's Next Section -->
+      <% if @order.show_whats_next? %>
+        <div class="border border-gray-200 p-6 shadow-sm">
+          <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
+            <%= render UI::IconComponent.new(name: :info, css_class: "w-5 h-5 mr-2") %>
+            <%= t('order_confirmation.sections.whats_next') %>
+          </h2>
+          <div class="space-y-3">
+            <% if @order.cod_due? %>
+              <p class="text-sm text-text-secondary">
+                <%= t('order_confirmation.whats_next.confirmation_call', phone: @order.phone_number) %>
+              </p>
+              <p class="text-sm text-text-secondary">
+                <%= t('order_confirmation.whats_next.order_preparation') %>
+              </p>
+              <% if @order.courier? %>
+                <p class="text-sm text-text-secondary">
+                  <%= t('order_confirmation.whats_next.courier_contact') %>
+                </p>
+                <p class="text-sm text-text-secondary">
+                  <%= t('order_confirmation.whats_next.payment_due_delivery', amount: @order.formatted_total) %>
+                </p>
+              <% else %>
+                <p class="text-sm text-text-secondary">
+                  <%= t('order_confirmation.whats_next.pickup_notification') %>
+                </p>
+                <p class="text-sm text-text-secondary">
+                  <%= t('order_confirmation.whats_next.payment_due_pickup', amount: @order.formatted_total) %>
+                </p>
+              <% end %>
+            <% end %>
+            <p class="text-sm text-text-secondary">
+              <%= t('order_confirmation.whats_next.email_updates') %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <!-- Right Column - Order Items -->
+    <div class="space-y-6">
+      <!-- Order Items -->
+      <div class="border border-gray-200 p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-primary mb-6 flex items-center">
+          <%= render UI::IconComponent.new(name: :shopping_cart, css_class: "w-5 h-5 mr-2") %>
+          <%= t('order_confirmation.sections.order_items') %>
+        </h2>
+        <!-- Items List -->
+        <div class="mb-6">
+          <div class="max-h-96 overflow-y-auto invisible-scroll space-y-4">
+            <% @order.order_items.each do |item| %>
+              <%= render OrderConfirmation::ItemComponent.new(order_item: item) %>
+            <% end %>
+          </div>
+        </div>
+        <!-- Order Summary -->
+        <div class="border-t border-gray-200 pt-6 space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-text-secondary"><%= t('order_confirmation.order_summary.subtotal') %></span>
+            <span class="text-text-primary font-medium"><%= @order.formatted_subtotal %></span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-text-secondary"><%= t('order_confirmation.order_summary.shipping') %></span>
+            <span class="<%= @order.shipping_total_cents > 0 ? 'text-text-primary' : 'text-green-600' %>">
+              <%= @order.shipping_total_cents > 0 ? @order.formatted_shipping_total : t('order_confirmation.order_summary.free_shipping') %>
+            </span>
+          </div>
+          <div class="border-t border-gray-200 pt-3">
+            <div class="flex justify-between text-lg font-bold">
+              <span class="text-text-primary"><%= t('order_confirmation.order_summary.total') %></span>
+              <span class="text-interactive-primary"><%= @order.formatted_total %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Reorder Button -->
+      <div class="space-y-3">
+        <button class="btn-interactive btn-full btn-lg"
+                data-action="click->order-actions#reorderOrder"
+                aria-label="<%= t('order_confirmation.actions.reorder_aria') %>">
+          <%= render UI::IconComponent.new(name: :refresh, css_class: "w-4 h-4 mr-2") %>
+          <%= t('order_confirmation.actions.reorder') %>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Footer Actions -->
+  <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <%= link_to root_path,
+        class: "border-2 border-interactive-primary text-interactive-primary hover:bg-interactive-primary hover:text-white px-6 py-3 font-medium transition-all duration-200 text-center flex items-center justify-center",
+        "aria-label": t('order_confirmation.actions.continue_shopping_aria') do %>
+      <%= render UI::IconComponent.new(name: :arrow_left, css_class: "w-4 h-4 mr-2") %>
+      <%= t('order_confirmation.actions.continue_shopping') %>
+    <% end %>
+    <button class="bg-gray-50 hover:bg-gray-100 text-text-primary px-6 py-3 font-medium transition-colors duration-200 flex items-center justify-center"
+            data-action="click->order-actions#printOrder"
+            aria-label="<%= t('order_confirmation.actions.print_receipt_aria') %>">
+      <%= render UI::IconComponent.new(name: :document_text, css_class: "w-4 h-4 mr-2") %>
+      <%= t('order_confirmation.actions.print_receipt') %>
+    </button>
+    <button class="bg-gray-50 hover:bg-gray-100 text-text-primary px-6 py-3 font-medium transition-colors duration-200 flex items-center justify-center"
+            data-action="click->order-actions#shareOrder"
+            data-order-actions-target="shareButton"
+            aria-label="<%= t('order_confirmation.actions.share_order_aria') %>">
+      <%= render UI::IconComponent.new(name: :arrow_right, css_class: "w-4 h-4 mr-2") %>
+      <%= t('order_confirmation.actions.share_order') %>
+    </button>
+  </div>
+  <!-- Customer Support -->
+  <div class="mt-8 text-center bg-gray-50 p-6">
+    <h3 class="text-lg font-semibold text-text-primary mb-2"><%= t('order_confirmation.support.title') %></h3>
+    <p class="text-text-secondary mb-4"><%= t('order_confirmation.support.description') %></p>
+    <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+      <a href="tel:<%= StoreConfigurationService.support_phone %>"
+         class="text-text-primary hover:text-interactive-primary font-medium flex items-center"
+         aria-label="<%= t('order_confirmation.support.call_aria', phone: StoreConfigurationService.support_phone) %>">
+        <%= render UI::IconComponent.new(name: :phone, css_class: "w-4 h-4 mr-2") %>
+        <%= t('order_confirmation.support.call_label', phone: StoreConfigurationService.support_phone) %>
+      </a>
+      <a href="mailto:<%= StoreConfigurationService.support_email %>"
+         class="text-text-primary hover:text-interactive-primary font-medium flex items-center"
+         aria-label="<%= t('order_confirmation.support.email_aria', email: StoreConfigurationService.support_email) %>">
+        <%= render UI::IconComponent.new(name: :mail, css_class: "w-4 h-4 mr-2") %>
+        <%= t('order_confirmation.support.email_label') %>
+      </a>
+    </div>
+  </div>
+</div>

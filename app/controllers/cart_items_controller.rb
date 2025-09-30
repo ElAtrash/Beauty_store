@@ -5,7 +5,7 @@ class CartItemsController < ApplicationController
   include HeaderHelper
 
   before_action :ensure_cart_exists, only: [ :create ]
-  before_action :set_cart_item, only: [ :update, :update_quantity, :destroy ]
+  before_action :set_cart_item, only: [ :update, :destroy ]
 
   def create
     @product_variant = ProductVariant.find(params[:product_variant_id])
@@ -22,15 +22,18 @@ class CartItemsController < ApplicationController
       @cart = result.cart
       @product = @product_variant.product
 
-      render_cart_sync(
+      sync_result = Carts::SyncService.call(
+        cart: @cart,
         notification: {
           type: "success",
-          message: "Added to cart successfully!",
+          message: I18n.t("cart_items.messages.added_successfully"),
           cart_item: @cart_item,
           delay: 3000
         },
         variant: @product_variant
       )
+
+      render_cart_response(sync_result)
     else
       @errors = result.errors
       @cart = result.cart
@@ -43,31 +46,23 @@ class CartItemsController < ApplicationController
     end
   end
 
-  def update_quantity
+  def update
     @product = @cart_item.product_variant.product
-    action_type, quantity_value = normalize_quantity_params
 
-    result = case action_type
-    when :increment
-      Carts::ItemUpdateService.increment(@cart_item)
-    when :decrement
-      Carts::ItemUpdateService.decrement(@cart_item)
-    when :add_more
-      Carts::ItemUpdateService.add_more(@cart_item, quantity_value)
-    when :set_quantity
-      Carts::ItemUpdateService.set_quantity(@cart_item, quantity_value)
-    end
+    result = Carts::ItemUpdateService.call(@cart_item, params: params)
 
     if result.success?
       @cart = result.cart
-      render_cart_update
+
+      sync_result = Carts::SyncService.call(
+        cart: @cart,
+        variant: @cart_item.product_variant
+      )
+
+      render_cart_response(sync_result)
     else
       respond_with_error(result.errors.join(", "))
     end
-  end
-
-  def update
-    redirect_to cart_path
   end
 
   def destroy
@@ -78,9 +73,8 @@ class CartItemsController < ApplicationController
 
     if result.success?
       @cart = result.cart
-      render_cart_sync(
-        variant: variant
-      )
+      sync_result = Carts::SyncService.call(cart: @cart, variant: variant)
+      render_cart_response(sync_result)
     else
       respond_with_error(result.errors.join(", "))
     end
@@ -92,10 +86,13 @@ class CartItemsController < ApplicationController
     result = Carts::ClearService.call(cart: @cart)
 
     if result.success?
-      render_cart_sync(
-        notification: { type: "success", message: "Cart cleared successfully", delay: 2000 },
+      sync_result = Carts::SyncService.call(
+        cart: result.cart,
+        notification: { type: "success", message: I18n.t("cart_items.messages.cleared_successfully"), delay: 2000 },
         cleared_variants: result.cleared_variants
       )
+
+      render_cart_response(sync_result)
     else
       respond_with_error(result.errors.join(", "))
     end
@@ -105,78 +102,81 @@ class CartItemsController < ApplicationController
 
   def ensure_cart_exists
     unless current_cart
-      @cart = Carts::FindOrCreateService.call(
+      result = Carts::FindOrCreateService.call(
         user: Current.user,
         session: session,
         cart_token: session[:cart_token]
       )
+
+      if result.success?
+        @cart = result.cart
+      else
+        redirect_to root_path, alert: I18n.t("cart_items.messages.cart_unavailable")
+        throw :abort
+      end
     end
   end
 
   def set_cart_item
-    @cart_item = current_cart.cart_items.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    respond_to do |format|
-      format.html { redirect_to cart_path, alert: "Cart item not found" }
-      format.turbo_stream { render "cart_items/not_found" }
-      format.json { render json: { success: false, errors: [ "Cart item not found" ] } }
+    @cart_item = CartItem.find(params[:id])
+
+    # Verify the cart item belongs to the current session/user
+    unless cart_item_accessible?(@cart_item)
+      respond_with_not_found
+      throw :abort
     end
+  rescue ActiveRecord::RecordNotFound
+    respond_with_not_found
+    throw :abort
   end
 
-  def respond_with_error(message)
+  def cart_item_accessible?(cart_item)
+    # Allow access if it belongs to current cart
+    return true if cart_item.cart == current_cart
+
+    # Allow access if user is authenticated and owns the cart
+    return true if Current.user && cart_item.cart.user == Current.user
+
+    # Allow access if it's the same session (session_token matches)
+    return true if session[:cart_token] && cart_item.cart.session_token == session[:cart_token]
+
+    false
+  end
+
+  def respond_with_error(message, error_type: :generic)
     @error_message = message
     @cart = @cart_item&.cart || current_cart
 
     respond_to do |format|
-      format.html { redirect_back(fallback_location: cart_path, alert: message) }
-      format.turbo_stream { render "cart_items/error" }
+      case error_type
+      when :not_found
+        format.html { redirect_to cart_path, alert: message }
+        format.turbo_stream { render "cart_items/not_found" }
+      else
+        format.html { redirect_back(fallback_location: cart_path, alert: message) }
+        format.turbo_stream { render "cart_items/error" }
+      end
       format.json { render json: { success: false, errors: [ message ] } }
     end
   end
 
-  def cart_summary_data
-    cart = @cart || current_cart
-
-    return { total_quantity: 0, total_price: "$0.00", items_count: 0 } unless cart
-    {
-      total_quantity: cart.total_quantity || 0,
-      total_price: cart.total_price&.format || "$0.00",
-      items_count: cart.cart_items.count || 0
-    }
+  def respond_with_not_found
+    respond_with_error(I18n.t("cart_items.messages.not_found"), error_type: :not_found)
   end
 
-  def normalize_quantity_params
-    if params[:add_more].present?
-      [ :add_more, params[:add_more].to_i ]
-    elsif params[:quantity_action] == "increment"
-      [ :increment, nil ]
-    elsif params[:quantity_action] == "decrement"
-      [ :decrement, nil ]
-    elsif params[:quantity].present?
-      [ :set_quantity, params[:quantity].to_i ]
-    else
-      [ :increment, nil ]
-    end
-  end
 
-  def render_cart_update
-    render_cart_sync(
-      variant: @cart_item&.product_variant
-    )
-  end
-
-  def render_cart_sync(notification: nil, variant: nil, cleared_variants: nil)
+  def render_cart_response(sync_result)
     respond_to do |format|
-      format.html { redirect_to cart_path, notice: notification&.[](:message) }
+      format.html { redirect_to cart_path, notice: sync_result.notification&.[](:message) }
       format.turbo_stream do
         render "shared/cart_sync", locals: {
-          cart: @cart,
-          variant: variant,
-          cleared_variants: cleared_variants,
-          notification: notification
+          cart: sync_result.cart,
+          variant: sync_result.variant,
+          cleared_variants: sync_result.cleared_variants,
+          notification: sync_result.notification
         }
       end
-      format.json { render json: { success: true, cart_summary: cart_summary_data } }
+      format.json { render json: { success: true, cart_summary: sync_result.cart_summary_data } }
     end
   end
 end

@@ -144,7 +144,47 @@ en:
       picker: "%d\n%a"
   checkout:
     order_placed_successfully: "Order placed successfully!"
-    cart_empty: "Your cart is empty. Please add items before checkout."
+    order_not_found: "Order not found"
+    cart_empty: "Your cart is empty. Continue shopping to add items."
+    reorder:
+      messages:
+        items_added:
+          one: "%{count} item added to cart"
+          other: "%{count} items added to cart"
+        items_partially_added:
+          one: "%{count} item partially added (limited by stock)"
+          other: "%{count} items partially added (limited by stock)"
+        items_unavailable:
+          one: "%{count} item unavailable"
+          other: "%{count} items unavailable"
+        product_not_available: "Product is no longer available"
+        out_of_stock: "Out of stock"
+        cart_limit_reached: "Cannot add more items (cart limit reached or insufficient stock)"
+      errors:
+        something_went_wrong: "Something went wrong"
+        reorder_failed: "Something went wrong while reordering"
+        no_items_added: "No items could be added to your cart"
+        processing_error: "Something went wrong while processing your reorder"
+        could_not_add_items: "Could not add items: %{reasons}"
+        unable_to_add_items: "Unable to add any items to cart"
+  cart:
+    title: "Shopping Cart"
+    units:
+      one: "%{count} unit"
+      other: "%{count} units"
+    empty:
+      title: "Your cart is empty"
+      description: "Add some products to get started"
+      continue_shopping: "Continue Shopping"
+    order_summary:
+      title: "Order amount"
+      cost_of_products: "Cost of products"
+      total: "Total"
+    checkout: "Checkout"
+    clear_all:
+      tooltip: "Clear all items"
+      aria_label: "Clear all items"
+      icon_label: "Trash icon"
   cart_items:
     messages:
       added_successfully: "Added to cart successfully!"
@@ -152,6 +192,139 @@ en:
       not_found: "Cart item not found"
       update_failed: "Unable to update cart item"
       cart_unavailable: "Unable to access cart"
+  order:
+    timeline:
+      unfulfilled_title: "Order Confirmed"
+      unfulfilled_description: "We've received your order"
+      cancelled_title: "Order Cancelled"
+      cancelled_description: "Order was cancelled"
+      processing_title: "Processing"
+      processing_description: "Preparing your beauty essentials"
+      packed_title: "Packed"
+      packed_description: "Ready for dispatch"
+      dispatched_title: "Dispatched"
+      dispatched_description: "On its way to you"
+      delivered_title: "Delivered"
+      delivered_description: "Enjoy your new beauty products!"
+      picked_up_title: "Picked Up"
+      picked_up_description: "Enjoy your new beauty products!"
+    contact:
+      title: "Contact & Delivery Details"
+      email: "Email"
+      phone: "Phone"
+      delivery_method: "Delivery Method"
+      delivery_address: "Delivery Address"
+      delivery_notes: "Delivery Notes"
+      delivery_methods:
+        courier: "Courier Delivery"
+        pickup: "Store Pickup"
+  order_confirmation:
+    hero:
+      thank_you: "Thank you for your purchase. Your order has been successfully placed."
+      order_number_prefix: "Order #"
+      copy_order_number: "Copy order number"
+      copy_order_number_aria: "Copy order number to clipboard"
+      placed_on: "Placed on"
+      share_title: "My Beauty Store Order"
+      share_text: "Check out my order from Beauty Store!"
+    sections:
+      payment_information: "Payment Information"
+      whats_next: "What's Next?"
+      order_items: "Order Items"
+      quick_actions: "Quick Actions"
+      need_help: "Need Help?"
+    payment:
+      payment_method: "Payment Method"
+      cash_on_delivery: "Cash on Delivery"
+      cash_on_pickup: "Cash on Pickup"
+      pending: "Pending"
+      amount_due: "Amount due:"
+    whats_next:
+      confirmation_call: "We'll call you at %{phone} to confirm your order"
+      order_preparation: "Your order will be prepared within 1-2 hours"
+      courier_contact: "Our courier will contact you to arrange delivery"
+      payment_due_delivery: "Payment due upon delivery: %{amount} cash"
+      pickup_notification: "We'll notify you when your order is ready for pickup"
+      payment_due_pickup: "Bring this confirmation and payment: %{amount} cash"
+      email_updates: "You'll receive email updates about your order status"
+    order_summary:
+      subtotal: "Subtotal"
+      shipping: "Shipping"
+      free_shipping: "Free"
+      total: "Total"
+    actions:
+      reorder: "Reorder These Items"
+      reorder_aria: "Reorder these items"
+      continue_shopping: "Continue Shopping"
+      continue_shopping_aria: "Continue shopping for more beauty products"
+      print_receipt: "Print Receipt"
+      print_receipt_aria: "Print order receipt"
+      share_order: "Share Order"
+      share_order_aria: "Share order or copy link"
+    support:
+      title: "Need Help?"
+      description: "Our customer support team is here to help with any questions about your order."
+      call_label: "Call %{phone}"
+      call_aria: "Call customer support at %{phone}"
+      email_label: "Email Support"
+      email_aria: "Email customer support at %{email}"
+  services:
+    errors:
+      validation_failed: "Validation failed. Please check your input and try again."
+      record_not_found: "The requested record was not found."
+      param_required: "Required parameter is missing: %{params}"
+      params_required: "Required parameters are missing: %{params}"
+      cart_required: "Cart is required"
+      cart_empty: "Cart is empty"
+      customer_info_required: "Customer information is required"
+      product_variant_required: "Product variant is required"
+      checkout_form_required: "Checkout form is required"
+      order_creation_failed: "We couldn't create your order. Please check your information and try again."
+      cart_item_add_failed: "We couldn't add this item to your cart. Please try again."
+      something_went_wrong: "Something went wrong. Please try again."
+    quantity:
+      must_be_positive: "Quantity must be greater than 0"
+      exceeds_maximum: "Quantity cannot exceed %{max}"
+      out_of_stock: "%{product_name} - %{variant_name} is out of stock"
+      cannot_add_more: "Cannot add more items. Maximum quantity is %{max}"
+      no_more_available: "No more items available for %{product_name} - %{variant_name}"
+      only_more_available: "Only %{available} more items can be added for %{product_name} - %{variant_name}"
+      cannot_be_negative: "Quantity cannot be negative"
+      only_available: "Only %{available} items available"
+    cart_item:
+      invalid_action: "Invalid action type"
+      update_failed: "We couldn't update your cart item. Please try again."
+      remove_failed: "We couldn't remove your cart item. Please try again."
+  errors:
+    something_went_wrong: "Something went wrong. Please try again."
+  validation:
+    errors:
+      field_required: "This field is required"
+      first_name_required: "First name is required"
+      last_name_required: "Last name is required"
+      email_required: "Email is required"
+      email_invalid: "Please enter a valid email address"
+      phone_required: "Phone number is required"
+      phone_invalid: "Please enter a valid phone number"
+      phone_lebanon_invalid: "must be a valid Lebanon phone number"
+      password_required: "Password is required"
+      password_too_short: "Password must be at least 8 characters"
+      password_confirmation_required: "Password confirmation is required"
+      passwords_dont_match: "Passwords do not match"
+      address_required: "Address is required"
+      address_too_short: "Address must be at least 5 characters"
+      delivery_date_required: "Please select a delivery date and time"
+      validation_error: "Validation error"
+  services:
+    errors:
+      cart_required: "Cart is required"
+      cart_empty: "Cart is empty"
+      customer_info_required: "Customer information is required"
+      product_variant_required: "Product variant is required"
+      checkout_form_required: "Checkout form is required"
+      order_creation_failed: "We couldn't create your order. Please check your information and try again."
+      cart_item_add_failed: "We couldn't add this item to your cart. Please try again."
+      something_went_wrong: "Something went wrong. Please try again."
   javascript:
     auth_form:
       email_required: "Email is required."

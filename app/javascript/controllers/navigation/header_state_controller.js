@@ -11,6 +11,12 @@ export default class extends Controller {
     this.isScrolled = false
     this.isHovered = false
 
+    // Ensure DOM elements exist before proceeding
+    if (!this.headerTarget || !this.navTarget) {
+      console.warn('HeaderStateController: Required targets not found')
+      return
+    }
+
     this.setupHoverEffects()
     this.setupScrollListener()
     this.initializeHeaderState()
@@ -77,7 +83,16 @@ export default class extends Controller {
   }
 
   initializeHeaderState() {
+    // Set initial scroll state based on current scroll position
+    this.isScrolled = window.scrollY > 10
+
+    // Update header state immediately with proper initial values
     this.updateHeaderState()
+
+    // Force a state update after a short delay to ensure CSS has loaded
+    setTimeout(() => {
+      this.updateHeaderState()
+    }, 100)
   }
 
   updateHeaderState() {
@@ -112,15 +127,30 @@ export default class extends Controller {
   }
 
   setHeaderState(state) {
+    if (!state) {
+      console.warn('HeaderStateController: Invalid state provided')
+      return
+    }
+
     if (this.headerTarget) {
       this.headerTarget.dataset.headerState = state
     }
     if (this.navTarget) {
       this.navTarget.dataset.headerState = state
     }
+
+    // Debug logging for development
+    if (this.debug) {
+      console.log(`HeaderStateController: Set header state to "${state}"`)
+    }
   }
 
   setHeaderContext(context) {
+    if (!context) {
+      console.warn('HeaderStateController: Invalid context provided')
+      return
+    }
+
     if (this.headerTarget) {
       this.headerTarget.dataset.headerContext = context
     }
@@ -128,14 +158,21 @@ export default class extends Controller {
       this.navTarget.dataset.headerContext = context
     }
 
+    // Handle brand image context with proper error handling
     if (context === 'brand-image' && this.bannerUrlValue) {
-      if (this.headerTarget) {
-        this.headerTarget.style.setProperty('--header-banner-url', `url('${this.bannerUrlValue}')`)
-      }
-      if (this.navTarget) {
-        this.navTarget.style.setProperty('--header-banner-url', `url('${this.bannerUrlValue}')`)
+      try {
+        const bannerUrl = `url('${this.bannerUrlValue}')`
+        if (this.headerTarget) {
+          this.headerTarget.style.setProperty('--header-banner-url', bannerUrl)
+        }
+        if (this.navTarget) {
+          this.navTarget.style.setProperty('--header-banner-url', bannerUrl)
+        }
+      } catch (error) {
+        console.warn('HeaderStateController: Error setting banner URL', error)
       }
     } else {
+      // Clean up banner URL property when not needed
       if (this.headerTarget) {
         this.headerTarget.style.removeProperty('--header-banner-url')
       }
@@ -143,5 +180,15 @@ export default class extends Controller {
         this.navTarget.style.removeProperty('--header-banner-url')
       }
     }
+
+    // Debug logging for development
+    if (this.debug) {
+      console.log(`HeaderStateController: Set header context to "${context}"`)
+    }
+  }
+
+  // Enable debug mode by adding data-debug="true" to the controller element
+  get debug() {
+    return this.element.dataset.debug === 'true'
   }
 }

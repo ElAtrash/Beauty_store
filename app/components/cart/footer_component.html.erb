@@ -1,0 +1,28 @@
+<div class="<%= container_classes %>">
+  <div class="<%= order_summary_classes %>">
+    <h3 class="<%= order_title_classes %>">
+      <%= I18n.t("cart.order_summary.title", default: "Order amount") %>
+    </h3>
+    <div class="<%= cost_row_classes %>">
+      <span class="<%= cost_label_classes %>">
+        <%= I18n.t("cart.order_summary.cost_of_products", default: "Cost of products") %>
+      </span>
+      <div class="<%= dotted_line_classes %>"></div>
+      <span class="<%= cost_value_classes %>"><%= total_price %></span>
+    </div>
+    <div class="<%= total_row_classes %>">
+      <span class="<%= total_label_classes %>">
+        <%= I18n.t("cart.order_summary.total", default: "Total") %>
+      </span>
+      <span class="<%= total_value_classes %>"><%= total_price %></span>
+    </div>
+  </div>
+  <%= link_to new_checkout_path,
+      class: checkout_button_classes,
+      data: checkout_data_attributes do %>
+    <span class="<%= checkout_content_classes %>">
+      <%= I18n.t("cart.checkout", default: "Checkout") %>
+      <%= render UI::IconComponent.new(name: :shopping_cart, css_class: "w-4 h-4") %>
+    </span>
+  <% end %>
+</div>

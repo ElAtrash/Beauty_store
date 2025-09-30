@@ -1,0 +1,11 @@
+<%= turbo_stream.update "delivery-summary" do %>
+  <%= render Checkout::DeliverySummaryComponent.new(
+    delivery_method: @delivery_method,
+    address_data: {
+      address_line_1: @checkout_form.address_line_1,
+      address_line_2: @checkout_form.address_line_2,
+      landmarks: @checkout_form.landmarks
+    },
+    city: @checkout_form.city || StoreConfigurationService.city
+  ) %>
+<% end %>

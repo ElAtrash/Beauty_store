@@ -13,6 +13,11 @@
                   data-action="click->filters--filter#openFilters">
             <%= render UI::IconComponent.new(name: :adjustments_horizontal, css_class: "w-5 h-5") %>
             Filters
+            <% if @filter_form.active_filter_count > 0 %>
+              <span class="ml-1 px-2 py-0.5 text-xs font-medium bg-interactive-primary text-white rounded-full">
+                <%= @filter_form.active_filter_count %>
+              </span>
+            <% end %>
           </button>
           <div class="relative" data-controller="sort-dropdown">
             <button type="button"
@@ -46,7 +51,7 @@
         </div>
       </div>
     </div>
-    <%= render Filters::FilterComponent.new(
+    <%= render Modal::FilterComponent.new(
           filter_form: @filter_form,
           products: @filter_products,
           unfiltered_products: @unfiltered_products,

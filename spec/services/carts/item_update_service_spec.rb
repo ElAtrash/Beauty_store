@@ -10,8 +10,6 @@ RSpec.describe Carts::ItemUpdateService do
     allow(Rails.logger).to receive(:error)
   end
 
-
-
   describe ".set_quantity" do
     subject(:result) { described_class.set_quantity(cart_item, new_quantity) }
 
@@ -169,7 +167,7 @@ RSpec.describe Carts::ItemUpdateService do
       it "returns failure with invalid action type error" do
         aggregate_failures do
           expect(result).to be_failure
-          expect(result.errors).to include("Invalid action type")
+          expect(result.errors).to include(I18n.t("services.cart_item.invalid_action"))
           expect(result.cart).to eq(cart)
         end
       end
@@ -187,7 +185,7 @@ RSpec.describe Carts::ItemUpdateService do
       it "returns failure with invalid action type error" do
         aggregate_failures do
           expect(result).to be_failure
-          expect(result.errors).to include("Invalid action type")
+          expect(result.errors).to include(I18n.t("services.cart_item.invalid_action"))
           expect(result.cart).to eq(cart)
         end
       end
@@ -211,7 +209,7 @@ RSpec.describe Carts::ItemUpdateService do
       it "returns failure with user-friendly error and logs the validation error" do
         aggregate_failures do
           result = described_class.call(cart_item, params: { quantity_action: "increment" })
-          expect(result.errors).to include("We couldn't update your cart item. Please try again.")
+          expect(result.errors).to include(I18n.t("services.cart_item.update_failed"))
           expect(Rails.logger).to have_received(:error).with(/Carts::ItemUpdateService validation error/)
         end
       end
@@ -288,7 +286,7 @@ RSpec.describe Carts::ItemUpdateService do
         )
 
         result = described_class.call(cart_item, params: { quantity_action: "increment" })
-        expect(result.errors).to include("We couldn't update your cart item. Please try again.")
+        expect(result.errors).to include(I18n.t("services.cart_item.update_failed"))
       end
 
       it "includes operation type in error message for remove operations" do
@@ -296,7 +294,7 @@ RSpec.describe Carts::ItemUpdateService do
         allow_any_instance_of(CartItem).to receive(:destroy!).and_raise(ActiveRecord::RecordInvalid.new(cart_item_to_remove))
 
         result = described_class.call(cart_item_to_remove, params: { quantity_action: "decrement" })
-        expect(result.errors).to include("We couldn't remove your cart item. Please try again.")
+        expect(result.errors).to include(I18n.t("services.cart_item.remove_failed"))
       end
     end
   end

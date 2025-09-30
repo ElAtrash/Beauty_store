@@ -44,8 +44,10 @@ RSpec.describe User, type: :model do
 
     describe '.active' do
       it 'returns only active users' do
-        expect(User.active).to include(active_user)
-        expect(User.active).not_to include(inactive_user)
+        aggregate_failures do
+          expect(User.active).to include(active_user)
+          expect(User.active).not_to include(inactive_user)
+        end
       end
     end
   end
@@ -192,6 +194,8 @@ end
 ## Testing Principles
 
 - **Good tests are documentation**: They should clearly show what the code is supposed to do
+- don't add require 'rails_helper' at the top of files
+- use aggregate_failures for multiple related expectations
 - Test all public methods and business logic
 - Avoid testing Rails framework itself
 - Use factories over fixtures for flexibility

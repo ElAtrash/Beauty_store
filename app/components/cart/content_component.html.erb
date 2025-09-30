@@ -1,0 +1,31 @@
+<% if empty_cart? %>
+  <!-- Empty Cart State -->
+  <div class="<%= empty_container_classes %>">
+    <div class="<%= empty_icon_container_classes %>">
+      <%= render UI::IconComponent.new(
+        name: :shopping_cart,
+        css_class: "icon-interactive w-10 h-10"
+      ) %>
+    </div>
+    <h3 class="<%= empty_title_classes %>">
+      <%= I18n.t("cart.empty.title", default: "Your cart is empty") %>
+    </h3>
+    <p class="<%= empty_description_classes %>">
+      <%= I18n.t("cart.empty.description", default: "Add some products to get started") %>
+    </p>
+    <button type="button"
+            class="<%= empty_button_classes %>"
+            <%= tag.attributes(data: empty_button_data_attributes) %>>
+      <%= I18n.t("cart.empty.continue_shopping", default: "Continue Shopping") %>
+    </button>
+    </div>
+  <% else %>
+    <!-- Cart Items List -->
+    <div class="<%= items_container_classes %>">
+      <% cart_items.each_with_index do |item, index| %>
+        <div id="cart-item-<%= item.id %>" class="<%= item_wrapper_classes(index == cart_items.size - 1) %>">
+          <%= render Cart::ItemComponent.new(cart_item: item) %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>

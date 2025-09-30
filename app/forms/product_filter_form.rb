@@ -98,6 +98,25 @@ class ProductFilterForm
     available_filter_types.include?(filter_type.to_sym)
   end
 
+  def active_filter_count
+    count = 0
+
+    # Count in_stock filter
+    count += 1 if in_stock
+
+    # Count price range filter
+    count += 1 if price_range_applied?
+
+    # Count array filters
+    count += 1 unless brands.reject(&:blank?).empty?
+    count += 1 unless product_types.reject(&:blank?).empty?
+    count += 1 unless skin_types.reject(&:blank?).empty?
+    count += 1 unless colors.reject(&:blank?).empty?
+    count += 1 unless sizes.reject(&:blank?).empty?
+
+    count
+  end
+
   private
 
   def build_price_range_params

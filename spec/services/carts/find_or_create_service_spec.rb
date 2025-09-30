@@ -18,8 +18,9 @@ RSpec.describe Carts::FindOrCreateService do
 
       it "returns the existing user cart" do
         aggregate_failures do
-          expect(result).to eq(existing_user_cart)
-          expect(result.user).to eq(user)
+          expect(result).to be_success
+          expect(result.resource).to eq(existing_user_cart)
+          expect(result.resource.user).to eq(user)
         end
       end
 
@@ -60,7 +61,10 @@ RSpec.describe Carts::FindOrCreateService do
         end
 
         it "returns the merged cart" do
-          expect(result).to eq(existing_user_cart)
+          aggregate_failures do
+            expect(result).to be_success
+            expect(result.resource).to eq(existing_user_cart)
+          end
         end
       end
     end
@@ -71,14 +75,15 @@ RSpec.describe Carts::FindOrCreateService do
 
       it "returns the existing guest cart" do
         aggregate_failures do
-          expect(result).to eq(guest_cart)
-          expect(result.user).to be_nil
-          expect(result.session_token).to eq(cart_token)
+          expect(result).to be_success
+          expect(result.resource).to eq(guest_cart)
+          expect(result.resource.user).to be_nil
+          expect(result.resource.session_token).to eq(cart_token)
         end
       end
 
       it "updates session with cart token" do
-        result
+        cart_result = result
         expect(session[:cart_token]).to eq(guest_cart.session_token)
       end
     end
@@ -89,20 +94,21 @@ RSpec.describe Carts::FindOrCreateService do
 
       it "creates a new cart for the user" do
         aggregate_failures do
-          expect(result).to be_a(Cart)
-          expect(result.user).to eq(user)
-          expect(result).to be_persisted
+          expect(result).to be_success
+          expect(result.resource).to be_a(Cart)
+          expect(result.resource.user).to eq(user)
+          expect(result.resource).to be_persisted
         end
       end
 
       it "updates session with new cart token" do
-        result
-        expect(session[:cart_token]).to eq(result.session_token)
+        cart_result = result
+        expect(session[:cart_token]).to eq(cart_result.resource.session_token)
       end
 
       it "creates cart with generated session token" do
-        expect(result.session_token).to be_present
-        expect(result.session_token.length).to eq(32)
+        expect(result.resource.session_token).to be_present
+        expect(result.resource.session_token.length).to eq(32)
       end
     end
 
@@ -112,9 +118,10 @@ RSpec.describe Carts::FindOrCreateService do
 
       it "creates a new guest cart" do
         aggregate_failures do
-          expect(result).to be_a(Cart)
-          expect(result.user).to be_nil
-          expect(result).to be_persisted
+          expect(result).to be_success
+          expect(result.resource).to be_a(Cart)
+          expect(result.resource.user).to be_nil
+          expect(result.resource).to be_persisted
         end
       end
     end
@@ -125,7 +132,10 @@ RSpec.describe Carts::FindOrCreateService do
       let!(:existing_cart) { create(:cart, user: user) }
 
       it "does not attempt to update session" do
-        expect(result).to eq(existing_cart)
+        aggregate_failures do
+          expect(result).to be_success
+          expect(result.resource).to eq(existing_cart)
+        end
       end
     end
 
@@ -152,7 +162,10 @@ RSpec.describe Carts::FindOrCreateService do
       end
 
       it "returns the original user cart when merge fails" do
-        expect(result).to eq(existing_user_cart)
+        aggregate_failures do
+          expect(result).to be_success
+          expect(result.resource).to eq(existing_user_cart)
+        end
       end
     end
 
@@ -179,10 +192,11 @@ RSpec.describe Carts::FindOrCreateService do
 
         it "returns the guest cart instead of other user's cart" do
           aggregate_failures do
-            expect(result).not_to eq(other_user_cart)
-            expect(result).to eq(guest_cart)
-            expect(result.user).to be_nil
-            expect(result.session_token).to eq(cart_token)
+            expect(result).to be_success
+            expect(result.resource).not_to eq(other_user_cart)
+            expect(result.resource).to eq(guest_cart)
+            expect(result.resource.user).to be_nil
+            expect(result.resource.session_token).to eq(cart_token)
           end
         end
       end
@@ -220,7 +234,10 @@ RSpec.describe Carts::FindOrCreateService do
 
         it "prioritizes user cart over guest cart" do
           result = service.call
-          expect(result).to eq(user_cart)
+          aggregate_failures do
+            expect(result).to be_success
+            expect(result.resource).to eq(user_cart)
+          end
         end
       end
 
@@ -229,9 +246,12 @@ RSpec.describe Carts::FindOrCreateService do
 
         it "does not find abandoned carts" do
           result = service.call
-          expect(result).not_to eq(abandoned_cart)
-          expect(result.user).to eq(user)
-          expect(result).to be_persisted
+          aggregate_failures do
+            expect(result).to be_success
+            expect(result.resource).not_to eq(abandoned_cart)
+            expect(result.resource.user).to eq(user)
+            expect(result.resource).to be_persisted
+          end
         end
       end
     end

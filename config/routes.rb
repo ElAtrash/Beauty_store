@@ -35,9 +35,6 @@ Rails.application.routes.draw do
     end
   end
   resources :cart_items, only: [ :create, :update, :destroy ], path: "cart/items" do
-    member do
-      patch :update_quantity
-    end
     collection do
       delete :clear_all
     end
@@ -46,8 +43,11 @@ Rails.application.routes.draw do
   # Checkout routes
   get "checkout", to: "checkout#new", as: :new_checkout
   post "checkout", to: "checkout#create", as: :checkout
+  patch "checkout", to: "checkout#update", as: :update_checkout
   get "checkout/:id", to: "checkout#show", as: :checkout_confirmation
+  post "checkout/:id/reorder", to: "checkout#reorder", as: :reorder_order
   post "checkout/delivery_schedule", to: "checkout#delivery_schedule", as: :checkout_delivery_schedule
+  post "checkout/delivery_summary", to: "checkout#delivery_summary", as: :checkout_delivery_summary
 
   # Authentication routes
   resource :session

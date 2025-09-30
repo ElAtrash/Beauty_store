@@ -32,13 +32,7 @@ class Cart < ApplicationRecord
   end
 
   def formatted_total
-    total_price&.format || "$0.00"
-  end
-
-  def display_quantity_text
-    return "" if empty?
-    count = total_quantity
-    "/ #{count} unit#{count != 1 ? 's' : ''}"
+    total_price&.format || Money.new(0, "USD").format
   end
 
   def mark_as_abandoned!
@@ -63,18 +57,5 @@ class Cart < ApplicationRecord
         raise ActiveRecord::RecordInvalid.new(self), "Unable to generate unique session token after #{max_attempts} attempts"
       end
     end
-  end
-
-  def find_or_update_cart_item(product_variant, quantity)
-    cart_item = cart_items.find_or_initialize_by(product_variant: product_variant)
-
-    if cart_item.persisted?
-      cart_item.increment!(:quantity, quantity)
-    else
-      cart_item.quantity = quantity
-      cart_item.save!
-    end
-
-    cart_item
   end
 end

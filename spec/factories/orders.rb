@@ -5,10 +5,10 @@ FactoryBot.define do
     phone_number { "+961 70 123 456" }
     delivery_method { "courier" }
     delivery_date { Date.tomorrow }
-    delivery_time_slot { "9:00 AM - 12:00 PM" }
+    delivery_time_slot { "09:00-12:00" }
     status { "pending" }
     payment_status { "pending" }
-    fulfillment_status { nil }
+    fulfillment_status { "unfulfilled" }
     subtotal { Money.new(10000) }
     tax_total { Money.new(800) }
     shipping_total { Money.new(500) }

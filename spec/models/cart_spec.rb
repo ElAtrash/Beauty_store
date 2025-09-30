@@ -119,33 +119,6 @@ RSpec.describe Cart, type: :model do
       end
     end
 
-    describe '#display_quantity_text' do
-      context 'when cart is empty' do
-        it 'returns empty string' do
-          expect(cart.display_quantity_text).to eq('')
-        end
-      end
-
-      context 'with single item' do
-        let!(:cart) { create(:cart) }
-        let!(:item) { create(:cart_item, cart: cart, quantity: 1) }
-
-        it 'returns singular unit text' do
-          expect(cart.display_quantity_text).to eq('/ 1 unit')
-        end
-      end
-
-      context 'with multiple items' do
-        let!(:cart) { create(:cart) }
-        let!(:item1) { create(:cart_item, cart: cart, quantity: 2) }
-        let!(:item2) { create(:cart_item, cart: cart, quantity: 3) }
-
-        it 'returns plural units text' do
-          expect(cart.display_quantity_text).to eq('/ 5 units')
-        end
-      end
-    end
-
     describe '#mark_as_abandoned!' do
       let!(:cart) { create(:cart, abandoned_at: nil) }
 

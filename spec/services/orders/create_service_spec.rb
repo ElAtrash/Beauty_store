@@ -14,7 +14,7 @@ RSpec.describe Orders::CreateService do
       payment_method: "cod",
       delivery_notes: "Ring doorbell twice",
       delivery_date: Date.tomorrow,
-      delivery_time_slot: "9:00 AM - 12:00 PM",
+      delivery_time_slot: "09:00-12:00",
       address_line_1: "123 Main Street",
       address_line_2: "Apt 4B",
       city: "Beirut",
@@ -48,7 +48,7 @@ RSpec.describe Orders::CreateService do
           expect(order.fulfillment_status).to eq("unfulfilled")
           expect(order.delivery_notes).to eq("Ring doorbell twice")
           expect(order.delivery_date).to eq(Date.tomorrow)
-          expect(order.delivery_time_slot).to eq("9:00 AM - 12:00 PM")
+          expect(order.delivery_time_slot).to eq("09:00-12:00")
         end
       end
 

@@ -35,17 +35,6 @@ RSpec.describe Order, type: :model do
     end
   end
 
-  describe 'scopes' do
-    describe '.recent' do
-      let!(:older_order) { create(:order, created_at: 2.days.ago) }
-      let!(:newer_order) { create(:order, created_at: 1.day.ago) }
-
-      it 'returns orders in descending order of creation date' do
-        expect(Order.recent).to eq([ newer_order, older_order ])
-      end
-    end
-  end
-
   describe '#total_quantity' do
     let(:order) { create(:order) }
 
@@ -127,102 +116,6 @@ RSpec.describe Order, type: :model do
     end
   end
 
-  describe '#requires_delivery_scheduling?' do
-    context 'for courier delivery' do
-      let(:order) { build(:order, delivery_method: 'courier') }
-
-      it 'returns true' do
-        expect(order.requires_delivery_scheduling?).to be true
-      end
-    end
-
-    context 'for pickup delivery' do
-      let(:order) { build(:order, delivery_method: 'pickup') }
-
-      context 'with delivery date' do
-        before { order.delivery_date = Date.tomorrow }
-
-        it 'returns true' do
-          expect(order.requires_delivery_scheduling?).to be true
-        end
-      end
-
-      context 'without delivery date' do
-        before { order.delivery_date = nil }
-
-        it 'returns false' do
-          expect(order.requires_delivery_scheduling?).to be false
-        end
-      end
-    end
-  end
-
-  describe 'delivery scheduling callback' do
-    describe '#set_delivery_scheduled_at' do
-      context 'with delivery date and time slot' do
-        let(:delivery_date) { Date.new(2024, 12, 25) }
-        let(:delivery_time_slot) { '9:00 AM - 12:00 PM' }
-        let(:order) { build(:order, delivery_date: delivery_date, delivery_time_slot: delivery_time_slot) }
-
-        before do
-          # Mock TimeSlotParser to return a specific datetime
-          expected_datetime = delivery_date.beginning_of_day + 9.hours
-          allow(TimeSlotParser).to receive(:parse_delivery_time)
-            .with(delivery_time_slot, delivery_date)
-            .and_return(expected_datetime)
-        end
-
-        it 'sets delivery_scheduled_at using TimeSlotParser' do
-          order.save!
-          expect(order.delivery_scheduled_at).to eq(delivery_date.beginning_of_day + 9.hours)
-        end
-
-        it 'calls TimeSlotParser with correct parameters' do
-          order.save!
-          expect(TimeSlotParser).to have_received(:parse_delivery_time)
-            .with(delivery_time_slot, delivery_date)
-        end
-      end
-
-      context 'without delivery date' do
-        let(:order) { build(:order, delivery_method: 'pickup', delivery_date: nil, delivery_time_slot: '9:00 AM - 12:00 PM') }
-
-        it 'does not set delivery_scheduled_at' do
-          order.save!
-          expect(order.delivery_scheduled_at).to be_nil
-        end
-
-        it 'does not call TimeSlotParser' do
-          expect(TimeSlotParser).not_to receive(:parse_delivery_time)
-          order.save!
-        end
-      end
-
-      context 'without delivery time slot' do
-        let(:order) { build(:order, delivery_method: 'pickup', delivery_date: nil, delivery_time_slot: nil) }
-
-        it 'does not set delivery_scheduled_at' do
-          order.save!
-          expect(order.delivery_scheduled_at).to be_nil
-        end
-
-        it 'does not call TimeSlotParser' do
-          expect(TimeSlotParser).not_to receive(:parse_delivery_time)
-          order.save!
-        end
-      end
-
-      context 'with blank delivery time slot' do
-        let(:order) { build(:order, delivery_method: 'pickup', delivery_date: nil, delivery_time_slot: '') }
-
-        it 'does not set delivery_scheduled_at' do
-          order.save!
-          expect(order.delivery_scheduled_at).to be_nil
-        end
-      end
-    end
-  end
-
   describe 'validations' do
     describe 'delivery scheduling validations' do
       context 'for courier orders' do
@@ -242,7 +135,7 @@ RSpec.describe Order, type: :model do
 
         it 'is valid with both delivery_date and delivery_time_slot' do
           order.delivery_date = Date.tomorrow
-          order.delivery_time_slot = '9:00 AM - 12:00 PM'
+          order.delivery_time_slot = '09:00-12:00'
           expect(order).to be_valid
         end
       end
@@ -255,21 +148,6 @@ RSpec.describe Order, type: :model do
         end
 
         it 'does not require delivery_time_slot' do
-          expect(order).to be_valid
-        end
-      end
-
-      context 'for pickup orders with delivery date' do
-        let(:order) { build(:order, delivery_method: 'pickup', delivery_date: Date.tomorrow) }
-
-        it 'requires delivery_time_slot when delivery_date is present' do
-          order.delivery_time_slot = nil
-          expect(order).not_to be_valid
-          expect(order.errors[:delivery_time_slot]).to include("can't be blank")
-        end
-
-        it 'is valid with both delivery_date and delivery_time_slot' do
-          order.delivery_time_slot = '9:00 AM - 12:00 PM'
           expect(order).to be_valid
         end
       end

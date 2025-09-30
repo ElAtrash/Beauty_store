@@ -1,0 +1,23 @@
+<%= render Cart::ModalComponent.new(
+  title: cart_title,
+  item_count: cart_item_count,
+  cart_empty: empty_cart?,
+  total_cents: cart_total_cents,
+  currency: cart_currency
+) do |modal| %>
+  <% modal.with_body { render Cart::ContentComponent.new(cart_items: cart_items) } %>
+  <% unless empty_cart? %>
+    <% modal.with_header_action do %>
+      <%= link_to clear_all_cart_items_path, **clear_cart_button_options do %>
+        <%= render UI::IconComponent.new(
+          name: :trash,
+          css_class: "icon-interactive w-6 h-6",
+          aria_label: I18n.t("cart.clear_all.icon_label", default: "Trash icon")
+        ) %>
+      <% end %>
+    <% end %>
+    <% modal.with_footer {
+      render Cart::FooterComponent.new(total_price: cart&.formatted_total || Money.new(0, "USD").format)
+    } %>
+  <% end %>
+<% end %>

@@ -8,32 +8,29 @@
     <!-- Quantity Mode -->
     <div class="product-actions flex items-start gap-3" data-cart-state="quantity">
       <div class="flex-1">
-        <%= form_with model: cart_item,
-            url: update_quantity_cart_item_path(cart_item),
-            method: :patch,
-            data: {
-              turbo_frame: turbo_frame_id,
-              action: "submit->cart-actions#handleFormSubmit"
-            },
-            class: "cart-quantity-form" do |form| %>
-          <div class="add-to-cart-button w-full flex items-center px-0">
-            <button type="submit"
-                    class="aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent"
-                    name="quantity_action"
-                    value="decrement">
-              <%= render UI::IconComponent.new(name: :minus, css_class: "w-[var(--cart-button-icon-size)] h-[var(--cart-button-icon-size)]") %>
-            </button>
-            <span class="flex-1 text-center font-medium text-white">
-              <%= cart_item.quantity %>
-            </span>
-            <button type="submit"
-                    class="aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent"
-                    name="quantity_action"
-                    value="increment">
-              <%= render UI::IconComponent.new(name: :plus, css_class: "w-[var(--cart-button-icon-size)] h-[var(--cart-button-icon-size)]") %>
-            </button>
-          </div>
-        <% end %>
+        <div class="add-to-cart-button w-full flex items-center px-0">
+          <%= button_to cart_item_path(cart_item),
+              method: :patch,
+              params: { cart_item: { quantity: cart_item.quantity - 1 } },
+              class: "aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent px-3",
+              data: {
+                turbo_frame: turbo_frame_id
+              } do %>
+            <%= render UI::IconComponent.new(name: :minus, css_class: "w-[var(--cart-button-icon-size)] h-[var(--cart-button-icon-size)]") %>
+          <% end %>
+          <span class="flex-1 text-center font-medium text-white px-2">
+            <%= cart_item.quantity %>
+          </span>
+          <%= button_to cart_item_path(cart_item),
+              method: :patch,
+              params: { cart_item: { quantity: cart_item.quantity + 1 } },
+              class: "aspect-square h-full flex items-center justify-center text-white border-0 bg-transparent px-3",
+              data: {
+                turbo_frame: turbo_frame_id
+              } do %>
+            <%= render UI::IconComponent.new(name: :plus, css_class: "w-[var(--cart-button-icon-size)] h-[var(--cart-button-icon-size)]") %>
+          <% end %>
+        </div>
       </div>
       <!-- Wishlist -->
       <%= render "shared/wishlist_button" %>

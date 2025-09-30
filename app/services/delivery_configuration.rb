@@ -3,10 +3,10 @@
 module DeliveryConfiguration
   COURIER_CONFIG = {
     time_slots: [
-      "9:00 AM - 12:00 PM",
-      "12:00 PM - 3:00 PM",
-      "3:00 PM - 6:00 PM",
-      "6:00 PM - 9:00 PM"
+      "09:00-12:00",
+      "12:00-15:00",
+      "15:00-18:00",
+      "18:00-21:00"
     ].freeze,
     days_ahead: 0..4,
     same_day_enabled: false,
@@ -14,7 +14,7 @@ module DeliveryConfiguration
   }.freeze
 
   PICKUP_CONFIG = {
-    store_hours: "9:00 AM - 9:00 PM",
+    store_hours: "09:00-21:00",
     days_ahead: 0..2,
     same_day_enabled: true,
     base_date_offset: 0

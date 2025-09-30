@@ -1,0 +1,107 @@
+default: &default
+  store:
+    name: "Beauty Store"
+    contact:
+      phone: "+961 1 234 567"
+      email: "contact@beautystore.com"
+      support_phone: "+961 70 567 890"
+      support_email: "support@beautystore.com"
+    location:
+      address: "Hamra Street"
+      city: "Beirut"
+      country: "Lebanon"
+      coordinates: "33.8959, 35.4773"
+    business:
+      working_hours: "9:00 AM - 9:00 PM"
+      pickup_policy: "Hold for 3 days"
+      directions: "Located on the main street, next to ABC Bank. Look for the pink storefront with Beauty Store signage."
+      pickup_cost: "Free"
+      pickup_availability: "today"
+    social:
+      website: "https://beautystore.com"
+      instagram: "@beautystore_lb"
+      facebook: "BeautyStoreLB"
+  delivery_methods:
+    pickup:
+      label: "Pickup from store"
+      enabled: true
+    courier:
+      label: "Delivery by courier"
+      enabled: true
+  payment_methods:
+    cod:
+      label: "Cash on Delivery (COD)"
+      description: "Pay when your order is delivered"
+      enabled: true
+
+development:
+  <<: *default
+  store:
+    name: "Beauty Store (Dev)"
+    contact:
+      phone: "+961 1 234 567"
+      email: "dev@beautystore.com"
+    location:
+      address: "Hamra Street"
+      city: "Beirut"
+      country: "Lebanon"
+      coordinates: "33.8959, 35.4773"
+    business:
+      working_hours: "9:00 AM - 9:00 PM"
+      pickup_policy: "Hold for 3 days"
+      directions: "Located on the main street, next to ABC Bank. Look for the pink storefront with Beauty Store signage."
+      pickup_cost: "Free"
+      pickup_availability: "today"
+    social:
+      website: "https://beautystore.com"
+      instagram: "@beautystore_lb"
+      facebook: "BeautyStoreLB"
+
+test:
+  <<: *default
+  store:
+    name: "Test Beauty Store"
+    contact:
+      phone: "+961 1 000 000"
+      email: "test@beautystore.com"
+    location:
+      address: "Test Street"
+      city: "Beirut"
+      country: "Lebanon"
+      coordinates: "33.8959, 35.4773"
+    business:
+      working_hours: "9:00 AM - 9:00 PM"
+      pickup_policy: "Hold for 3 days"
+      directions: "Located on the main street, next to ABC Bank. Look for the pink storefront with Beauty Store signage."
+      pickup_cost: "Free"
+      pickup_availability: "today"
+    social:
+      website: "https://beautystore.com"
+      instagram: "@beautystore_lb"
+      facebook: "BeautyStoreLB"
+
+staging:
+  <<: *default
+  store:
+    name: "Beauty Store (Staging)"
+    contact:
+      phone: "+961 1 234 567"
+      email: "staging@beautystore.com"
+    location:
+      address: "Hamra Street"
+      city: "Beirut"
+      country: "Lebanon"
+      coordinates: "33.8959, 35.4773"
+    business:
+      working_hours: "9:00 AM - 9:00 PM"
+      pickup_policy: "Hold for 3 days"
+      directions: "Located on the main street, next to ABC Bank. Look for the pink storefront with Beauty Store signage."
+      pickup_cost: "Free"
+      pickup_availability: "today"
+    social:
+      website: "https://beautystore.com"
+      instagram: "@beautystore_lb"
+      facebook: "BeautyStoreLB"
+
+production:
+  <<: *default

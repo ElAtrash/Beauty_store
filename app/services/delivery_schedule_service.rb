@@ -25,6 +25,10 @@ class DeliveryScheduleService
     end
   end
 
+  def available_dates
+    available_options.map { |option| option[:date] }.uniq
+  end
+
   def option_selected?(date, time)
     return false unless selected_date && selected_time
 

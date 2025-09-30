@@ -5,8 +5,12 @@ class TimeSlotParser
     new(time_slot_string, date).parse
   end
 
-  def self.parse_delivery_time(time_slot_string, date)
+  def self.parse_delivery_datetime(time_slot_string, date)
     new(time_slot_string, date).parse_start_datetime
+  end
+
+  def self.parse_delivery_time(time_slot_string, date)
+    new(time_slot_string, date).format_delivery_time
   end
 
   def self.parse_datetime_range(time_slot_string, date)
@@ -15,6 +19,11 @@ class TimeSlotParser
 
   def self.valid?(time_slot_string)
     new(time_slot_string).valid?
+  end
+
+  def self.valid_delivery_time_slot?(time_slot_string)
+    allowed_slots = [ "09:00-12:00", "12:00-15:00", "15:00-18:00", "18:00-21:00" ]
+    allowed_slots.include?(time_slot_string)
   end
 
   def initialize(time_slot_string, date = nil)
@@ -54,6 +63,19 @@ class TimeSlotParser
       start_datetime: base_datetime + result[:start_time].seconds_since_midnight.seconds,
       end_datetime: base_datetime + result[:end_time].seconds_since_midnight.seconds
     }
+  end
+
+  def format_delivery_time
+    return nil unless @time_slot_string.present? && @date.present?
+
+    # Only allow specific 24-hour time slots
+    allowed_slots = [ "09:00-12:00", "12:00-15:00", "15:00-18:00", "18:00-21:00" ]
+    return nil unless allowed_slots.include?(@time_slot_string)
+
+    # Format date as "Sunday, Sep 28"
+    formatted_date = @date.strftime("%A, %b %d")
+
+    "#{formatted_date} - #{@time_slot_string}"
   end
 
   def valid?

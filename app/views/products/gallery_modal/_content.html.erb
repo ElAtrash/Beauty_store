@@ -1,0 +1,48 @@
+<!-- Product Page Style Thumbnails -->
+<div class="gallery-modal-sidebar" data-controller="products--gallery-thumbnails">
+  <% if gallery_images.size > 1 %>
+    <%= render "products/thumbnail_list",
+        images: gallery_images,
+        context: :modal,
+        product: product,
+        component: component,
+        show_arrows: component.show_thumbnail_arrows?,
+        container_height: component.thumbnail_container_height %>
+  <% end %>
+</div>
+
+<!-- Scrollable Images -->
+<div class="flex-1 overflow-y-auto relative">
+  <!-- Close Button -->
+  <button type="button"
+          class="absolute top-6 right-6 z-10"
+          data-action="click->products--gallery#closeZoom">
+    <%= render UI::IconComponent.new(name: :close, css_class: "icon-interactive w-8 h-8") %>
+  </button>
+
+  <!-- Images List -->
+  <div class="gallery-modal-content">
+    <% gallery_images.each_with_index do |image_data, index| %>
+      <div class="scroll-mt-32"
+           id="zoom-image-<%= index %>"
+           data-products--gallery-target="zoomImageCard">
+
+        <!-- Product Info -->
+        <% if index == 0 %>
+          <div class="mb-8 text-left">
+            <h1 class="text-3xl font-bold mb-2"><%= product.name %></h1>
+            <% if product.subtitle.present? %>
+              <p class="text-lg text-muted"><%= product.subtitle %></p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <img src="<%= component.image_url(image_data.attachment, size: :large) %>"
+             alt="<%= image_data.safe_alt %>"
+             class="w-full h-auto object-contain <%= 'opacity-50' unless image_data.attached? %>"
+             loading="lazy">
+      </div>
+    <% end %>
+    <div class="h-16"></div>
+  </div>
+</div>

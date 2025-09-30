@@ -1,0 +1,39 @@
+<div data-controller="delivery-summary" class="delivery-summary">
+  <!-- Pickup Point Display -->
+  <div class="<%= 'hidden' unless pickup_state? %>">
+    <%= render DeliveryCardComponent.new(
+      icon: :location,
+      title: store_info[:name],
+      subtitle: store_info[:address],
+      variant: :pickup,
+      action: {
+        text: "View pickup details →",
+        data_action: "click->delivery-summary#openPickupModal",
+        aria_label: "View pickup details"
+      }
+    ) %>
+  </div>
+  <!-- Address Summary Display -->
+  <div class="<%= 'hidden' unless address_state? %>">
+    <%= render DeliveryCardComponent.new(
+      icon: :location,
+      title: "Delivery Address",
+      subtitle: formatted_address,
+      variant: :address,
+      action: {
+        text: "Change",
+        data_action: "click->delivery-summary#openAddressModal",
+        aria_label: "Change delivery address"
+      }
+    ) %>
+  </div>
+  <!-- Set Address Button -->
+  <button type="button"
+          class="delivery-set-address-button <%= 'hidden' unless set_address_state? %>"
+          data-action="click->delivery-summary#openAddressModal">
+    <div class="flex items-center justify-center space-x-2">
+      <%= render UI::IconComponent.new(name: :location, css_class: "w-5 h-5") %>
+      <span class="font-medium">Set delivery address</span>
+    </div>
+  </button>
+</div>

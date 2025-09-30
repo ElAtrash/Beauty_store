@@ -1,0 +1,24 @@
+<div class="<%= container_classes %>" <% container_data_attributes.merge(validation_controller_data).each do |key, value| %>data-<%= key.to_s.dasherize %>="<%= value %>"<% end %>>
+  <div class="relative">
+    <%= form.label field_name, label_text, label_attributes %>
+    <%= required_indicator if required %>
+    <%= render_field_input %>
+  </div>
+  <!-- Error Messages Container -->
+  <div id="<%= field_id %>_error" class="form-error-message text-red-600 text-xs mt-1 <%= has_errors? ? 'flex items-center gap-1' : 'hidden' %>" role="alert">
+    <span><%= has_errors? ? errors.first : '' %></span>
+  </div>
+  <!-- Helper Text (optional, hidden when errors shown) -->
+  <% if options[:helper_text] && !has_errors? %>
+    <div id="<%= field_id %>_help" class="form-helper-text text-gray-500 text-sm mt-1">
+      <%= options[:helper_text] %>
+    </div>
+  <% end %>
+  <!-- Character Counter -->
+  <% if show_counter? %>
+    <div id="<%= field_id %>_counter" class="character-counter text-gray-400 text-sm mt-1 text-right"
+         data-character-counter-target="counter">
+      <span data-character-counter-target="current"><%= current_length %></span>/<%= max_length %>
+    </div>
+  <% end %>
+</div>

@@ -120,6 +120,59 @@ RSpec.describe DeliveryScheduleService do
     end
   end
 
+  describe '#available_dates' do
+    context 'with courier delivery' do
+      let(:delivery_method) { "courier" }
+
+      it 'returns unique dates from available options' do
+        dates = subject.available_dates
+
+        expect(dates).not_to be_empty
+        expect(dates).to all(be_a(Date))
+        expect(dates).to eq(dates.uniq) # Should be unique
+
+        # Should match dates from available_options
+        options_dates = subject.available_options.map { |opt| opt[:date] }.uniq
+        expect(dates).to match_array(options_dates)
+      end
+
+      it 'returns dates in chronological order' do
+        dates = subject.available_dates
+
+        expect(dates).to eq(dates.sort)
+      end
+    end
+
+    context 'with pickup delivery' do
+      let(:delivery_method) { "pickup" }
+
+      it 'returns unique dates from pickup options' do
+        dates = subject.available_dates
+
+        expect(dates).not_to be_empty
+        expect(dates).to all(be_a(Date))
+        expect(dates).to eq(dates.uniq)
+
+        # Should include today for pickup
+        expect(dates).to include(Date.current)
+      end
+    end
+
+    context 'with multiple time slots per day' do
+      let(:delivery_method) { "courier" }
+
+      it 'deduplicates dates when multiple time slots exist per day' do
+        # Courier has multiple time slots per day
+        options = subject.available_options
+        dates = subject.available_dates
+
+        # Should have fewer unique dates than total options
+        expect(dates.length).to be < options.length
+        expect(dates.length).to eq(options.map { |opt| opt[:date] }.uniq.length)
+      end
+    end
+  end
+
   describe '#option_selected?' do
     let(:test_date) { Date.tomorrow }
     let(:test_time) { "9:00 AM - 12:00 PM" }

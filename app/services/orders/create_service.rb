@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Orders::CreateService
+  include BaseService
+
   def self.call(**args)
     new(**args).call
   end
@@ -11,9 +13,10 @@ class Orders::CreateService
   end
 
   def call
-    return failure("Cart is required") unless cart
-    return failure("Cart is empty") if cart.cart_items.empty?
-    return failure("Customer information is required") unless customer_info
+    validate_required_params(cart: cart, customer_info: customer_info)
+    return last_result if last_result&.failure?
+
+    return failure(I18n.t("services.errors.cart_empty")) if cart.cart_items.empty?
 
     ActiveRecord::Base.transaction do
       order = create_order
@@ -23,12 +26,11 @@ class Orders::CreateService
       success(resource: order, order: order)
     end
   rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Orders::CreateService validation error: #{e.message}"
-    failure("We couldn't create your order. Please check your information and try again.")
+    log_error("validation error", e)
+    failure(I18n.t("services.errors.order_creation_failed"))
   rescue StandardError => e
-    Rails.logger.error "Orders::CreateService unexpected error: #{e.class} - #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    failure("Something went wrong. Please try again.")
+    log_error("unexpected error", e)
+    failure(I18n.t("services.errors.something_went_wrong"))
   end
 
   private
@@ -46,7 +48,6 @@ class Orders::CreateService
       delivery_date: customer_info[:delivery_date],
       delivery_time_slot: customer_info[:delivery_time_slot],
       payment_status: determine_payment_status,
-      fulfillment_status: "unfulfilled"
     )
   end
 
@@ -86,22 +87,5 @@ class Orders::CreateService
     else
       "payment_pending"
     end
-  end
-
-  def success(resource: nil, order: nil, **metadata)
-    BaseResult.new(
-      success: true,
-      resource: resource,
-      order: order,
-      **metadata
-    )
-  end
-
-  def failure(errors, **metadata)
-    BaseResult.new(
-      success: false,
-      errors: Array(errors),
-      **metadata
-    )
   end
 end

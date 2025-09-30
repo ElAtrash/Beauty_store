@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 class BaseResult
-  attr_reader :resource, :errors, :success, :metadata, :cart, :order
+  attr_reader :resource, :errors, :success, :metadata, :cart, :order, :error_type
 
-  def initialize(success:, resource: nil, errors: [], cart: nil, order: nil, **metadata)
+  def initialize(success:, resource: nil, errors: [], cart: nil, order: nil, error_type: nil, **metadata)
     @success = success
     @resource = resource
     @errors = Array(errors)
     @metadata = metadata
     @cart = cart
     @order = order
+    @error_type = error_type
   end
 
   def success?

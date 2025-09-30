@@ -3,7 +3,7 @@
   <div id="cart-badge" class="relative">
     <%= render UI::HeaderActionButtonComponent.new(
         icon: 'shopping_cart',
-        action: 'application#openCart',
+        action: 'navigation--header-actions#openCart',
         aria_label: I18n.t('header.actions.cart'),
         badge: cart&.total_quantity&.positive? ? cart.total_quantity : nil) %>
   </div>
@@ -12,15 +12,64 @@
   <div id="mobile-cart-badge" class="relative">
     <%= render UI::HeaderActionButtonComponent.new(
         icon: 'shopping_cart',
-        action: 'application#openCart',
+        action: 'navigation--header-actions#openCart',
         aria_label: I18n.t('header.actions.cart'),
         badge: cart&.total_quantity&.positive? ? cart.total_quantity : nil) %>
   </div>
 <% end %>
-<%= turbo_stream.replace "cart-popup-body" do %>
-  <div id="cart-popup-body" class="flex flex-col h-full">
-    <%= render Cart::PopupComponent.new(cart: cart) %>
+<!-- Update cart content with proper CSS classes preserved -->
+<%= turbo_stream.replace "cart-content" do %>
+  <div id="cart-content" class="flex-1 overflow-y-auto overflow-x-hidden px-8 sm:px-12 pt-4 pb-4">
+    <%= render Cart::ContentComponent.new(
+      cart_items: cart.present? ? cart.ordered_items : []
+    ) %>
   </div>
+<% end %>
+<%= turbo_stream.replace "cart-title" do %>
+  <h2 id="cart-title" class="text-lg font-semibold text-gray-900 truncate pr-4">
+    <% if cart.blank? || cart.empty? %>
+      <%= t("cart.title", default: "Shopping Cart") %>
+    <% else %>
+      <% total_units = cart.ordered_items.sum(&:quantity) %>
+      <%= I18n.t('cart.title') %> / <%= I18n.t('cart.units', count: total_units) %>
+    <% end %>
+  </h2>
+<% end %>
+<!-- Update header controls (actions + divider + close button) -->
+<%= turbo_stream.replace "cart-header-controls" do %>
+  <div id="cart-header-controls" class="flex items-center gap-3 shrink-0">
+    <% unless cart.blank? || cart.empty? %>
+      <div id="cart-header-actions" class="flex items-center gap-2">
+        <%= link_to clear_all_cart_items_path,
+                    class: "flex items-center justify-center w-8 h-8 p-0",
+                    title: I18n.t("cart.clear_all.tooltip", default: "Clear all items"),
+                    "aria-label": I18n.t("cart.clear_all.aria_label", default: "Clear all items"),
+                    data: {
+                      turbo_method: "delete",
+                      confirm: I18n.t("cart.clear_all.confirm", default: "Are you sure you want to clear your cart?")
+                    } do %>
+          <%= render UI::IconComponent.new(name: :trash, css_class: "icon-interactive w-6 h-6") %>
+        <% end %>
+      </div>
+      <!-- Divider -->
+      <div class="w-px h-5 bg-gray-300"></div>
+    <% end %>
+    <button type="button"
+            class="flex items-center justify-center w-8 h-8 p-0"
+            data-action="click->modal#close"
+      aria-label="Close">
+      <%= render UI::IconComponent.new(name: :close, css_class: "icon-interactive w-6 h-6") %>
+    </button>
+  </div>
+<% end %>
+<!-- Handle footer: remove if exists, then add if needed -->
+<%= turbo_stream.remove "cart-footer" %>
+<% unless cart.blank? || cart.empty? %>
+  <%= turbo_stream.after "cart-content" do %>
+    <div id="cart-footer" class="shrink-0 px-8 sm:px-12 pb-8">
+      <%= render Cart::FooterComponent.new(total_price: cart.formatted_total) %>
+    </div>
+  <% end %>
 <% end %>
 <!-- Product page controls (if variant provided) -->
 <% if defined?(variant) && variant.present? %>
@@ -40,6 +89,57 @@
     <% end %>
   <% end %>
 <% end %>
+<!-- Update specific item anywhere on the page (cart modal, checkout, etc.) -->
+<% if defined?(variant) && variant.present? %>
+  <% cart_item = cart&.cart_items&.find { |item| item.product_variant == variant } %>
+  <% if cart_item %>
+    <!-- Reload the cart item to get fresh data -->
+    <% fresh_cart_item = CartItem.find(cart_item.id) %>
+    <!-- Item still exists, update it -->
+    <%= turbo_stream.replace "cart-item-#{cart_item.id}" do %>
+      <div id="cart-item-<%= cart_item.id %>">
+        <%= render Cart::ItemComponent.new(cart_item: fresh_cart_item) %>
+      </div>
+    <% end %>
+  <% else %>
+    <!-- Item was removed, try to remove it from any context -->
+    <!-- Try to remove by searching for elements that might exist -->
+    <%= turbo_stream.remove "cart-item-#{variant.cart_items.first&.id}" if variant.cart_items.any? %>
+  <% end %>
+<% end %>
+<!-- Update checkout items if we're on checkout page -->
+<%= turbo_stream.replace "checkout-items" do %>
+  <div class="space-y-2 mb-6" id="checkout-items">
+    <% if cart.present? %>
+      <% cart.cart_items.order(:created_at).each do |item| %>
+        <div id="cart-item-<%= item.id %>">
+          <%= render Cart::ItemComponent.new(cart_item: item) %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+<!-- Update checkout totals if we're on checkout page -->
+<%= turbo_stream.replace "checkout-totals" do %>
+  <div class="border-t border-gray-200 pt-5 space-y-3" id="checkout-totals">
+    <% if cart.present? %>
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Subtotal (<%= cart.total_quantity %> items)</span>
+        <span class="text-text-primary font-semibold"><%= cart.formatted_total %></span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-text-secondary">Shipping</span>
+        <span class="text-text-muted">Free</span>
+      </div>
+      <div class="pt-3 -mx-6 px-6 py-4">
+        <div class="flex justify-between text-lg font-bold">
+          <span class="text-text-primary">Total</span>
+          <span class="text-interactive-primary"><%= cart.formatted_total %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 <!-- Rich notification with product details -->
 <% if defined?(notification) && notification.present? %>
   <%= turbo_stream.prepend "notifications" do %>
@@ -48,9 +148,9 @@
          data-auto-dismiss-delay-value="<%= notification[:delay] || 3000 %>">
       <% if notification[:cart_item] && notification[:type] == 'success' %>
         <!-- Rich cart notification -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
           <!-- Product image -->
-          <div class="w-12 h-12 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+          <div class="w-14 h-14 rounded overflow-hidden bg-gray-100 flex-shrink-0">
             <% if notification[:cart_item].product_variant.featured_image.attached? %>
               <%= image_tag notification[:cart_item].product_variant.featured_image,
                             alt: notification[:cart_item].product_variant.product.name,
@@ -63,14 +163,14 @@
           </div>
           <!-- Product details -->
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-sm flex items-center gap-1">
+            <div class="font-medium text-sm flex items-center gap-2">
               <%= render UI::IconComponent.new(name: :shopping_cart, css_class: "w-3 h-3") %>
               Added to cart!
             </div>
-            <div class="text-sm opacity-90 truncate">
+            <div class="text-sm opacity-90 truncate mt-1">
               <%= notification[:cart_item].product_variant.product.name %>
             </div>
-            <div class="text-xs opacity-80">
+            <div class="text-xs opacity-80 mt-0.5">
               <%= notification[:cart_item].quantity %> unit<%= notification[:cart_item].quantity != 1 ? 's' : '' %>
             </div>
           </div>
@@ -92,5 +192,27 @@
         </div>
       <% end %>
     </div>
+  <% end %>
+<% end %>
+<!-- Auto-open cart modal for reorder functionality -->
+<% if defined?(open_modal) && open_modal %>
+  <%= turbo_stream.append_all "body" do %>
+    <script>
+      // Open cart modal after cart has been updated
+      setTimeout(() => {
+        const cartModal = document.querySelector('#cart[data-controller~="modal"]');
+        if (cartModal && cartModal.modal) {
+          cartModal.modal.open();
+        } else if (cartModal) {
+          const application = window.Stimulus;
+          if (application) {
+            const controller = application.getControllerForElementAndIdentifier(cartModal, 'modal');
+            if (controller) {
+              controller.open();
+            }
+          }
+        }
+      }, 100);
+    </script>
   <% end %>
 <% end %>
