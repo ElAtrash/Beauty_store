@@ -83,6 +83,7 @@ RSpec.describe Carts::FindOrCreateService do
       end
 
       it "updates session with cart token" do
+        result
         expect(session[:cart_token]).to eq(guest_cart.session_token)
       end
     end

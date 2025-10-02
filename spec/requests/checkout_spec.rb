@@ -442,11 +442,25 @@ RSpec.describe "Checkout", type: :request do
     end
 
     context "with HTML request" do
-      it "responds to both HTML and turbo_stream formats" do
-        success_result = double(success?: true, cart: cart, metadata: { message: "Items added" })
-        allow(Orders::ReorderService).to receive(:call).and_return(success_result)
+      let(:headers) { { "Accept" => "text/html" } }
 
-        post reorder_order_path(order.number)
+      it "responds to both HTML and turbo_stream formats" do
+        success_result = BaseResult.new(
+          success: true,
+          cart: cart,
+          message: "Items added",
+          success_items: [],
+          failed_items: []
+        )
+        sync_result = BaseResult.new(
+          success: true,
+          cart: cart,
+          notification: { type: "success", message: "Items added", delay: 4000 }
+        )
+        allow(Orders::ReorderService).to receive(:call).and_return(success_result)
+        allow(Carts::SyncService).to receive(:call).and_return(sync_result)
+
+        post reorder_order_path(order.number), headers: headers
 
         aggregate_failures do
           expect(response).to redirect_to(checkout_confirmation_path(order.number))

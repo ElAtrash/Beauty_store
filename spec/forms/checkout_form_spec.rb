@@ -85,7 +85,7 @@ RSpec.describe CheckoutForm, type: :model do
         it { is_expected.not_to be_valid }
         it "has error message" do
           form.validate
-          expect(form.errors[:phone_number]).to include("must be a valid Lebanon phone number")
+          expect(form.errors[:phone_number]).to include("Phone number must be a valid Lebanon phone number")
         end
       end
 

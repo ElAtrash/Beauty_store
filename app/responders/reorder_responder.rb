@@ -74,11 +74,18 @@ class ReorderResponder
     return false unless @order
     return false if @controller.session[Checkout::FormStateService::CHECKOUT_FORM_DATA_KEY].present?
 
-    current_user = @controller.send(:Current).user
+    current_user = current_user_from_controller
     return true unless current_user
     return true unless current_user.customer_profile&.has_default_address? # No saved address - prefill
 
     false
+  end
+
+  def current_user_from_controller
+    # Try multiple approaches to get current user for maximum compatibility
+    return Current.user if defined?(Current) && Current.respond_to?(:user)
+    return @controller.current_user if @controller.respond_to?(:current_user, true)
+    nil
   end
 
   # Priority order for checkout prefill:
