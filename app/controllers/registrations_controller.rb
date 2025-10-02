@@ -10,6 +10,7 @@ class RegistrationsController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
+      Checkout::FormStateService.clear_from_session(session)
       handle_successful_authentication(@user, t("auth.errors.account_created"))
     else
       handle_registration_errors

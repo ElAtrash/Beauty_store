@@ -332,6 +332,7 @@ RSpec.describe CheckoutForm, type: :model do
           address_line_1: "123 Main Street",
           address_line_2: "Apt 4B",
           city: "Beirut",
+          governorate: "Beirut",
           landmarks: "Near ABC Bank",
           phone: "+96170123456"
         }
@@ -409,12 +410,12 @@ RSpec.describe CheckoutForm, type: :model do
       end
     end
 
-    describe "#valid_for_persistence?" do
+    describe "#has_partial_data?" do
       context "when only default fields are present" do
         let(:form) { described_class.new }
 
         it "returns true because delivery_method has default value" do
-          expect(form.valid_for_persistence?).to be true
+          expect(form.has_partial_data?).to be true
         end
       end
 
@@ -429,34 +430,34 @@ RSpec.describe CheckoutForm, type: :model do
         end
 
         it "returns false when no meaningful data is present" do
-          expect(form.valid_for_persistence?).to be false
+          expect(form.has_partial_data?).to be false
         end
       end
 
       context "when email is present" do
         let(:form) { described_class.new(email: "test@example.com") }
 
-        it { expect(form.valid_for_persistence?).to be true }
+        it { expect(form.has_partial_data?).to be true }
       end
 
       context "when first_name is present" do
         let(:form) { described_class.new(first_name: "John") }
 
-        it { expect(form.valid_for_persistence?).to be true }
+        it { expect(form.has_partial_data?).to be true }
       end
     end
 
-    describe "#valid_for_full_persistence?" do
+    describe "#has_complete_user_data?" do
       context "when all required fields are present" do
         let(:form) { described_class.new(email: "test@example.com", first_name: "John", last_name: "Doe") }
 
-        it { expect(form.valid_for_full_persistence?).to be true }
+        it { expect(form.has_complete_user_data?).to be true }
       end
 
       context "when required fields are missing" do
         let(:form) { described_class.new(email: "test@example.com", first_name: "John") }
 
-        it { expect(form.valid_for_full_persistence?).to be false }
+        it { expect(form.has_complete_user_data?).to be false }
       end
     end
   end

@@ -35,7 +35,7 @@ module ApplicationHelper
 
     validation_keys = [
       "field_required", "first_name_required", "last_name_required",
-      "email_required", "email_invalid", "phone_required", "phone_invalid",
+      "email_required", "email_invalid", "phone_required", "phone_invalid", "phone_lebanon_invalid",
       "password_required", "password_too_short", "password_confirmation_required",
       "passwords_dont_match", "address_required", "address_too_short",
       "delivery_date_required", "validation_error"

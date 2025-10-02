@@ -1,0 +1,59 @@
+<div class="mb-4">
+  <%= render delivery_card %>
+</div>
+
+<div data-address-modal-target="form" data-delivery-method="courier" class="space-y-4">
+  <%= render FormFieldComponent.new(
+    form: form,
+    field: :address_line_1,
+    required: true,
+    placeholder: t('checkout.form.placeholders.address_line_1'),
+    validation_rules: "courier_address",
+    options: { data: { "address-modal-target": "addressLine1" } }
+  ) %>
+
+  <%= render FormFieldComponent.new(
+    form: form,
+    field: :address_line_2,
+    placeholder: t('checkout.form.placeholders.address_line_2'),
+    options: { data: { "address-modal-target": "addressLine2" } }
+  ) %>
+
+  <%= render FormFieldComponent.new(
+    form: form,
+    field: :landmarks,
+    placeholder: t('checkout.form.placeholders.landmarks'),
+    options: { data: { "address-modal-target": "landmarks" } }
+  ) %>
+
+  <%= render FormFieldComponent.new(
+    form: form,
+    field: :delivery_notes,
+    type: :textarea,
+    placeholder: t('checkout.form.placeholders.delivery_notes'),
+    options: { maxlength: 100, rows: 3, show_counter: true }
+  ) %>
+</div>
+
+<% if show_save_checkbox %>
+  <div class="mt-6 pt-6">
+    <%= render FormFieldComponent.new(
+      form: form,
+      field: :save_address_as_default,
+      type: :checkbox,
+      options: {
+        label: t('checkout.form.address_modal.save_as_default'),
+        css_class: "flex items-start"
+      }
+    ) %>
+  </div>
+<% end %>
+
+<div class="mt-6 pt-6">
+  <%= render FormFieldComponent.new(
+    form: form,
+    field: :submit,
+    type: :submit,
+    options: submit_props
+  ) %>
+</div>

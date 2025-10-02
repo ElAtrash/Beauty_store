@@ -3,7 +3,7 @@
 class DeliveryCardComponent < ViewComponent::Base
   attr_reader :icon, :title, :subtitle, :variant, :action, :status, :css_class
 
-  def initialize(icon:, title:, subtitle:, variant: :default, action: nil, status: nil, css_class: nil)
+  def initialize(icon:, title:, subtitle: nil, variant: :default, action: nil, status: nil, css_class: nil)
     @icon = icon
     @title = title
     @subtitle = subtitle

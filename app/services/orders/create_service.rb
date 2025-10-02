@@ -18,13 +18,14 @@ class Orders::CreateService
 
     return failure(I18n.t("services.errors.cart_empty")) if cart.cart_items.empty?
 
+    order = nil
     ActiveRecord::Base.transaction do
       order = create_order
       create_order_items(order)
       order.calculate_totals!
-
-      success(resource: order, order: order)
     end
+
+    success(resource: order, order: order)
   rescue ActiveRecord::RecordInvalid => e
     log_error("validation error", e)
     failure(I18n.t("services.errors.order_creation_failed"))
@@ -42,7 +43,8 @@ class Orders::CreateService
       user: Current.user,
       email: customer_info[:email],
       phone_number: customer_info[:phone_number],
-      billing_address: build_billing_address,
+      shipping_address: customer_info[:shipping_address],
+      billing_address: customer_info[:billing_address],
       delivery_method: customer_info[:delivery_method],
       delivery_notes: customer_info[:delivery_notes],
       delivery_date: customer_info[:delivery_date],
@@ -61,23 +63,6 @@ class Orders::CreateService
         unit_price_currency: cart_item.price_snapshot_currency
       )
     end
-  end
-
-  def build_billing_address
-    return {} unless courier_delivery?
-
-    {
-      first_name: customer_info[:first_name],
-      last_name: customer_info[:last_name],
-      address_line_1: customer_info[:address_line_1],
-      address_line_2: customer_info[:address_line_2],
-      city: customer_info[:city],
-      landmarks: customer_info[:landmarks]
-    }.compact_blank
-  end
-
-  def courier_delivery?
-    customer_info[:delivery_method] == "courier"
   end
 
   def determine_payment_status

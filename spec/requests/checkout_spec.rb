@@ -62,7 +62,7 @@ RSpec.describe "Checkout", type: :request do
         aggregate_failures do
           expect(response).to redirect_to(root_path)
           expect(flash[:alert]).to eq(I18n.t("errors.something_went_wrong"))
-          expect(Rails.logger).to have_received(:error).with(/Cart validation error: Database connection error/)
+          expect(Rails.logger).to have_received(:error).with(/StandardError: Database connection error/)
         end
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe "Checkout", type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to include("checkout")
           expect(flash[:alert]).to eq(I18n.t("errors.something_went_wrong"))
-          expect(Rails.logger).to have_received(:error).with(/Order processing error: Unexpected service error/)
+          expect(Rails.logger).to have_received(:error).with(/StandardError: Unexpected service error/)
         end
       end
     end
@@ -429,7 +429,7 @@ RSpec.describe "Checkout", type: :request do
         aggregate_failures do
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq Mime[:turbo_stream]
-          expect(Rails.logger).to have_received(:error).with(/Reorder error: Unexpected error/)
+          expect(Rails.logger).to have_received(:error).with(/StandardError: Unexpected error/)
         end
       end
     end

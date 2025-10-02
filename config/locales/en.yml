@@ -146,6 +146,54 @@ en:
     order_placed_successfully: "Order placed successfully!"
     order_not_found: "Order not found"
     cart_empty: "Your cart is empty. Continue shopping to add items."
+    address_saved_successfully: "Address saved successfully for faster checkout next time!"
+    form:
+      sections:
+        address_and_delivery: "Address & Delivery"
+        delivery_date_time: "Delivery Date & Time"
+        recipient: "Recipient"
+        contacts: "Contacts"
+        personal_data: "Personal Data"
+        payment_method: "Payment Method"
+      placeholders:
+        phone_number: "__-___-___"
+        email: "example@gmail.com"
+        first_name: "First name"
+        last_name: "Last name"
+        address_line_1: "Street address, building name, apartment number"
+        address_line_2: "Floor, apartment details"
+        landmarks: "Near ABC Mall, opposite mosque"
+        delivery_notes: "Special instructions for delivery"
+      helper_text:
+        phone_coordination: "We'll use this number to coordinate delivery"
+        email_receipt: "required to send a receipt"
+      buttons:
+        place_order: "Place Order"
+        placing_order: "Placing Order..."
+      address_modal:
+        delivering_to: "Delivering to %{city}"
+        save_as_default: "Save this address as default for future orders"
+      recipient:
+        save_profile_info: "Save this information to my profile"
+        save_profile_info_help: "Pre-fill future orders faster"
+      pickup_modal:
+        working_hours: "Working Hours"
+        contact: "Contact"
+        coordinates: "Coordinates"
+        pickup_instructions_title: "Pickup Instructions:"
+        instructions:
+          available: "Available %{date} for pickup"
+          present_confirmation: "Present order confirmation when collecting"
+          free_pickup: "Free pickup - no additional charges"
+        directions_title: "How to get there"
+        got_it: "Got it"
+    save_address_prompt:
+      title: "Save this delivery address?"
+      label_field: "Label this address (optional)"
+      label_placeholder: "e.g., Home, Office, Mom's House"
+      label_hint: "Give this address a friendly name so you can easily find it later"
+      save_button: "Save Address"
+      skip_button: "No thanks"
     reorder:
       messages:
         items_added:
@@ -270,10 +318,6 @@ en:
       email_aria: "Email customer support at %{email}"
   services:
     errors:
-      validation_failed: "Validation failed. Please check your input and try again."
-      record_not_found: "The requested record was not found."
-      param_required: "Required parameter is missing: %{params}"
-      params_required: "Required parameters are missing: %{params}"
       cart_required: "Cart is required"
       cart_empty: "Cart is empty"
       customer_info_required: "Customer information is required"
@@ -282,6 +326,10 @@ en:
       order_creation_failed: "We couldn't create your order. Please check your information and try again."
       cart_item_add_failed: "We couldn't add this item to your cart. Please try again."
       something_went_wrong: "Something went wrong. Please try again."
+      validation_failed: "Validation failed. Please check your input and try again."
+      record_not_found: "The requested record was not found."
+      param_required: "Required parameter is missing: %{params}"
+      params_required: "Required parameters are missing: %{params}"
     quantity:
       must_be_positive: "Quantity must be greater than 0"
       exceeds_maximum: "Quantity cannot exceed %{max}"
@@ -306,7 +354,7 @@ en:
       email_invalid: "Please enter a valid email address"
       phone_required: "Phone number is required"
       phone_invalid: "Please enter a valid phone number"
-      phone_lebanon_invalid: "must be a valid Lebanon phone number"
+      phone_lebanon_invalid: "Phone number must be a valid Lebanon phone number"
       password_required: "Password is required"
       password_too_short: "Password must be at least 8 characters"
       password_confirmation_required: "Password confirmation is required"
@@ -315,16 +363,6 @@ en:
       address_too_short: "Address must be at least 5 characters"
       delivery_date_required: "Please select a delivery date and time"
       validation_error: "Validation error"
-  services:
-    errors:
-      cart_required: "Cart is required"
-      cart_empty: "Cart is empty"
-      customer_info_required: "Customer information is required"
-      product_variant_required: "Product variant is required"
-      checkout_form_required: "Checkout form is required"
-      order_creation_failed: "We couldn't create your order. Please check your information and try again."
-      cart_item_add_failed: "We couldn't add this item to your cart. Please try again."
-      something_went_wrong: "Something went wrong. Please try again."
   javascript:
     auth_form:
       email_required: "Email is required."

@@ -63,8 +63,8 @@ RSpec.describe Checkout::Modals::AddressModalComponent, type: :component do
         props = component.delivery_card_props
         expect(props).to be_a(Hash)
         expect(props[:icon]).to eq(:truck)
-        expect(props[:title]).to eq("Delivering to")
-        expect(props[:subtitle]).to eq("Beirut")
+        expect(props[:title]).to eq("Delivering to Beirut")
+        expect(props[:subtitle]).to eq(nil)
       end
     end
 

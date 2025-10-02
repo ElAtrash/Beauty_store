@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
 class StoreConfigurationService
+  DEFAULT_GOVERNORATE = "Beirut"
+  DEFAULT_CITY = "Beirut"
+
   class << self
     def config
       @config ||= load_configuration
+    end
+
+    def default_governorate
+      DEFAULT_GOVERNORATE
     end
 
     def store_config

@@ -28,6 +28,14 @@ module BaseService
     BaseResult.new(success: false, errors: Array(errors), **metadata)
   end
 
+  def validation_failure(errors)
+    BaseResult.new(success: false, errors: errors, error_type: :validation)
+  end
+
+  def service_failure(errors)
+    BaseResult.new(success: false, errors: errors, error_type: :service)
+  end
+
   def validate_required_params(**params)
     missing_params = params.select { |_key, value| value.blank? }.keys
 

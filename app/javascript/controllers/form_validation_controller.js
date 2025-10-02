@@ -223,7 +223,7 @@ export default class extends Controller {
       ],
       phone: [
         { test: (value) => !!(value && value.trim()), message: 'phone_required' },
-        { test: (value) => value && /^(0?(?:[14-79]\d{6}|3\d{6,7}|7[0169]\d{6}|81[2-8]\d{5}))$/.test(value.replace(/\s+/g, '')), message: 'phone_invalid' }
+        { test: (value) => value && /^(\+961|961)?(70|71|03|76|81)\d{6}$/.test(value.replace(/\s+/g, '')), message: 'phone_lebanon_invalid' }
       ],
       password: [
         { test: (value) => !!(value && value.trim()), message: 'password_required' },
@@ -389,7 +389,7 @@ export default class extends Controller {
   updateSubmitButtonState() {
     if (!this.hasSubmitButtonTarget) return
 
-    const hasVisibleErrors = this.element.querySelector('.border-red-500, .form-field--error') !== null
+    const hasVisibleErrors = this.element.querySelector('input.border-red-500, textarea.border-red-500, select.border-red-500, .form-field--error') !== null
 
     const requiredFields = this.validationFields
     const allRequiredValid = Array.from(requiredFields).every(field => {
