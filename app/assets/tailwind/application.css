@@ -3519,12 +3519,6 @@ button.delivery-details-button:hover {
   animation: slideInFromRight 0.3s ease-out;
 }
 
-/* Modal-specific adjustments for proper hover effect display */
-#address-modal .delivery-card {
-  margin-top: 0.75rem;
-  margin-bottom: 2rem;
-}
-
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .delivery-card {

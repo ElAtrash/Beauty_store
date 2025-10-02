@@ -2,9 +2,7 @@
 # frozen_string_literal: true
 
 class Checkout::ProcessOrderService
-  def self.call(**args)
-    new(**args).call
-  end
+  include BaseService
 
   def initialize(checkout_form:, cart:, session:)
     @checkout_form = checkout_form
@@ -45,39 +43,41 @@ class Checkout::ProcessOrderService
       Rails.logger.error "Failed to clear cart after order creation: #{clear_cart_result.errors.join(', ')}"
     end
 
+    persist_user_data_from_order(order_result.order)
+
     success(resource: order_result.resource, order: order_result.order)
   end
 
-  def success(resource: nil, order: nil, **metadata)
-    BaseResult.new(
-      success: true,
-      resource: resource,
-      order: order,
-      **metadata
-    )
+  def persist_user_data_from_order(order)
+    return unless order.user&.persisted?
+
+    save_delivery_address(order) if checkout_form.save_address_as_default
+    update_user_basic_info(order) if checkout_form.save_profile_info
+  rescue StandardError => e
+    Rails.logger.error "Failed to persist user data from order: #{e.message}"
   end
 
-  def failure(errors, **metadata)
-    BaseResult.new(
-      success: false,
-      errors: Array(errors),
-      **metadata
-    )
+  def save_delivery_address(order)
+    return unless order.courier?
+
+    profile = order.user.customer_profile || order.user.create_customer_profile
+    profile.save_delivery_address_from_order(order)
   end
 
-  def validation_failure(errors)
-    BaseResult.new(
-      success: false,
-      errors: errors,
-      error_type: :validation
-    )
-  end
+  def update_user_basic_info(order)
+    return unless order.shipping_address.present?
 
-  def service_failure(errors)
-    BaseResult.new(
-      success: false,
-      errors: errors,
-      error_type: :service
-    )
+    user = order.user
+    shipping = order.shipping_address
+
+    updates = {
+      first_name: shipping["first_name"],
+      last_name: shipping["last_name"],
+      phone_number: order.phone_number,
+      city: shipping["city"],
+      governorate: shipping["governorate"]
+    }.select { |key, value| user.public_send(key).blank? && value.present? }
+
+    user.update(updates) if updates.any?
   end
 end

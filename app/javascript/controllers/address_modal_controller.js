@@ -11,7 +11,7 @@ export default class extends Controller {
 
   static DELIVERY_METHOD = 'courier'
   static DISABLED_CLASSES = ['opacity-50', 'cursor-not-allowed']
-  static ERROR_SELECTORS = '.border-red-500, .form-field--error'
+  static ERROR_SELECTORS = 'input.border-red-500, textarea.border-red-500, select.border-red-500, .form-field--error'
 
   connect() {
     this.updateSubmitButtonState()

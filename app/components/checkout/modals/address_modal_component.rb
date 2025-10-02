@@ -27,8 +27,7 @@ class Checkout::Modals::AddressModalComponent < Modal::BaseComponent
   def delivery_card_props
     {
       icon: :truck,
-      title: "Delivering to",
-      subtitle: city
+      title: "Delivering to #{city}"
     }
   end
 

@@ -25,6 +25,10 @@ class Checkout::FormComponent < ViewComponent::Base
     checkout_form.city || store_city
   end
 
+  def effective_governorate
+    checkout_form.governorate || StoreConfigurationService::DEFAULT_GOVERNORATE
+  end
+
   def delivery_summary_address_data
     {
       address_line_1: checkout_form.address_line_1,

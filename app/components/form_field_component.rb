@@ -158,12 +158,13 @@ class FormFieldComponent < ViewComponent::Base
   end
 
   def render_field_input
-    case normalized_field_type
+    case normalize_field_type(field_type)
     when :textarea then render_textarea_field
     when :email then render_email_field
     when :tel then render_phone_field
     when :password then render_password_field
     when :radio_group then render_radio_group
+    when :checkbox then render_checkbox_field
     when :submit then render_submit_button
     else render_text_field
     end
@@ -236,6 +237,22 @@ class FormFieldComponent < ViewComponent::Base
     attrs = options[:data] || {}
     attrs[:action] = options[:radio_action] if options[:radio_action]
     attrs
+  end
+
+  def render_checkbox_field
+    checkbox_attrs = {
+      id: field_id,
+      class: "h-4 w-4 text-interactive focus:ring-interactive border-gray-300 rounded",
+      data: options[:data] || {}
+    }
+
+    checkbox_input = form.check_box field_name, checkbox_attrs
+    label_text = options[:label] || field_name.to_s.humanize
+    label_tag = content_tag :label, label_text, for: field_id, class: "ml-2 block text-sm text-gray-700"
+
+    content_tag :div, class: "flex items-center" do
+      checkbox_input + label_tag
+    end
   end
 
   def render_submit_button
@@ -328,16 +345,11 @@ class FormFieldComponent < ViewComponent::Base
 
   def add_validation_data(attrs)
     attrs[:'validation-rules'] = validation_rules
-    # Translation injection moved to controller level to avoid conflicts
   end
 
   def add_option_data_attributes(attrs)
     option_data_attrs = options.select { |key, _| key.to_s.start_with?("data-") }
     attrs.merge!(option_data_attrs)
-  end
-
-  def normalized_field_type
-    normalize_field_type(field_type)
   end
 
   def normalize_field_type(type)

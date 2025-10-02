@@ -2,14 +2,16 @@
      data-controller="checkout-form form-validation"
      data-form-validation-translations-value="<%= helpers.validation_translations_for_js %>"
      data-checkout-form-form-validation-outlet=".checkout-form-container">
+  <%# Turbo disabled: Full page navigation required for order processing and payment flow %>
   <%= form_with model: checkout_form, url: checkout_path, local: true, data: { turbo: false }, html: { class: "checkout-form" } do |f| %>
     <!-- Section 1: Address & Delivery -->
     <section class="checkout-section">
       <div class="checkout-section-header">
-        <h3 class="checkout-section-title">Address & Delivery</h3>
+        <h3 class="checkout-section-title"><%= t('checkout.form.sections.address_and_delivery') %></h3>
       </div>
       <div class="space-y-6">
         <%= f.hidden_field :city, value: store_city %>
+        <%= f.hidden_field :governorate, value: effective_governorate %>
         <!-- Delivery Method -->
         <%= render FormFieldComponent.new(
           form: f,
@@ -33,7 +35,7 @@
         <%= f.hidden_field :delivery_time_slot %>
         <!-- Delivery Date/Time Picker -->
         <div class="form-field">
-          <label class="text-sm font-medium text-gray-700 mb-4 block">Delivery Date & Time</label>
+          <label class="text-sm font-medium text-gray-700 mb-4 block"><%= t('checkout.form.sections.delivery_date_time') %></label>
           <div id="delivery-schedule" data-checkout-form-target="deliverySchedule">
             <%= render DeliveryScheduleInlineComponent.new(
               delivery_method: effective_delivery_method,
@@ -47,59 +49,74 @@
     <!-- Section 2: Recipient -->
     <section class="checkout-section">
       <div class="checkout-section-header">
-        <h3 class="checkout-section-title">Recipient</h3>
+        <h3 class="checkout-section-title"><%= t('checkout.form.sections.recipient') %></h3>
       </div>
       <div class="space-y-6">
         <!-- Contacts -->
         <div>
-          <h4 class="text-sm font-medium text-gray-700 mb-4">Contacts</h4>
+          <h4 class="text-sm font-medium text-gray-700 mb-4"><%= t('checkout.form.sections.contacts') %></h4>
           <div class="checkout-form-grid">
             <%= render FormFieldComponent.new(
               form: f,
               field: :phone_number,
               type: :phone,
               required: true,
-              placeholder: "__-___-___",
+              placeholder: t('checkout.form.placeholders.phone_number'),
               validation_rules: "phone",
-              options: { helper_text: "We'll use this number to coordinate delivery" }
+              options: { helper_text: t('checkout.form.helper_text.phone_coordination') }
             ) %>
             <%= render FormFieldComponent.new(
               form: f,
               field: :email,
               type: :email,
               required: true,
-              placeholder: "example@gmail.com",
+              placeholder: t('checkout.form.placeholders.email'),
               validation_rules: "email",
-              options: { helper_text: "required to send a receipt" }
+              options: { helper_text: t('checkout.form.helper_text.email_receipt') }
             ) %>
           </div>
         </div>
         <!-- Personal Data -->
         <div>
-          <h4 class="text-sm font-medium text-gray-700 mb-4">Personal Data</h4>
+          <h4 class="text-sm font-medium text-gray-700 mb-4"><%= t('checkout.form.sections.personal_data') %></h4>
           <div class="checkout-form-grid">
             <%= render FormFieldComponent.new(
               form: f,
               field: :first_name,
               required: true,
-              placeholder: "First name",
+              placeholder: t('checkout.form.placeholders.first_name'),
               validation_rules: "first_name"
             ) %>
             <%= render FormFieldComponent.new(
               form: f,
               field: :last_name,
               required: true,
-              placeholder: "Last name",
+              placeholder: t('checkout.form.placeholders.last_name'),
               validation_rules: "last_name"
             ) %>
           </div>
         </div>
+        <!-- Save Profile Info Checkbox -->
+        <% if Current.user && (Current.user.first_name.blank? || Current.user.phone_number.blank?) %>
+          <div class="pt-4 border-t border-gray-200">
+            <%= render FormFieldComponent.new(
+              form: f,
+              field: :save_profile_info,
+              type: :checkbox,
+              options: {
+                label: t('checkout.form.recipient.save_profile_info'),
+                helper_text: t('checkout.form.recipient.save_profile_info_help'),
+                css_class: "flex items-start"
+              }
+            ) %>
+          </div>
+        <% end %>
       </div>
     </section>
     <!-- Section 3: Payment Method -->
     <section class="checkout-section">
       <div class="checkout-section-header">
-        <h3 class="checkout-section-title">Payment Method</h3>
+        <h3 class="checkout-section-title"><%= t('checkout.form.sections.payment_method') %></h3>
       </div>
       <%= render FormFieldComponent.new(
         form: f,
@@ -114,11 +131,11 @@
     </section>
     <!-- Submit Button -->
     <div class="pt-6">
-      <%= f.submit "Place Order",
+      <%= f.submit t('checkout.form.buttons.place_order'),
           class: "btn-interactive btn-full btn-lg uppercase tracking-wide",
           data: {
-            turbo_submits_with: "Placing Order...",
-            disable_with: "Placing Order...",
+            turbo_submits_with: t('checkout.form.buttons.placing_order'),
+            disable_with: t('checkout.form.buttons.placing_order'),
             "form-validation-target": "submitButton"
           } %>
     </div>
@@ -127,131 +144,22 @@
       <% address_modal = Checkout::Modals::AddressModalComponent.new(form: f, city: effective_city) %>
       <%= render address_modal do |modal| %>
         <% modal.with_body do %>
-          <div class="mb-6">
-            <%= render DeliveryCardComponent.new(**address_modal.delivery_card_props) %>
-          </div>
-
-          <div data-address-modal-target="form" data-delivery-method="courier" class="space-y-4">
-            <%= render FormFieldComponent.new(
-              form: f,
-              field: :address_line_1,
-              required: true,
-              placeholder: "Street address, building name, apartment number",
-              validation_rules: "courier_address",
-              options: { data: { "address-modal-target": "addressLine1" } }
-            ) %>
-
-            <%= render FormFieldComponent.new(
-              form: f,
-              field: :address_line_2,
-              placeholder: "Floor, apartment details",
-              options: { data: { "address-modal-target": "addressLine2" } }
-            ) %>
-
-            <%= render FormFieldComponent.new(
-              form: f,
-              field: :landmarks,
-              placeholder: "Near ABC Mall, opposite mosque",
-              options: { data: { "address-modal-target": "landmarks" } }
-            ) %>
-
-            <%= render FormFieldComponent.new(
-              form: f,
-              field: :delivery_notes,
-              type: :textarea,
-              placeholder: "Special instructions for delivery",
-              options: { maxlength: 100, rows: 3, show_counter: true }
-            ) %>
-          </div>
-
-          <div class="mt-6 pt-6">
-            <%= render FormFieldComponent.new(
-              form: f,
-              field: :submit,
-              type: :submit,
-              options: address_modal.submit_button_props
-            ) %>
-          </div>
+          <%= render partial: "checkout/modals/address_modal_body",
+                     locals: {
+                       form: f,
+                       delivery_card: DeliveryCardComponent.new(**address_modal.delivery_card_props),
+                       show_save_checkbox: Current.user && !Current.user.customer_profile&.has_default_address?,
+                       submit_props: address_modal.submit_button_props
+                     } %>
         <% end %>
       <% end %>
       <% pickup_modal = Checkout::Modals::PickupDetailsModalComponent.new %>
       <%= render pickup_modal do |modal| %>
         <% modal.with_body do %>
-          <div class="space-y-6">
-            <!-- Detailed Information -->
-            <div class="space-y-4">
-              <!-- Store Name & Address -->
-              <div class="flex items-start gap-3 btn-icon">
-                <%= render UI::IconComponent.new(name: :logo, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900"><%= pickup_modal.store_info[:name] %></h3>
-                  <div class="text-sm text-gray-600"><%= pickup_modal.store_info[:address] %></div>
-                </div>
-              </div>
-              <!-- Working Hours -->
-              <div class="flex items-start gap-3 btn-icon">
-                <%= render UI::IconComponent.new(name: :clock, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900">Working Hours</h3>
-                  <div class="text-sm text-gray-600"><%= pickup_modal.store_info[:working_hours] %></div>
-                </div>
-              </div>
-              <!-- Contact -->
-              <div class="flex items-start gap-3 btn-icon">
-                <%= render UI::IconComponent.new(name: :phone, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900">Contact</h3>
-                  <%= phone_to pickup_modal.store_info[:phone], pickup_modal.store_info[:phone], class: "text-sm text-gray-600 hover:text-interactive-primary" %>
-                </div>
-              </div>
-              <!-- Coordinates -->
-              <div class="flex items-start gap-3 btn-icon">
-                <%= render UI::IconComponent.new(name: :map, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900">Coordinates</h3>
-                    <%= link_to "https://www.google.com/maps?q=#{pickup_modal.store_info[:coordinates]}",
-                                target: "_blank",
-                                rel: "noopener noreferrer",
-                                class: "text-sm text-gray-600 hover:text-interactive-primary" do %>
-                      <%= pickup_modal.store_info[:coordinates] %>
-                    <% end %>
-                </div>
-              </div>
-            </div>
-            <!-- Pickup Instructions -->
-            <div>
-              <div class="flex items-start gap-3 btn-icon mb-3">
-                <%= render UI::IconComponent.new(name: :calendar, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900 mb-1">Pickup Instructions:</h3>
-                   <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                    <li>Available <%= pickup_modal.store_info[:delivery_date] %> for pickup</li>
-                    <li>Present order confirmation when collecting</li>
-                    <li><%= pickup_modal.store_info[:shelf_life] %></li>
-                    <li>Free pickup - no additional charges</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <!-- Directions -->
-            <div class="pickup-directions">
-              <div class="flex items-start gap-3 btn-icon">
-                <%= render UI::IconComponent.new(name: :info, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
-                <div>
-                  <h3 class="font-medium text-gray-900 mb-2">How to get there</h3>
-                  <p class="text-sm text-gray-700 leading-relaxed"><%= pickup_modal.store_info[:directions] %></p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Action Button -->
-          <div class="mt-6 pt-6">
-            <button type="button"
-                    class="btn-interactive btn-full btn-lg"
-                    data-action="click->modal#close">
-              Got it
-            </button>
-          </div>
+          <%= render partial: "checkout/modals/pickup_details_body",
+                     locals: {
+                       store_info: pickup_modal.store_info
+                     } %>
         <% end %>
       <% end %>
     </div>

@@ -89,7 +89,7 @@
        data-form="signup"
        data-auth-tab-target="signupForm">
     <%= form_with model: User.new,
-        url: register_path,
+        url: registrations_path,
         local: false,
         html: { novalidate: true },
         class: "space-y-4",

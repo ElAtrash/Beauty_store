@@ -14,10 +14,13 @@ class Carts::FindOrCreateService
   end
 
   def call
-    cart = find_existing_cart || create_new_cart
-    cart = merge_guest_cart_if_needed(cart)
-    update_session(cart) if session
+    cart = if user.present?
+      find_or_create_user_cart
+    else
+      find_or_create_guest_cart
+    end
 
+    update_session(cart) if session
     success(resource: cart, cart: cart)
   rescue => e
     log_error("cart creation failed", e)
@@ -28,49 +31,60 @@ class Carts::FindOrCreateService
 
   attr_reader :user, :session, :cart_token
 
-  def find_existing_cart
-    if user
-      user_cart = Cart.active.find_by(user: user)
-      return user_cart if user_cart
+  def find_or_create_user_cart
+    user_cart = Cart.active.find_by(user: user)
+
+    if user_cart
+      merge_guest_cart_into_user_cart(user_cart)
+      return user_cart
     end
 
     if cart_token.present?
-      Cart.active.find_by(session_token: cart_token)
+      guest_cart = Cart.active.find_by(session_token: cart_token, user_id: nil)
+
+      if guest_cart
+        guest_cart.update!(user: user)
+        Rails.logger.info "Carts::FindOrCreateService: Claimed guest cart #{guest_cart.id} for user #{user.id}"
+        return guest_cart
+      end
     end
+
+    create_user_cart
   end
 
-  def create_new_cart
-    cart_attributes = { user: user }
-    Cart.create!(cart_attributes)
+  def create_user_cart
+    cart = Cart.create!(user: user)
+    Rails.logger.info "Carts::FindOrCreateService: Created new cart #{cart.id} for user #{user.id}"
+    cart
   end
 
-  def merge_guest_cart_if_needed(cart)
-    return cart unless should_attempt_merge?(cart)
+  def merge_guest_cart_into_user_cart(user_cart)
+    return unless cart_token.present?
 
-    guest_cart = find_guest_cart
-    return cart unless guest_cart
+    guest_cart = Cart.active.find_by(session_token: cart_token, user_id: nil)
+    return unless guest_cart
+    return if guest_cart == user_cart
 
-    merge_result = Carts::MergeService.call(user_cart: cart, guest_cart: guest_cart)
+    merge_result = Carts::MergeService.call(user_cart: user_cart, guest_cart: guest_cart)
 
     if merge_result.success? && merge_result.merged_any_items?
-      Rails.logger.info "Carts::FindOrCreateService: Successfully merged #{merge_result.merged_items_count} items from guest cart"
-    elsif merge_result.failure?
-      Rails.logger.warn "Carts::FindOrCreateService: Cart merge failed: #{merge_result.errors.join(', ')}"
+      Rails.logger.info "Carts::FindOrCreateService: Merged #{merge_result.merged_items_count} items from guest cart #{guest_cart.id} into user cart #{user_cart.id}"
+    end
+  end
+
+  def find_or_create_guest_cart
+    if cart_token.present?
+      guest_cart = Cart.active.find_by(session_token: cart_token, user_id: nil)
+      return guest_cart if guest_cart
     end
 
-    merge_result.cart || cart
+    create_guest_cart
   end
 
-  def should_attempt_merge?(cart)
-    user.present? && cart_token.present? && cart&.user == user
-  end
-
-  def find_guest_cart
-    return nil unless cart_token.present?
-
-    guest_cart = Cart.active.find_by(session_token: cart_token)
-
-    guest_cart&.user.nil? ? guest_cart : nil
+  def create_guest_cart
+    cart = Cart.create!(user: nil)
+    Rails.logger.info "Carts::FindOrCreateService: Created new guest cart #{cart.id}"
+    cart
   end
 
   def update_session(cart)

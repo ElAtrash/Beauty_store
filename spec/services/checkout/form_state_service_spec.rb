@@ -32,7 +32,7 @@ RSpec.describe Checkout::FormStateService do
     let(:params) { { email: 'updated@example.com', last_name: 'Doe' } }
 
     before do
-      allow(form).to receive(:valid_for_persistence?).and_return(true)
+      allow(form).to receive(:has_partial_data?).and_return(true)
     end
 
     it 'updates form with params' do
@@ -54,9 +54,9 @@ RSpec.describe Checkout::FormStateService do
   describe '.persist_if_valid' do
     let(:form) { CheckoutForm.new }
 
-    context 'when form is valid for persistence' do
+    context 'when form has partial data' do
       before do
-        allow(form).to receive(:valid_for_persistence?).and_return(true)
+        allow(form).to receive(:has_partial_data?).and_return(true)
       end
 
       it 'persists to session' do
@@ -65,9 +65,9 @@ RSpec.describe Checkout::FormStateService do
       end
     end
 
-    context 'when form is not valid for persistence' do
+    context 'when form does not have partial data' do
       before do
-        allow(form).to receive(:valid_for_persistence?).and_return(false)
+        allow(form).to receive(:has_partial_data?).and_return(false)
       end
 
       it 'does not persist to session' do
@@ -95,7 +95,7 @@ RSpec.describe Checkout::FormStateService do
 
       before do
         session[:checkout_form_data] = { 'email' => 'existing@example.com', 'first_name' => 'John' }
-        allow(form).to receive(:valid_for_persistence?).and_return(true)
+        allow(form).to receive(:has_partial_data?).and_return(true)
       end
 
       it 'preserves existing session data while updating with new fields' do
@@ -195,14 +195,14 @@ RSpec.describe Checkout::FormStateService do
     describe 'page refresh and state persistence scenarios' do
       it 'maintains state across multiple requests' do
         initial_form = CheckoutForm.new(email: 'test@example.com')
-        allow(initial_form).to receive(:valid_for_persistence?).and_return(true)
+        allow(initial_form).to receive(:has_partial_data?).and_return(true)
         described_class.update_and_persist(initial_form, { first_name: 'John' }, session)
 
         restored_form = described_class.restore_from_session(session)
         expect(restored_form.email).to eq('test@example.com')
         expect(restored_form.first_name).to eq('John')
 
-        allow(restored_form).to receive(:valid_for_persistence?).and_return(true)
+        allow(restored_form).to receive(:has_partial_data?).and_return(true)
         described_class.update_and_persist(restored_form, { last_name: 'Doe' }, session)
 
         final_form = described_class.restore_from_session(session)
@@ -213,7 +213,7 @@ RSpec.describe Checkout::FormStateService do
 
       it 'handles concurrent updates properly' do
         form = CheckoutForm.new
-        allow(form).to receive(:valid_for_persistence?).and_return(true)
+        allow(form).to receive(:has_partial_data?).and_return(true)
 
         described_class.update_and_persist(form, { email: 'first@example.com' }, session)
         described_class.update_and_persist(form, { first_name: 'John' }, session)

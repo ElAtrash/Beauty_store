@@ -8,17 +8,29 @@ RSpec.describe Orders::CreateService do
     {
       email: "customer@example.com",
       phone_number: "70-123-456",
-      first_name: "John",
-      last_name: "Doe",
+      shipping_address: {
+        "first_name" => "John",
+        "last_name" => "Doe",
+        "address_line_1" => "123 Main Street",
+        "address_line_2" => "Apt 4B",
+        "city" => "Beirut",
+        "governorate" => "Beirut",
+        "landmarks" => "Near ABC Mall"
+      },
+      billing_address: {
+        "first_name" => "John",
+        "last_name" => "Doe",
+        "address_line_1" => "123 Main Street",
+        "address_line_2" => "Apt 4B",
+        "city" => "Beirut",
+        "governorate" => "Beirut",
+        "landmarks" => "Near ABC Mall"
+      },
       delivery_method: "courier",
       payment_method: "cod",
       delivery_notes: "Ring doorbell twice",
       delivery_date: Date.tomorrow,
-      delivery_time_slot: "09:00-12:00",
-      address_line_1: "123 Main Street",
-      address_line_2: "Apt 4B",
-      city: "Beirut",
-      landmarks: "Near ABC Mall"
+      delivery_time_slot: "09:00-12:00"
     }
   end
 
@@ -52,17 +64,12 @@ RSpec.describe Orders::CreateService do
         end
       end
 
-      it "maps address fields correctly into billing_address" do
+      it "maps address fields correctly into billing_address (billing = shipping)" do
         order = result.resource
 
-        expect(order.billing_address).to eq({
-          "first_name" => "John",
-          "last_name" => "Doe",
-          "address_line_1" => "123 Main Street",
-          "address_line_2" => "Apt 4B",
-          "city" => "Beirut",
-          "landmarks" => "Near ABC Mall"
-        })
+        expect(order.billing_address).to eq(order.shipping_address)
+        expect(order.billing_address["first_name"]).to eq("John")
+        expect(order.billing_address["address_line_1"]).to eq("123 Main Street")
       end
 
       it "creates order items from cart items" do
@@ -118,16 +125,22 @@ RSpec.describe Orders::CreateService do
         {
           email: "customer@example.com",
           phone_number: "70-123-456",
-          first_name: "John",
-          last_name: "Doe",
+          shipping_address: {
+            "first_name" => "John",
+            "last_name" => "Doe"
+          },
+          billing_address: {
+            "first_name" => "John",
+            "last_name" => "Doe"
+          },
           delivery_method: "pickup",
           payment_method: "cod"
         }
       end
 
-      it "creates order with empty billing_address" do
+      it "creates order with billing_address same as shipping_address" do
         order = result.resource
-        expect(order.billing_address).to eq({})
+        expect(order.billing_address).to eq(order.shipping_address)
       end
 
       it "doesn't require address fields" do
@@ -158,21 +171,20 @@ RSpec.describe Orders::CreateService do
 
     context "with partial address information" do
       let(:customer_info) do
-        super().merge(
-          address_line_2: "",
-          landmarks: nil
-        )
+        base = super()
+        base[:shipping_address]["address_line_2"] = ""
+        base[:shipping_address]["landmarks"] = nil
+        base[:billing_address]["address_line_2"] = ""
+        base[:billing_address]["landmarks"] = nil
+        base
       end
 
-      it "only includes non-blank address fields" do
+      it "billing_address matches shipping_address" do
         order = result.resource
 
-        expect(order.billing_address).to eq({
-          "first_name" => "John",
-          "last_name" => "Doe",
-          "address_line_1" => "123 Main Street",
-          "city" => "Beirut"
-        })
+        expect(order.billing_address).to eq(order.shipping_address)
+        expect(order.billing_address["first_name"]).to eq("John")
+        expect(order.billing_address["address_line_1"]).to eq("123 Main Street")
       end
     end
 
@@ -292,58 +304,6 @@ RSpec.describe Orders::CreateService do
 
   describe "private methods" do
     let(:service) { described_class.new(cart: cart, customer_info: customer_info) }
-
-    describe "#build_billing_address" do
-      context "for courier delivery" do
-        it "builds address hash from customer info" do
-          expect(service.send(:build_billing_address)).to eq({
-            first_name: "John",
-            last_name: "Doe",
-            address_line_1: "123 Main Street",
-            address_line_2: "Apt 4B",
-            city: "Beirut",
-            landmarks: "Near ABC Mall"
-          })
-        end
-
-        context "with blank address fields" do
-          let(:customer_info) { super().merge(address_line_2: "", landmarks: nil) }
-
-          it "excludes blank fields" do
-            expect(service.send(:build_billing_address)).to eq({
-              first_name: "John",
-              last_name: "Doe",
-              address_line_1: "123 Main Street",
-              city: "Beirut"
-            })
-          end
-        end
-      end
-
-      context "for pickup delivery" do
-        let(:customer_info) { super().merge(delivery_method: "pickup") }
-
-        it "returns empty hash" do
-          expect(service.send(:build_billing_address)).to eq({})
-        end
-      end
-    end
-
-    describe "#courier_delivery?" do
-      context "when delivery method is courier" do
-        it "returns true" do
-          expect(service.send(:courier_delivery?)).to be true
-        end
-      end
-
-      context "when delivery method is pickup" do
-        let(:customer_info) { super().merge(delivery_method: "pickup") }
-
-        it "returns false" do
-          expect(service.send(:courier_delivery?)).to be false
-        end
-      end
-    end
 
     describe "#determine_payment_status" do
       context "when payment method is cod" do

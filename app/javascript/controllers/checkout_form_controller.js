@@ -2,7 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["deliverySummary", "deliverySchedule", "modals"]
-  static outlets = ["form-validation"]
+
+  get csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content
+  }
 
   connect() {
     const checkedRadio = this.element.querySelector('input[name*="delivery_method"]:checked')
@@ -25,46 +28,26 @@ export default class extends Controller {
     }
   }
 
-
   updateDeliverySummary(method) {
-    const formData = new FormData()
-    formData.append('delivery_method', method)
-
-    fetch('/checkout/delivery_summary', {
-      method: 'POST',
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'text/vnd.turbo-stream.html'
-      },
-      body: formData
-    })
-    .then(response => response.text())
-    .then(html => {
-      if (html.includes('turbo-stream')) {
-        Turbo.renderStreamMessage(html)
-      }
-    })
-    .catch(error => {
-      console.error('Error updating delivery summary:', error)
-    })
+    this.turboStreamFetch('/checkout/delivery_summary', method)
   }
 
   updateDeliverySchedule(method) {
     if (!this.hasDeliveryScheduleTarget) return
 
-    // Use Turbo Stream to re-render the delivery schedule component on the server
-    this.requestDeliveryScheduleUpdate(method)
+    this.turboStreamFetch('/checkout/delivery_schedule', method, {
+      onError: () => this.fallbackDeliveryScheduleUpdate(method)
+    })
   }
 
-  requestDeliveryScheduleUpdate(method) {
-    // Send Turbo Stream request to re-render the delivery schedule component
+  turboStreamFetch(url, deliveryMethod, options = {}) {
     const formData = new FormData()
-    formData.append('delivery_method', method)
+    formData.append('delivery_method', deliveryMethod)
 
-    fetch('/checkout/delivery_schedule', {
+    fetch(url, {
       method: 'POST',
       headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'X-CSRF-Token': this.csrfToken,
         'Accept': 'text/vnd.turbo-stream.html'
       },
       body: formData
@@ -76,8 +59,8 @@ export default class extends Controller {
       }
     })
     .catch(error => {
-      console.error('Error updating delivery schedule:', error)
-      this.fallbackDeliveryScheduleUpdate(method)
+      console.error(`Error fetching ${url}:`, error)
+      if (options.onError) options.onError(error)
     })
   }
 
@@ -114,7 +97,7 @@ export default class extends Controller {
     return fetch('/checkout', {
       method: 'PATCH',
       headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'X-CSRF-Token': this.csrfToken,
         'Accept': 'application/json'
       },
       body: formData
@@ -125,10 +108,13 @@ export default class extends Controller {
   }
 
   notifyValidationController(method) {
-    this.formValidationOutlets.forEach(controller => {
-      if (controller.updateDeliveryMethod) {
-        controller.updateDeliveryMethod(method)
-      }
-    })
+    const validationController = this.application.getControllerForElementAndIdentifier(
+      this.element,
+      "form-validation"
+    )
+
+    if (validationController && validationController.updateDeliveryMethod) {
+      validationController.updateDeliveryMethod(method)
+    }
   }
 }

@@ -3,6 +3,9 @@
 class CheckoutController < ApplicationController
   allow_unauthenticated_access
 
+  rescue_from StandardError, with: :handle_unexpected_error
+  rescue_from ActionController::UnknownFormat, with: :handle_unknown_format
+
   before_action :validate_cart_presence, only: [ :new, :create ]
   before_action :setup_checkout_form, only: [ :new, :delivery_schedule, :delivery_summary ]
   before_action :set_order, only: [ :show, :reorder ]
@@ -16,12 +19,11 @@ class CheckoutController < ApplicationController
   end
 
   def create
-    @cart = current_cart
     @checkout_form = CheckoutForm.new(checkout_params)
 
     result = Checkout::ProcessOrderService.call(
       checkout_form: @checkout_form,
-      cart: @cart,
+      cart: current_cart,
       session: session
     )
 
@@ -29,6 +31,7 @@ class CheckoutController < ApplicationController
       redirect_to checkout_confirmation_path(result.resource.number),
                   notice: t("checkout.order_placed_successfully")
     else
+      @cart = current_cart
       Checkout::ErrorResponseService.call(
         controller: self,
         result: result,
@@ -36,15 +39,6 @@ class CheckoutController < ApplicationController
         form: @checkout_form
       )
     end
-  rescue => e
-    Rails.logger.error "Order processing error: #{e.message}"
-    result = BaseResult.new(success: false, errors: [ t("errors.something_went_wrong") ])
-    Checkout::ErrorResponseService.call(
-      controller: self,
-      result: result,
-      cart: @cart || current_cart,
-      form: @checkout_form || CheckoutForm.new
-    )
   end
 
   def update
@@ -53,40 +47,17 @@ class CheckoutController < ApplicationController
     @checkout_form = Checkout::FormStateService.restore_from_session(session)
     Checkout::FormStateService.update_and_persist(@checkout_form, checkout_params, session)
 
-    respond_to do |format|
-      format.json { head :ok }
-    end
+    respond_to { |format| format.json { head :ok } }
   end
 
   def delivery_schedule
-    @checkout_form = Checkout::FormStateService.restore_from_session(session)
-    @delivery_method = delivery_method_param || @checkout_form.delivery_method
-
-    Checkout::DeliveryMethodHandler.call(
-      form: @checkout_form,
-      delivery_method: @delivery_method
-    )
-
-    respond_to do |format|
-      format.turbo_stream
-    end
+    update_delivery_context
+    respond_to { |format| format.turbo_stream }
   end
 
   def delivery_summary
-    @checkout_form = Checkout::FormStateService.restore_from_session(session)
-    @delivery_method = delivery_method_param || @checkout_form.delivery_method
-
-    Checkout::DeliveryMethodHandler.call(
-      form: @checkout_form,
-      delivery_method: @delivery_method,
-      address_params: address_update_params
-    )
-
-    Checkout::FormStateService.persist_if_valid(@checkout_form, session)
-
-    respond_to do |format|
-      format.turbo_stream
-    end
+    update_delivery_context(persist: true, address_params: address_update_params)
+    respond_to { |format| format.turbo_stream }
   end
 
   def reorder
@@ -94,63 +65,72 @@ class CheckoutController < ApplicationController
       order: @order,
       user: Current.user,
       session: session,
-      cart_token: session[:cart_token]
+      cart_token: session[ApplicationController::CART_TOKEN_KEY]
     )
 
+    responder = ReorderResponder.new(self, @order)
+
     if result.success?
-      handle_successful_reorder(result)
+      responder.respond_with_success(result)
     else
-      handle_failed_reorder(result)
+      responder.respond_with_failure(result)
     end
-  rescue => e
-    Rails.logger.error "Reorder error: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    handle_reorder_exception
   end
 
   private
 
+  def update_delivery_context(persist: false, address_params: {})
+    @delivery_method = delivery_method_param || @checkout_form.delivery_method
+
+    Checkout::DeliveryMethodHandler.call(
+      form: @checkout_form,
+      delivery_method: @delivery_method,
+      address_params: address_params
+    )
+
+    Checkout::FormStateService.persist_if_valid(@checkout_form, session) if persist
+  end
+
   def checkout_params
     params.require(:checkout_form).permit(
-      :email, :phone_number, :first_name, :last_name,
-      :address_line_1, :address_line_2, :city, :landmarks,
-      :delivery_method, :payment_method, :delivery_notes,
-      :delivery_date, :delivery_time_slot
+      :email, :phone_number, :first_name, :last_name, :address_line_1,
+      :address_line_2, :city, :governorate, :landmarks, :delivery_method,
+      :payment_method, :delivery_notes, :delivery_date, :delivery_time_slot,
+      :save_address_as_default, :save_profile_info
     )
   end
 
+  def delivery_summary_params
+    params.permit(:delivery_method, :address_line_1, :address_line_2, :landmarks, :city)
+  end
+
   def delivery_method_param
-    params.permit(:delivery_method)[:delivery_method]
+    delivery_summary_params[:delivery_method]
   end
 
   def address_update_params
-    params.permit(:address_line_1, :address_line_2, :landmarks, :city).to_h
+    delivery_summary_params.slice(:address_line_1, :address_line_2, :landmarks, :city).to_h
   end
 
   def validate_cart_presence
     validation_result = Checkout::CartValidationService.call(current_cart)
-
-    unless validation_result.success?
-      redirect_to root_path, alert: validation_result.errors.first
-    end
-  rescue => e
-    Rails.logger.error "Cart validation error: #{e.message}"
-    redirect_to root_path, alert: t("errors.something_went_wrong")
+    handle_cart_validation_failure(validation_result) unless validation_result.success?
   end
 
   def setup_checkout_form
     return if performed?
 
-    @checkout_form = Checkout::FormStateService.restore_from_session(session)
-    @cart = current_cart
-
-    validation_result = Checkout::CartValidationService.call(@cart)
-    unless validation_result.success?
-      redirect_to root_path, alert: validation_result.errors.first
+    if Current.user
+      @checkout_form = CheckoutForm.from_user(Current.user, session)
+    else
+      @checkout_form = Checkout::FormStateService.restore_from_session(session)
     end
-  rescue => e
-    Rails.logger.error "Checkout form setup error: #{e.message}"
-    redirect_to root_path, alert: t("errors.something_went_wrong")
+
+    @cart = current_cart
+  end
+
+  def handle_cart_validation_failure(result)
+    redirect_to root_path, alert: result.errors.first
   end
 
   def set_order
@@ -159,45 +139,30 @@ class CheckoutController < ApplicationController
     render file: Rails.public_path.join("404.html"), status: :not_found, layout: false
   end
 
-  def handle_successful_reorder(result)
-    message = result.metadata[:message]
+  def handle_unexpected_error(exception)
+    Rails.logger.error "#{exception.class}: #{exception.message}"
+    Rails.logger.error exception.backtrace.join("\n")
 
-    sync_result = Carts::SyncService.call(
-      cart: result.cart,
-      notification: { type: "success", message: message, delay: 4000 }
-    )
+    @cart ||= begin
+      current_cart
+    rescue StandardError => e
+      Rails.logger.error "Failed to load cart in error handler: #{e.message}"
+      nil
+    end
+    @checkout_form ||= CheckoutForm.new
 
-    respond_to do |format|
-      format.turbo_stream do
-        render "shared/cart_sync", locals: {
-          cart: sync_result.cart,
-          variant: nil,
-          cleared_variants: nil,
-          notification: sync_result.notification,
-          open_modal: true
-        }
-      end
-      format.html do
-        redirect_to checkout_confirmation_path(@order.number), notice: result.metadata[:message]
-      end
+    case action_name
+    when "create"
+      result = BaseResult.new(success: false, errors: [ t("errors.something_went_wrong") ])
+      Checkout::ErrorResponseService.call(controller: self, result: result, cart: @cart, form: @checkout_form)
+    when "reorder"
+      ReorderResponder.new(self, @order).respond_with_exception
+    else
+      redirect_to root_path, alert: t("errors.something_went_wrong")
     end
   end
 
-  def handle_failed_reorder(result)
-    respond_to do |format|
-      format.turbo_stream { render "reorder_error", locals: { errors: result.errors } }
-      format.html do
-        redirect_to checkout_confirmation_path(@order.number), alert: result.errors.join(", ")
-      end
-    end
-  end
-
-  def handle_reorder_exception
-    respond_to do |format|
-      format.turbo_stream { render "reorder_error", locals: { errors: [ t("checkout.reorder.errors.something_went_wrong") ] } }
-      format.html do
-        redirect_to checkout_confirmation_path(@order.number), alert: t("checkout.reorder.errors.reorder_failed")
-      end
-    end
+  def handle_unknown_format(_exception)
+    head :not_acceptable
   end
 end

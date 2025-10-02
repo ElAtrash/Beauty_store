@@ -1,0 +1,75 @@
+<div class="space-y-6">
+  <!-- Detailed Information -->
+  <div class="space-y-4">
+    <!-- Store Name & Address -->
+    <div class="flex items-start gap-3 btn-icon">
+      <%= render UI::IconComponent.new(name: :logo, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900"><%= store_info[:name] %></h3>
+        <div class="text-sm text-gray-600"><%= store_info[:address] %></div>
+      </div>
+    </div>
+    <!-- Working Hours -->
+    <div class="flex items-start gap-3 btn-icon">
+      <%= render UI::IconComponent.new(name: :clock, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900"><%= t('checkout.form.pickup_modal.working_hours') %></h3>
+        <div class="text-sm text-gray-600"><%= store_info[:working_hours] %></div>
+      </div>
+    </div>
+    <!-- Contact -->
+    <div class="flex items-start gap-3 btn-icon">
+      <%= render UI::IconComponent.new(name: :phone, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900"><%= t('checkout.form.pickup_modal.contact') %></h3>
+        <%= phone_to store_info[:phone], store_info[:phone], class: "text-sm text-gray-600 hover:text-interactive-primary" %>
+      </div>
+    </div>
+    <!-- Coordinates -->
+    <div class="flex items-start gap-3 btn-icon">
+      <%= render UI::IconComponent.new(name: :map, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900"><%= t('checkout.form.pickup_modal.coordinates') %></h3>
+        <%= link_to "https://www.google.com/maps?q=#{store_info[:coordinates]}",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    class: "text-sm text-gray-600 hover:text-interactive-primary" do %>
+          <%= store_info[:coordinates] %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <!-- Pickup Instructions -->
+  <div>
+    <div class="flex items-start gap-3 btn-icon mb-3">
+      <%= render UI::IconComponent.new(name: :calendar, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900 mb-1"><%= t('checkout.form.pickup_modal.pickup_instructions_title') %></h3>
+        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+          <li><%= t('checkout.form.pickup_modal.instructions.available', date: store_info[:delivery_date]) %></li>
+          <li><%= t('checkout.form.pickup_modal.instructions.present_confirmation') %></li>
+          <li><%= store_info[:shelf_life] %></li>
+          <li><%= t('checkout.form.pickup_modal.instructions.free_pickup') %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Directions -->
+  <div class="pickup-directions">
+    <div class="flex items-start gap-3 btn-icon">
+      <%= render UI::IconComponent.new(name: :info, css_class: "icon-interactive w-5 h-5 mt-0.5") %>
+      <div>
+        <h3 class="font-medium text-gray-900 mb-2"><%= t('checkout.form.pickup_modal.directions_title') %></h3>
+        <p class="text-sm text-gray-700 leading-relaxed"><%= store_info[:directions] %></p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Action Button -->
+<div class="mt-6 pt-6">
+  <button type="button"
+          class="btn-interactive btn-full btn-lg"
+          data-action="click->modal#close">
+    <%= t('checkout.form.pickup_modal.got_it') %>
+  </button>
+</div>

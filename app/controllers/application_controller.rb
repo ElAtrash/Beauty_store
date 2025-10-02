@@ -13,6 +13,9 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_cart, :cart_item_count, :cart_title
 
+  # Session key constants
+  CART_TOKEN_KEY = :cart_token
+
   private
 
   def set_locale
@@ -79,7 +82,7 @@ class ApplicationController < ActionController::Base
     result = Carts::FindOrCreateService.call(
       user: Current.user,
       session: session,
-      cart_token: session[:cart_token]
+      cart_token: session[CART_TOKEN_KEY]
     )
 
     @current_cart = result.cart

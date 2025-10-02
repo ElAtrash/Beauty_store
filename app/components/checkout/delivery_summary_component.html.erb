@@ -14,7 +14,9 @@
     ) %>
   </div>
   <!-- Address Summary Display -->
-  <div class="<%= 'hidden' unless address_state? %>">
+  <div class="<%= 'hidden' unless address_state? %>"
+       data-action="click->delivery-summary#openAddressModal"
+       style="cursor: pointer;">
     <%= render DeliveryCardComponent.new(
       icon: :location,
       title: "Delivery Address",
@@ -22,7 +24,7 @@
       variant: :address,
       action: {
         text: "Change",
-        data_action: "click->delivery-summary#openAddressModal",
+        data_action: "click->delivery-summary#openAddressModal:stop",
         aria_label: "Change delivery address"
       }
     ) %>

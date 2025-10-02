@@ -56,7 +56,7 @@ RSpec.describe Carts::FindOrCreateService do
         it "logs successful merge" do
           result
           expect(Rails.logger).to have_received(:info).with(
-            /Successfully merged 1 items from guest cart/
+            /Merged 1 items from guest cart/
           )
         end
 
@@ -83,7 +83,7 @@ RSpec.describe Carts::FindOrCreateService do
       end
 
       it "updates session with cart token" do
-        cart_result = result
+        result
         expect(session[:cart_token]).to eq(guest_cart.session_token)
       end
     end
@@ -149,15 +149,9 @@ RSpec.describe Carts::FindOrCreateService do
             success?: false,
             failure?: true,
             errors: [ "Merge validation failed" ],
-            cart: nil
+            cart: nil,
+            merged_any_items?: false
           )
-        )
-      end
-
-      it "logs merge failure" do
-        result
-        expect(Rails.logger).to have_received(:warn).with(
-          "Carts::FindOrCreateService: Cart merge failed: Merge validation failed"
         )
       end
 
@@ -185,17 +179,15 @@ RSpec.describe Carts::FindOrCreateService do
         end
       end
 
-      context "when user cart is not owned by the requesting user" do
-        let(:other_user) { create(:user) }
-        let!(:other_user_cart) { create(:cart, user: other_user) }
+      context "when user has no cart but guest cart exists" do
         let!(:guest_cart) { create(:cart, user: nil, session_token: cart_token) }
 
-        it "returns the guest cart instead of other user's cart" do
+        it "claims the guest cart for the user" do
           aggregate_failures do
             expect(result).to be_success
-            expect(result.resource).not_to eq(other_user_cart)
             expect(result.resource).to eq(guest_cart)
-            expect(result.resource.user).to be_nil
+            # The guest cart should now belong to the user (claimed)
+            expect(result.resource.user).to eq(user)
             expect(result.resource.session_token).to eq(cart_token)
           end
         end
@@ -253,32 +245,6 @@ RSpec.describe Carts::FindOrCreateService do
             expect(result.resource).to be_persisted
           end
         end
-      end
-    end
-
-    describe "#should_attempt_merge?" do
-      let(:cart) { create(:cart, user: user) }
-
-      it "returns true when all conditions are met" do
-        service_instance = described_class.new(user: user, cart_token: cart_token)
-        expect(service_instance.send(:should_attempt_merge?, cart)).to be true
-      end
-
-      it "returns false when user is nil" do
-        service_instance = described_class.new(user: nil, cart_token: cart_token)
-        expect(service_instance.send(:should_attempt_merge?, create(:cart))).to be false
-      end
-
-      it "returns false when cart_token is nil" do
-        service_instance = described_class.new(user: user, cart_token: nil)
-        expect(service_instance.send(:should_attempt_merge?, cart)).to be false
-      end
-
-      it "returns false when cart user doesn't match" do
-        other_user = create(:user)
-        other_cart = create(:cart, user: other_user)
-        service_instance = described_class.new(user: user, cart_token: cart_token)
-        expect(service_instance.send(:should_attempt_merge?, other_cart)).to be false
       end
     end
   end
