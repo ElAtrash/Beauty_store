@@ -1700,6 +1700,44 @@ if sample_user.nil?
   )
 end
 
+puts "\n🏠 Creating sample addresses for test user..."
+# Clear existing addresses for clean seeding
+sample_user.addresses.destroy_all
+
+sample_user.addresses.create!([
+  {
+    label: "Home",
+    address_line_1: "123 Beauty Street",
+    address_line_2: "Apt 4B",
+    city: "Beirut",
+    governorate: "Beirut",
+    landmarks: "Near ABC Mall",
+    phone_number: "70123456",
+    default: true
+  },
+  {
+    label: "Work",
+    address_line_1: "456 Office Tower",
+    address_line_2: "Floor 7",
+    city: "Beirut",
+    governorate: "Mount Lebanon",
+    landmarks: "Behind Central Bank",
+    phone_number: "71987654",
+    default: false
+  },
+  {
+    label: "Parents",
+    address_line_1: "789 Family Home",
+    city: "Tripoli",
+    governorate: "North Lebanon",
+    landmarks: "Near Old Souq",
+    phone_number: "76555444",
+    default: false
+  }
+])
+
+puts "  ✓ Created #{sample_user.addresses.count} addresses"
+
 # Get some product variants for order items
 lipstick_variant = ProductVariant.joins(:product).where(products: { name: "Matte Revolution Lipstick" }).first
 foundation_variant = ProductVariant.joins(:product).where(products: { name: "Airbrush Flawless Foundation" }).first

@@ -1,0 +1,35 @@
+<!-- ADDRESS LIST VIEW -->
+<%= turbo_frame_tag "address-selection-ui", data: { controller: "address-selector" }, class: "flex flex-col h-full" do %>
+  <!-- Scrollable content area -->
+  <div class="flex-1 overflow-y-auto pt-1">
+    <div class="space-y-8 pb-4">
+      <%# Use instance variable if from controller, otherwise use local %>
+      <% addresses = defined?(@user_addresses) ? @user_addresses : user_addresses %>
+      <% selected = defined?(@selected_address) ? @selected_address : selected_address %>
+
+      <% addresses.each do |address| %>
+        <%= render Addresses::SelectorCardComponent.new(
+          address: address,
+          selected: address.id == selected&.id || address.default?,
+          from_checkout: true
+        ) %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Fixed footer with action buttons -->
+  <div class="shrink-0 pt-6 mt-6 space-y-3">
+    <%= link_to new_form_checkout_address_selection_path,
+                class: "btn btn-interactive btn-full btn-lg inline-flex items-center justify-center gap-2" do %>
+      <%= render UI::IconComponent.new(name: :plus, css_class: "w-5 h-5") %>
+      <%= t('addresses.add_address') %>
+    <% end %>
+
+    <button type="button"
+            class="btn btn-interactive btn-full btn-lg"
+            data-action="click->address-selector#submitSelectedAddress"
+            data-address-selector-target="submitButton">
+      <%= t('checkout.form.address_modal.submit_button', default: 'Bring it here') %>
+    </button>
+  </div>
+<% end %>

@@ -20,6 +20,7 @@ class CheckoutForm
   attribute :payment_method, :string, default: "cod"
   attribute :save_address_as_default, :boolean, default: false
   attribute :save_profile_info, :boolean, default: false
+  attribute :selected_address_id, :integer
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone_number, presence: true, phone: true
@@ -121,14 +122,16 @@ class CheckoutForm
     form.last_name ||= user.last_name
     form.phone_number ||= normalize_phone(user.phone_number)
 
-    if user.customer_profile&.has_default_address?
-      addr = user.customer_profile.default_delivery_address
-      form.address_line_1 ||= addr["address_line_1"]
-      form.address_line_2 ||= addr["address_line_2"]
-      form.city ||= addr["city"]
-      form.governorate ||= default_governorate
-      form.landmarks ||= addr["landmarks"]
-      form.phone_number ||= normalize_phone(addr["phone_number"]) if addr["phone_number"].present?
+    # Use Address model for pre-filling
+    if user.default_address
+      addr = user.default_address
+      form.selected_address_id = addr.id
+      form.address_line_1 ||= addr.address_line_1
+      form.address_line_2 ||= addr.address_line_2
+      form.city ||= addr.city
+      form.governorate ||= addr.governorate
+      form.landmarks ||= addr.landmarks
+      form.phone_number ||= normalize_phone(addr.phone_number) if addr.phone_number.present?
     else
       form.city ||= user.city if user.city.present?
       form.governorate ||= default_governorate
@@ -148,5 +151,18 @@ class CheckoutForm
   def self.normalize_phone(phone)
     return "" if phone.blank?
     phone.gsub(/\D/, "").sub(/^961/, "")
+  end
+
+  # Populate form from selected saved address
+  def populate_from_address(address)
+    return unless address
+
+    self.selected_address_id = address.id
+    self.address_line_1 = address.address_line_1
+    self.address_line_2 = address.address_line_2
+    self.city = address.city
+    self.governorate = address.governorate
+    self.landmarks = address.landmarks
+    self.phone_number = self.class.normalize_phone(address.phone_number) if address.phone_number.present?
   end
 end

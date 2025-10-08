@@ -49,6 +49,15 @@ Rails.application.routes.draw do
   post "checkout/delivery_schedule", to: "checkout#delivery_schedule", as: :checkout_delivery_schedule
   post "checkout/delivery_summary", to: "checkout#delivery_summary", as: :checkout_delivery_summary
 
+  # Checkout address selection routes (Turbo Frame navigation)
+  namespace :checkout do
+    resource :address_selection, only: [] do
+      get :list
+      get :new_form
+      get "edit_form/:address_id", action: :edit_form, as: :edit_form
+    end
+  end
+
   # Authentication routes
   resource :session
   resources :passwords, param: :token
@@ -58,4 +67,11 @@ Rails.application.routes.draw do
   get "logout" => "sessions#destroy"
   delete "logout" => "sessions#destroy"
   get "register" => "registrations#new"
+
+  # Address management routes
+  resources :addresses do
+    member do
+      patch :set_default
+    end
+  end
 end

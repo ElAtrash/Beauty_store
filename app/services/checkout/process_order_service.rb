@@ -60,8 +60,30 @@ class Checkout::ProcessOrderService
   def save_delivery_address(order)
     return unless order.courier?
 
-    profile = order.user.customer_profile || order.user.create_customer_profile
-    profile.save_delivery_address_from_order(order)
+    # Create Address record instead of JSONB storage
+    address_attributes = {
+      label: determine_address_label(order),
+      address_line_1: order.shipping_address["address_line_1"],
+      address_line_2: order.shipping_address["address_line_2"],
+      city: order.shipping_address["city"],
+      governorate: order.shipping_address["governorate"],
+      landmarks: order.shipping_address["landmarks"],
+      phone_number: order.phone_number,
+      default: true # Save as default when checkbox is checked
+    }
+
+    order.user.addresses.create!(address_attributes)
+  end
+
+  def determine_address_label(order)
+    # Check if user already has a "Home" address
+    if order.user.addresses.active.where(label: "Home").exists?
+      # Generate unique label: "Home 2", "Home 3", etc.
+      count = order.user.addresses.active.where("label LIKE ?", "Home%").count + 1
+      count == 1 ? "Home" : "Home #{count}"
+    else
+      "Home"
+    end
   end
 
   def update_user_basic_info(order)

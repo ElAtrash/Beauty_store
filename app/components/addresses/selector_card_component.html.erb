@@ -1,0 +1,23 @@
+<%= helpers.turbo_frame_tag "address-edit-#{address.id}" do %>
+  <div id="<%= card_id %>" class="<%= card_classes %>">
+    <div class="flex items-center justify-between">
+      <!-- Left: Radio + Icon + Address -->
+      <label for="address_<%= address.id %>" class="flex items-center space-x-3 flex-1 cursor-pointer">
+        <input <%= tag.attributes(radio_button_attributes) %> />
+
+        <div class="flex items-start space-x-2 flex-1">
+          <div class="flex-1 min-w-0">
+            <%= address_title %>
+            <%= address_subtitle %>
+          </div>
+        </div>
+      </label>
+
+      <!-- Right: Edit + Delete icons -->
+      <div class="flex items-center gap-3 ml-4">
+        <%= edit_button %>
+        <%= delete_button %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -139,29 +139,24 @@
             "form-validation-target": "submitButton"
           } %>
     </div>
-    <!-- Modals -->
-    <div data-checkout-form-target="modals">
-      <% address_modal = Checkout::Modals::AddressModalComponent.new(form: f, city: effective_city) %>
-      <%= render address_modal do |modal| %>
-        <% modal.with_body do %>
-          <%= render partial: "checkout/modals/address_modal_body",
-                     locals: {
-                       form: f,
-                       delivery_card: DeliveryCardComponent.new(**address_modal.delivery_card_props),
-                       show_save_checkbox: Current.user && !Current.user.customer_profile&.has_default_address?,
-                       submit_props: address_modal.submit_button_props
-                     } %>
-        <% end %>
-      <% end %>
-      <% pickup_modal = Checkout::Modals::PickupDetailsModalComponent.new %>
-      <%= render pickup_modal do |modal| %>
-        <% modal.with_body do %>
-          <%= render partial: "checkout/modals/pickup_details_body",
-                     locals: {
-                       store_info: pickup_modal.store_info
-                     } %>
-        <% end %>
-      <% end %>
-    </div>
   <% end %>
+
+  <!-- Modals (outside form to enable Turbo) -->
+  <div data-checkout-form-target="modals">
+    <% address_modal = Checkout::Modals::AddressModalComponent.new(checkout_form: checkout_form, city: effective_city, user: Current.user) %>
+    <%= render address_modal do |modal| %>
+      <% modal.with_body do %>
+        <%= render partial: "checkout/modals/address_modal_body" %>
+      <% end %>
+    <% end %>
+    <% pickup_modal = Checkout::Modals::PickupDetailsModalComponent.new %>
+    <%= render pickup_modal do |modal| %>
+      <% modal.with_body do %>
+        <%= render partial: "checkout/modals/pickup_details_body",
+                   locals: {
+                     store_info: pickup_modal.store_info
+                   } %>
+      <% end %>
+    <% end %>
+  </div>
 </div>

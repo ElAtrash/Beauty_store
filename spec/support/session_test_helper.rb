@@ -1,17 +1,26 @@
 module SessionTestHelper
   def sign_in_as(user)
-    # Use the exact Rails 8 authentication pattern from the official PR
+    # Create a session for the user
     session = user.sessions.create!(
-      user_agent: request.user_agent || "Test Agent",
-      ip_address: request.remote_ip || "127.0.0.1"
+      user_agent: try(:request)&.user_agent || "Test Agent",
+      ip_address: try(:request)&.remote_ip || "127.0.0.1"
     )
 
-    # Set the signed cookie exactly like the authentication system does
-    cookies.signed[:session_id] = {
-      value: session.id,
-      httponly: true,
-      same_site: :lax
-    }
+    # For request specs (Rack::Test), we need to manually sign the cookie
+    # Since ActionDispatch::Cookies::SignedKeyRotatingCookieJar isn't available,
+    # we'll stub the authentication
+    if defined?(cookies) && cookies.respond_to?(:signed)
+      # Integration/System tests - use signed cookies
+      cookies.signed[:session_id] = {
+        value: session.id,
+        httponly: true,
+        same_site: :lax
+      }
+    else
+      # Request specs - stub Current.session directly
+      allow(Current).to receive(:session).and_return(session)
+      allow(Current).to receive(:user).and_return(user)
+    end
 
     # Set Current.session for the request context
     Current.session = session

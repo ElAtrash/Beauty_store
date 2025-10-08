@@ -1,0 +1,98 @@
+<!-- NEW ADDRESS FORM VIEW -->
+<%# Use instance variable if from controller, otherwise use local, otherwise use defaults %>
+<% has_saved = defined?(@has_saved_addresses) ? @has_saved_addresses : (defined?(has_saved_addresses) ? has_saved_addresses : false) %>
+<% address = defined?(@address) ? @address : (defined?(address_obj) ? address_obj : Address.new) %>
+<% card = defined?(@delivery_card) ? @delivery_card : (defined?(delivery_card) ? delivery_card : nil) %>
+<% show_checkbox = defined?(@show_save_checkbox) ? @show_save_checkbox : (defined?(show_save_checkbox) ? show_save_checkbox : false) %>
+<% label_opts = defined?(@label_options) ? @label_options : (defined?(label_options) ? label_options : [["Home", "Home"], ["Work", "Work"], ["Other", "Other"]]) %>
+<% props = defined?(@submit_props) ? @submit_props : (defined?(submit_props) ? submit_props : nil) %>
+
+<%= turbo_frame_tag "address-selection-ui", data: { controller: "address-selector" }, class: "flex flex-col h-full" do %>
+  <%= form_with model: address, url: address.persisted? ? address_path(address, from: 'checkout') : addresses_path(from: 'checkout'), class: "flex flex-col h-full", data: { turbo_frame: "address-selection-ui" } do |f| %>
+  <!-- Hidden fields for required data -->
+  <%= f.hidden_field :city %>
+  <%= f.hidden_field :governorate %>
+
+  <!-- Scrollable content area -->
+  <div class="flex-1 overflow-y-auto">
+    <%# Back button (only shown when user has saved addresses) %>
+    <% if has_saved %>
+      <%= link_to list_checkout_address_selection_path,
+                  class: "mb-4 text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1",
+                  data: { turbo_frame: "address-selection-ui" } do %>
+        <%= render UI::IconComponent.new(name: :arrow_left, css_class: "w-4 h-4") %>
+        <%= t('common.back') %>
+      <% end %>
+    <% end %>
+
+    <% if card %>
+      <div class="mb-4">
+        <%= render card %>
+      </div>
+    <% end %>
+
+    <div data-address-modal-target="form" data-delivery-method="courier" class="space-y-4">
+      <%= render FormFieldComponent.new(
+        form: f,
+        field: :label,
+        required: true,
+        placeholder: t('addresses.label_placeholder', default: 'Add a label to your address')
+      ) %>
+
+      <%= render FormFieldComponent.new(
+        form: f,
+        field: :address_line_1,
+        required: true,
+        placeholder: t('checkout.form.placeholders.address_line_1'),
+        validation_rules: "courier_address",
+        options: { data: { "address-modal-target": "addressLine1" } }
+      ) %>
+
+      <%= render FormFieldComponent.new(
+        form: f,
+        field: :address_line_2,
+        placeholder: t('checkout.form.placeholders.address_line_2'),
+        options: { data: { "address-modal-target": "addressLine2" } }
+      ) %>
+
+      <%= render FormFieldComponent.new(
+        form: f,
+        field: :landmarks,
+        placeholder: t('checkout.form.placeholders.landmarks'),
+        options: { data: { "address-modal-target": "landmarks" } }
+      ) %>
+    </div>
+
+    <% if show_checkbox %>
+      <%
+        # Determine if checkbox should be checked and/or disabled
+        is_checked = defined?(@default_checkbox_checked) ? @default_checkbox_checked : (defined?(default_checkbox_checked) ? default_checkbox_checked : false)
+        is_editing_default = address.persisted? && address.default?
+      %>
+      <div class="mt-6 pt-6">
+        <%= render FormFieldComponent.new(
+          form: f,
+          field: :default,
+          type: :checkbox,
+          options: {
+            label: t('checkout.form.address_modal.save_as_default'),
+            checked: is_checked,
+            disabled: is_editing_default,
+            css_class: "flex items-start"
+          }
+        ) %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Fixed footer with submit button -->
+  <div class="shrink-0 pt-6 mt-6">
+    <%= render FormFieldComponent.new(
+      form: f,
+      field: :submit,
+      type: :submit,
+      options: props
+    ) %>
+  </div>
+  <% end %>
+<% end %>

@@ -19,7 +19,15 @@ class CheckoutController < ApplicationController
   end
 
   def create
-    @checkout_form = CheckoutForm.new(checkout_params)
+    # Restore form from session (includes address from modal selection)
+    if Current.user
+      @checkout_form = CheckoutForm.from_user(Current.user, session)
+    else
+      @checkout_form = Checkout::FormStateService.restore_from_session(session)
+    end
+
+    # Overlay submitted form params (user-filled fields)
+    @checkout_form.assign_attributes(checkout_params)
 
     result = Checkout::ProcessOrderService.call(
       checkout_form: @checkout_form,
@@ -56,7 +64,11 @@ class CheckoutController < ApplicationController
   end
 
   def delivery_summary
-    update_delivery_context(persist: true, address_params: address_update_params)
+    update_delivery_context(
+      persist: true,
+      address_params: address_update_params,
+      selected_address_id: delivery_summary_params[:selected_address_id]
+    )
     respond_to { |format| format.turbo_stream }
   end
 
@@ -79,8 +91,18 @@ class CheckoutController < ApplicationController
 
   private
 
-  def update_delivery_context(persist: false, address_params: {})
+  def update_delivery_context(persist: false, address_params: {}, selected_address_id: nil)
     @delivery_method = delivery_method_param || @checkout_form.delivery_method
+
+    # Update selected address ID if provided
+    if selected_address_id.present? && Current.user
+      address = Current.user.addresses.find_by(id: selected_address_id)
+      if address
+        @checkout_form.populate_from_address(address)
+      else
+        @checkout_form.selected_address_id = selected_address_id
+      end
+    end
 
     Checkout::DeliveryMethodHandler.call(
       form: @checkout_form,
@@ -96,12 +118,12 @@ class CheckoutController < ApplicationController
       :email, :phone_number, :first_name, :last_name, :address_line_1,
       :address_line_2, :city, :governorate, :landmarks, :delivery_method,
       :payment_method, :delivery_notes, :delivery_date, :delivery_time_slot,
-      :save_address_as_default, :save_profile_info
+      :save_address_as_default, :save_profile_info, :selected_address_id
     )
   end
 
   def delivery_summary_params
-    params.permit(:delivery_method, :address_line_1, :address_line_2, :landmarks, :city)
+    params.permit(:delivery_method, :address_line_1, :address_line_2, :landmarks, :city, :selected_address_id)
   end
 
   def delivery_method_param

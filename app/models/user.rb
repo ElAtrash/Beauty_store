@@ -6,6 +6,8 @@ class User < ApplicationRecord
   has_many :carts, dependent: :destroy
   has_many :reviews, dependent: :destroy
   has_many :wishlists, dependent: :destroy
+  has_many :addresses, dependent: :destroy
+  has_one :default_address, -> { where(default: true, deleted_at: nil) }, class_name: "Address"
 
   LEBANESE_GOVERNORATES = [
     "Beirut", "Mount Lebanon", "North Lebanon", "South Lebanon",
@@ -42,6 +44,14 @@ class User < ApplicationRecord
 
   def full_address
     [ city, governorate ].compact.join(", ")
+  end
+
+  def has_saved_addresses?
+    addresses.active.exists?
+  end
+
+  def saved_addresses_count
+    addresses.active.count
   end
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
