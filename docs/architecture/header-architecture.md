@@ -42,6 +42,7 @@ Headers respond to user interactions through data attributes:
 
   /* Brand specific backgrounds */
   --brand-gradient: linear-gradient(to right, rgb(249, 250, 251), rgb(243, 244, 246));
+  --z-header: 60;                     /* Z-index for header layering */
 }
 ```
 
@@ -62,8 +63,9 @@ Headers respond to user interactions through data attributes:
 ```
 
 ### 2. Base Structure
+- **Header Wrapper**: Contains the entire header system, `z-index: var(--z-header)`
 - **Header**: `position: fixed` at top, height: `var(--header-height)`
-- **Navigation**: `position: relative` (scrolls with content)
+- **Navigation**: `position: relative` (scrolls with content on mobile, visible on desktop)
 - **Z-index**: Header above navigation (`calc(var(--z-header) - 1)`)
 
 ### 3. State Management
@@ -71,14 +73,21 @@ Headers respond to user interactions through data attributes:
 #### Transparent State (Default)
 - **General pages**: Glass effect with `--header-bg-glass` and `--header-blur-medium`
 - **Homepage/Brand pages**: Forced transparent with `--header-bg-transparent`
+- **Product pages**: White background (special case)
 
 #### Hover/Scroll States
 - **All contexts**: Solid white background with `--header-bg-white`
 - **Synchronized timing**: Both header and navigation transition together
+- **Product pages**: Always use white background regardless of state
 
 #### Brand Contexts
 - **Gradient**: Uses `--brand-gradient` for consistent brand styling
 - **Image**: Dynamic background from `--header-banner-url` CSS variable
+
+### 4. Navigation Wrapper
+- **Mobile**: Hidden by default, shown through mobile menu controller
+- **Desktop**: Visible with `display: block !important` on `min-width: 768px`
+- **Z-index**: Slightly below header at `calc(var(--z-header) - 1)`
 
 ## Page Type Behaviors
 
@@ -92,10 +101,15 @@ Headers respond to user interactions through data attributes:
 - **Hover/Scroll**: Override to solid white
 - **Context-aware**: Different styling based on `brand-gradient` vs `brand-image`
 
-### Other Pages (`checkout`, `page`, `product`)
-- **Transparent**: Glass effect with subtle background
-- **Hover/Scroll**: Standard white background
-- **Consistent**: Same behavior across all general pages
+### Checkout/Static Pages (`checkout`, `page`)
+- **Always white**: No dynamic states, always use white background
+- **Border**: Has bottom border `border-bottom: 1px solid rgba(0, 0, 0, 0.1)`
+- **Hover disabled**: Hover effects are disabled for these page types
+
+### Product Pages (`product`)
+- **Always white**: Use white background regardless of state
+- **Special handling**: Product pages always display white background
+- **No hover effects**: Hover effects are disabled for consistent product experience
 
 ## Transition System
 

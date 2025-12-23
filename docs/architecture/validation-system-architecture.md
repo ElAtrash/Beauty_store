@@ -78,39 +78,49 @@ The main form registers the validation controller:
 The controller automatically discovers and sets up validation for all fields with `data-validation-rules`:
 
 ```javascript
-refreshFieldsCache() {
-  this.fieldsCache = this.element.querySelectorAll('[data-validation-rules]')
-  this.fieldsCache.forEach(field => {
-    this.setupFieldValidation(field)
-  })
+get validationFields() {
+  return this.element.querySelectorAll('[data-validation-rules]')
 }
 ```
 
-### 5. Event Listeners
+### 5. Event Handling
 
-Each field gets three event listeners:
+The controller uses event delegation with three main event handlers:
 
 ```javascript
 // Mark field as focused
-field.addEventListener("focus", () => {
-  field.dataset.recentlyFocused = "true";
-});
+handleFieldFocus(event) {
+  const field = event.target
+  if (!field.hasAttribute('data-validation-rules')) return
+
+  field.dataset.recentlyFocused = 'true'
+}
 
 // Validate on blur (if recently focused)
-field.addEventListener("blur", () => {
-  if (validationEnabled && this.wasRecentlyFocused(field)) {
-    this.interacted.add(fieldName);
-    this.validateField(field);
-  }
-});
+handleFieldBlur(event) {
+  const field = event.target
+  if (!field.hasAttribute('data-validation-rules')) return
 
-// Immediate validation on input
-field.addEventListener("input", () => {
-  if (validationEnabled) {
-    this.interacted.add(fieldName);
-    this.validateField(field);
+  const fieldName = field.name || field.id
+  if (!fieldName) return
+
+  if (this.wasRecentlyFocused(field)) {
+    this.interacted.add(fieldName)
+    this.validateField(field)
   }
-});
+}
+
+// Immediate validation on input (with debouncing)
+handleFieldInput(event) {
+  const field = event.target
+  if (!field.hasAttribute('data-validation-rules')) return
+
+  const fieldName = field.name || field.id
+  if (!fieldName) return
+
+  this.interacted.add(fieldName)
+  this.debouncedValidateField(field, fieldName)
+}
 ```
 
 ### 6. Validation Rules
@@ -119,6 +129,15 @@ Predefined validation rules support various field types:
 
 ```javascript
 const predefinedRules = {
+  required: [
+    { test: (value) => !!(value && value.trim()), message: "field_required" }
+  ],
+  first_name: [
+    { test: (value) => !!(value && value.trim()), message: "first_name_required" }
+  ],
+  last_name: [
+    { test: (value) => !!(value && value.trim()), message: "last_name_required" }
+  ],
   email: [
     { test: (value) => !!(value && value.trim()), message: "email_required" },
     {
@@ -131,15 +150,37 @@ const predefinedRules = {
     {
       test: (value) =>
         value &&
-        /^(0?(?:[14-79]\d{6}|3\d{6,7}|7[0169]\d{6}|81[2-8]\d{5}))$/.test(
+        /^(\+961|961)?(70|71|03|76|81)\d{6}$/.test(
           value.replace(/\s+/g, "")
         ),
-      message: "phone_invalid",
+      message: "phone_lebanon_invalid",
     },
   ],
-  required: [
-    { test: (value) => !!(value && value.trim()), message: "field_required" },
+  password: [
+    { test: (value) => !!(value && value.trim()), message: "password_required" },
+    { test: (value) => value && value.length >= 8, message: "password_too_short" }
   ],
+  passwordConfirmation: [
+    { test: (value) => !!(value && value.trim()), message: "password_confirmation_required" },
+    { test: (value) => this.passwordsMatch(value), message: "passwords_dont_match" }
+  ],
+  address: [
+    { test: (value) => !!(value && value.trim()), message: "address_required" },
+    { test: (value) => value && value.trim().length >= 5, message: "address_too_short" }
+  ],
+  deliveryDate: [
+    { test: (value) => !!(value && value.trim()), message: "delivery_date_required" }
+  ],
+  courier_required: [
+    { test: (value) => this.isPickupMethod() || !!(value && value.trim()), message: 'field_required' }
+  ],
+  courier_address: [
+    { test: (value) => this.isPickupMethod() || !!(value && value.trim()), message: 'address_required' },
+    { test: (value) => this.isPickupMethod() || (value && value.trim().length >= 5), message: 'address_too_short' }
+  ],
+  pickup_required: [
+    { test: (value) => this.isCourierMethod() || !!(value && value.trim()), message: 'field_required' }
+  ]
 };
 ```
 
@@ -154,6 +195,9 @@ courier_required: [
 courier_address: [
   { test: (value) => this.isPickupMethod() || !!(value && value.trim()), message: 'address_required' },
   { test: (value) => this.isPickupMethod() || (value && value.trim().length >= 5), message: 'address_too_short' }
+],
+pickup_required: [
+  { test: (value) => this.isCourierMethod() || !!(value && value.trim()), message: 'field_required' }
 ]
 ```
 
@@ -221,26 +265,54 @@ The system handles dynamically added fields (like modal forms) using a MutationO
 ```javascript
 setupDynamicValidation() {
   const observer = new MutationObserver((mutations) => {
+    let shouldRefresh = false
+
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
             const hasValidationFields = node.querySelectorAll &&
               node.querySelectorAll('[data-validation-rules]').length > 0
-            if (hasValidationFields) {
-              this.refreshFieldsCache()
-              this.updateSubmitButtonState()
-            }
+            if (hasValidationFields) { shouldRefresh = true }
           }
         })
       }
     })
+
+    if (shouldRefresh) { this.updateSubmitButtonState() }
   })
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  })
+  observer.observe(this.element, { childList: true, subtree: true })
+}
+```
+
+### Custom Event Integration
+
+The system also supports validation updates via custom events:
+
+```javascript
+// Custom event handler for external validation requests
+handleValidationRequest(event) {
+  const { field } = event.detail
+
+  if (field) {
+    const fieldName = field.name || field.id
+    if (fieldName) {
+      this.interacted.add(fieldName)
+      this.validateField(field)
+    }
+  }
+}
+
+// In checkout_form_controller.js
+notifyValidationController(method) {
+  const formValidationController = this.application.getControllerForElementAndIdentifier(
+    this.element, "form-validation"
+  )
+
+  if (formValidationController && formValidationController.updateDeliveryMethod) {
+    formValidationController.updateDeliveryMethod(method)
+  }
 }
 ```
 
@@ -250,8 +322,10 @@ setupDynamicValidation() {
 - **Email fields**: Format validation with regex
 - **Phone fields**: Lebanese phone number format validation
 - **Password fields**: Minimum length requirements
+- **Password Confirmation**: Match with original password validation
 - **Address fields**: Minimum length validation
-- **Conditional fields**: Based on delivery method context
+- **Delivery Date**: Required field validation
+- **Conditional fields**: Based on delivery method context (courier/pickup)
 
 ## Error Messages
 

@@ -34,7 +34,7 @@ class MyNamespace::MyService
     return last_result if last_result.failure?
 
     # 3. Main operation (with transaction if needed)
-    with_transaction do
+    ActiveRecord::Base.transaction do
       result = perform_operation
       success(resource: result, additional_data: extra_info)
     end
@@ -82,10 +82,19 @@ return last_result if last_result.failure?
 #### Transaction Management
 ```ruby
 # Wraps operation in ActiveRecord transaction
-with_transaction do
+ActiveRecord::Base.transaction do
   # database operations
   success(resource: result)
 end
+```
+
+#### Additional Service Methods
+```ruby
+# Creates a failure result with validation error type
+validation_failure(errors: ["Validation error"])
+
+# Creates a failure result with service error type
+service_failure(errors: ["Service error"])
 ```
 
 #### Logging
@@ -142,7 +151,7 @@ class Resources::CreateService
     validate_required_params(resource_params: resource_params)
     return last_result if last_result.failure?
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       resource = Resource.create!(resource_params)
       success(resource: resource)
     end
@@ -168,7 +177,7 @@ class Resources::UpdateService
     validate_required_params(resource: resource, update_params: update_params)
     return last_result if last_result.failure?
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       resource.update!(update_params)
       success(resource: resource)
     end
@@ -190,7 +199,7 @@ class ComplexBusinessOperation
     validate_inputs
     return last_result if last_result.failure?
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       step_one_result = perform_step_one
       step_two_result = perform_step_two(step_one_result)
       step_three_result = perform_step_three(step_two_result)
@@ -493,7 +502,7 @@ end
 #### Batch Operations
 ```ruby
 def bulk_update_items(items_data)
-  with_transaction do
+  ActiveRecord::Base.transaction do
     items_data.each_slice(100) do |batch|
       process_batch(batch)
     end
@@ -566,17 +575,19 @@ class CompleteCheckoutOrchestrator
     return payment_result if payment_result.failure?
 
     # Step 3: Create order
-    order_result = Orders::CreateService.call(cart: cart, customer_info: customer_info)
-    return order_result if order_result.failure?
+    ActiveRecord::Base.transaction do
+      order_result = Orders::CreateService.call(cart: cart, customer_info: customer_info)
+      return order_result if order_result.failure?
 
-    # Step 4: Clear cart
-    clear_result = Carts::ClearService.call(cart: cart)
+      # Step 4: Clear cart
+      clear_result = Carts::ClearService.call(cart: cart)
 
-    success(
-      order: order_result.resource,
-      payment: payment_result.resource,
-      cleared_items: clear_result.metadata[:cleared_items_count]
-    )
+      success(
+        order: order_result.resource,
+        payment: payment_result.resource,
+        cleared_items: clear_result.metadata[:cleared_items_count]
+      )
+    end
   end
 end
 ```
@@ -614,7 +625,7 @@ class Orders::CreateService
   def call
     # ... validation and creation logic
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       order = create_order
       emit_event(:order_created, order: order, customer: customer_info)
       success(resource: order)
@@ -681,7 +692,7 @@ class SensitiveOperationService
   include AuditLogging
 
   def call
-    with_transaction do
+    ActiveRecord::Base.transaction do
       result = perform_operation
       log_operation("sensitive_action", result, operation_context)
       success(resource: result)
@@ -698,7 +709,7 @@ When refactoring existing services to use these patterns:
 - [ ] Include BaseService concern
 - [ ] Replace manual BaseResult creation with success/failure methods
 - [ ] Use validate_required_params for parameter validation
-- [ ] Wrap database operations with with_transaction
+- [ ] Wrap database operations with ActiveRecord::Base.transaction
 - [ ] Replace manual logging with log_error method
 - [ ] Update error messages to use i18n keys
 

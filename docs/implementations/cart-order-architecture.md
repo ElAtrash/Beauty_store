@@ -35,7 +35,7 @@ class MyService
     validate_required_params(param1: param1, param2: param2)
     return last_result if last_result.failure?
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       # business logic
       success(resource: result)
     end
@@ -50,8 +50,9 @@ end
 - `success(**metadata)` - Creates successful BaseResult
 - `failure(errors:, **metadata)` - Creates failed BaseResult
 - `validate_required_params(**params)` - Validates required parameters
-- `with_transaction(&block)` - Wraps operations in ActiveRecord transaction
 - `log_error(message, exception)` - Standardized error logging
+- `service_failure(errors)` - Creates failed BaseResult with service error type
+- `validation_failure(errors)` - Creates failed BaseResult with validation error type
 
 ### Cart Item Query Patterns
 
@@ -87,7 +88,7 @@ result = Carts::AddItemService.call(
 ```
 
 **Key Features**:
-- Uses CartItemFinder for cart item management
+- Uses direct ActiveRecord queries for cart item management
 - Integrates with QuantityService for validation
 - Handles both new items and quantity updates
 - Transactional safety
@@ -201,7 +202,7 @@ result = Orders::ReorderService.call(
 ```
 
 **Key Features**:
-- Uses CartItemFinder for cart management
+- Uses direct ActiveRecord queries for cart management
 - Handles partial reorders (when some items unavailable)
 - Stock and availability validation
 - Detailed feedback on success/failure per item
@@ -387,7 +388,7 @@ class Orders::CreateService
     validate_required_params(cart: cart)
     return last_result if last_result.failure?
 
-    with_transaction do
+    ActiveRecord::Base.transaction do
       order = Order.create!(order_params)
       success(resource: order)
     end
