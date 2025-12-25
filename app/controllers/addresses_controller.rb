@@ -251,7 +251,7 @@ class AddressesController < ApplicationController
   end
 
   def from_checkout?
-    params[:from] == 'checkout'
+    params[:from] == "checkout"
   end
 
   def selected_address_from_form_for(user)
@@ -279,9 +279,9 @@ class AddressesController < ApplicationController
 
   def label_options_for_addresses
     [
-      [t("addresses.labels.home", default: "Home"), "Home"],
-      [t("addresses.labels.work", default: "Work"), "Work"],
-      [t("addresses.labels.other", default: "Other"), "Other"]
+      [ t("addresses.labels.home", default: "Home"), "Home" ],
+      [ t("addresses.labels.work", default: "Work"), "Work" ],
+      [ t("addresses.labels.other", default: "Other"), "Other" ]
     ]
   end
 end

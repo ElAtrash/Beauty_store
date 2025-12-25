@@ -78,7 +78,7 @@ class Addresses::SelectorCardComponent < ViewComponent::Base
   end
 
   def delete_button
-    delete_url = from_checkout ? address_path(address, from: 'checkout') : address_path(address)
+    delete_url = from_checkout ? address_path(address, from: "checkout") : address_path(address)
 
     button_to delete_url,
               method: :delete,

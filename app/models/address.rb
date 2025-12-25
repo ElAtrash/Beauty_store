@@ -35,11 +35,11 @@ class Address < ApplicationRecord
 
   # Display helpers
   def full_address
-    [address_line_1, address_line_2, city, governorate].compact.join(", ")
+    [ address_line_1, address_line_2, city, governorate ].compact.join(", ")
   end
 
   def short_address
-    [address_line_1, city].compact.join(", ")
+    [ address_line_1, city ].compact.join(", ")
   end
 
   def display_label

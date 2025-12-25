@@ -20,14 +20,14 @@ class Addresses::FormComponent < ViewComponent::Base
   end
 
   def governorate_options
-    User::LEBANESE_GOVERNORATES.map { |gov| [gov, gov] }
+    User::LEBANESE_GOVERNORATES.map { |gov| [ gov, gov ] }
   end
 
   def label_options
     [
-      [t("addresses.labels.home"), "Home"],
-      [t("addresses.labels.work"), "Work"],
-      [t("addresses.labels.other"), "Other"]
+      [ t("addresses.labels.home"), "Home" ],
+      [ t("addresses.labels.work"), "Work" ],
+      [ t("addresses.labels.other"), "Other" ]
     ]
   end
 
