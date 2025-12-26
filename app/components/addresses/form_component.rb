@@ -5,8 +5,12 @@ class Addresses::FormComponent < ViewComponent::Base
 
   def initialize(address:, url: nil, method: :post)
     @address = address
-    @url = url || (address.persisted? ? address_path(address) : addresses_path)
+    @url = url
     @method = address.persisted? ? :patch : :post
+  end
+
+  def before_render
+    @url ||= @address.persisted? ? address_path(@address) : addresses_path
   end
 
   private

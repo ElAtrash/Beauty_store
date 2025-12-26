@@ -57,7 +57,7 @@ class Address < ApplicationRecord
     return if label.present?
 
     # Get count of user's active addresses (not including this one)
-    address_count = user.addresses.active.count
+    address_count = user&.addresses&.active&.count || 0
 
     # Generate label: "Address 1", "Address 2", etc.
     self.label = "Address #{address_count + 1}"

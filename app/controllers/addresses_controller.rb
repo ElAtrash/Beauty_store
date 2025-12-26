@@ -38,7 +38,9 @@ class AddressesController < ApplicationController
           else
             # Regular context: update the addresses list
             render turbo_stream: [
-              turbo_stream.prepend("addresses-list", partial: "addresses/address_card", locals: { address: @address }),
+              turbo_stream.prepend("addresses-list",
+                Addresses::CardComponent.new(address: @address).render_in(view_context)
+              ),
               turbo_stream.replace("address-form-modal", partial: "shared/empty"),
               turbo_stream.replace("flash-messages", partial: "shared/flash", locals: { notice: t("addresses.created") })
             ]
@@ -60,8 +62,7 @@ class AddressesController < ApplicationController
             # Regular context
             render turbo_stream: turbo_stream.replace(
               "address-form",
-              partial: "addresses/form",
-              locals: { address: @address }
+              Addresses::FormComponent.new(address: @address).render_in(view_context)
             ), status: :unprocessable_entity
           end
         end
@@ -75,8 +76,7 @@ class AddressesController < ApplicationController
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           "address-#{@address.id}",
-          partial: "addresses/form",
-          locals: { address: @address }
+          Addresses::FormComponent.new(address: @address).render_in(view_context)
         )
       end
       format.html
@@ -107,7 +107,9 @@ class AddressesController < ApplicationController
           else
             # Regular context: update the address card
             render turbo_stream: [
-              turbo_stream.replace("address-#{@address.id}", partial: "addresses/address_card", locals: { address: @address }),
+              turbo_stream.replace("address-#{@address.id}",
+                Addresses::CardComponent.new(address: @address).render_in(view_context)
+              ),
               turbo_stream.replace("flash-messages", partial: "shared/flash", locals: { notice: t("addresses.updated") })
             ]
           end
@@ -128,8 +130,7 @@ class AddressesController < ApplicationController
             # Regular context
             render turbo_stream: turbo_stream.replace(
               "address-#{@address.id}",
-              partial: "addresses/form",
-              locals: { address: @address }
+              Addresses::FormComponent.new(address: @address).render_in(view_context)
             ), status: :unprocessable_entity
           end
         end
