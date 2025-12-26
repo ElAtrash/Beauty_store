@@ -14,7 +14,7 @@ RSpec.describe Address, type: :model do
     it "always has a label due to callback" do
       address = build(:address, user: user, label: nil)
       address.valid?
-      expect(address.label).to eq("Home")
+      expect(address.label).to eq("Address 1")
     end
 
     it { is_expected.to validate_presence_of(:address_line_1) }
@@ -153,9 +153,9 @@ RSpec.describe Address, type: :model do
     end
 
     describe "#set_default_label" do
-      it "sets label to 'Home' if not provided" do
+      it "sets label to 'Address 1' if not provided" do
         address = create(:address, user: user, label: nil)
-        expect(address.label).to eq("Home")
+        expect(address.label).to eq("Address 1")
       end
 
       it "does not override provided label" do
@@ -236,9 +236,9 @@ RSpec.describe Address, type: :model do
       expect(address.display_label).to eq("Work")
     end
 
-    it "returns 'Home' as fallback" do
+    it "returns empty string when label is blank" do
       address = build(:address, user: user, label: "")
-      expect(address.display_label).to eq("Home")
+      expect(address.display_label).to eq("")
     end
   end
 

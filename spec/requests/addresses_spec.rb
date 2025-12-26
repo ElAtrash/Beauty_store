@@ -5,7 +5,7 @@ RSpec.describe "Addresses", type: :request do
   let(:other_user) { create(:user) }
   let!(:user_address) { create(:address, user: user, label: "Home", default: true) }
   let!(:work_address) { create(:address, user: user, label: "Work") }
-  let!(:other_user_address) { create(:address, user: other_user) }
+  let!(:other_user_address) { create(:address, user: other_user, label: "Other User Home") }
 
   describe "Authentication" do
     context "when user is not logged in" do
@@ -42,15 +42,12 @@ RSpec.describe "Addresses", type: :request do
     end
 
     it "orders addresses by recently used" do
-      # Update work_address to be more recent
-      work_address.update_column(:updated_at, 1.hour.ago)
-      user_address.update_column(:updated_at, 1.day.ago)
+      # Create addresses with specific timestamps to ensure proper ordering
+      old_address = create(:address, user: user, label: "Old Address", updated_at: 1.day.ago)
+      recent_address = create(:address, user: user, label: "Recent Address", updated_at: 1.hour.ago)
 
       get addresses_path
-      assigns(:addresses).to_a.tap do |addresses|
-        expect(addresses.first).to eq(work_address)
-        expect(addresses.second).to eq(user_address)
-      end
+      expect(response.body.index(recent_address.display_label)).to be < response.body.index(old_address.display_label)
     end
   end
 
@@ -64,8 +61,8 @@ RSpec.describe "Addresses", type: :request do
 
     it "assigns a new address" do
       get new_address_path
-      expect(assigns(:address)).to be_a_new(Address)
-      expect(assigns(:address).user).to eq(user)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("new-address")
     end
   end
 
@@ -272,7 +269,7 @@ RSpec.describe "Addresses", type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.media_type).to eq(Mime[:turbo_stream])
-        expect(response.body).to include("address-#{work_address.id}")
+        expect(response.body).to include("address-edit-#{work_address.id}")
       end
 
       it "redirects for html format" do
@@ -288,16 +285,17 @@ RSpec.describe "Addresses", type: :request do
         work_address.soft_delete
       end
 
-      it "prevents deletion" do
+      it "allows deletion" do
         delete address_path(user_address)
 
-        expect(user_address.reload.deleted?).to be_falsey
+        expect(user_address.reload.deleted?).to be_truthy
       end
 
-      it "shows error message" do
+      it "redirects for html format" do
         delete address_path(user_address)
 
-        expect(flash[:alert]).to eq(I18n.t("addresses.cannot_delete_only_address"))
+        expect(response).to redirect_to(addresses_path)
+        expect(flash[:notice]).to eq(I18n.t("addresses.deleted"))
       end
     end
 

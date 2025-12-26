@@ -35,11 +35,11 @@ class Address < ApplicationRecord
 
   # Display helpers
   def full_address
-    [address_line_1, address_line_2, city, governorate].compact.join(", ")
+    [ address_line_1, address_line_2, city, governorate ].compact.join(", ")
   end
 
   def short_address
-    [address_line_1, city].compact.join(", ")
+    [ address_line_1, city ].compact.join(", ")
   end
 
   def display_label
@@ -57,7 +57,7 @@ class Address < ApplicationRecord
     return if label.present?
 
     # Get count of user's active addresses (not including this one)
-    address_count = user.addresses.active.count
+    address_count = user&.addresses&.active&.count || 0
 
     # Generate label: "Address 1", "Address 2", etc.
     self.label = "Address #{address_count + 1}"

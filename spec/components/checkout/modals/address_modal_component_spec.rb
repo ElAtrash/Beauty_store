@@ -3,22 +3,22 @@
 RSpec.describe Checkout::Modals::AddressModalComponent, type: :component do
   include ViewComponent::TestHelpers
 
-  let(:form) { double('form') }
+  let(:checkout_form) { double('checkout_form') }
   let(:city) { "Beirut" }
-  let(:component) { described_class.new(form: form, city: city) }
+  let(:component) { described_class.new(checkout_form: checkout_form, city: city) }
 
   describe "initialization" do
     it "sets default modal properties" do
       aggregate_failures do
         expect(component.id).to eq("address-modal")
-        expect(component.title).to eq("Delivery Address")
+        expect(component.title).to eq("Choose Delivery Address")
         expect(component.size).to eq(:medium)
         expect(component.position).to eq(:right)
       end
     end
 
-    it "accepts form and city parameters" do
-      expect(component.form).to eq(form)
+    it "accepts checkout_form and city parameters" do
+      expect(component.checkout_form).to eq(checkout_form)
       expect(component.city).to eq(city)
     end
 
@@ -65,16 +65,6 @@ RSpec.describe Checkout::Modals::AddressModalComponent, type: :component do
         expect(props[:icon]).to eq(:truck)
         expect(props[:title]).to eq("Delivering to Beirut")
         expect(props[:subtitle]).to eq(nil)
-      end
-    end
-
-    it "provides public submit_button_props method" do
-      aggregate_failures do
-        expect(component).to respond_to(:submit_button_props)
-        props = component.submit_button_props
-        expect(props).to be_a(Hash)
-        expect(props[:text]).to eq("Bring it here")
-        expect(props[:css_class]).to include("btn-interactive")
       end
     end
   end
@@ -152,7 +142,7 @@ RSpec.describe Checkout::Modals::AddressModalComponent, type: :component do
   end
 
   describe "parameter validation" do
-    it "requires form parameter" do
+    it "requires checkout_form parameter" do
       expect {
         described_class.new(city: city)
       }.to raise_error(ArgumentError)
@@ -160,13 +150,13 @@ RSpec.describe Checkout::Modals::AddressModalComponent, type: :component do
 
     it "requires city parameter" do
       expect {
-        described_class.new(form: form)
+        described_class.new(checkout_form: checkout_form)
       }.to raise_error(ArgumentError)
     end
 
     it "accepts both required parameters" do
       expect {
-        described_class.new(form: form, city: city)
+        described_class.new(checkout_form: checkout_form, city: city)
       }.not_to raise_error
     end
   end

@@ -5,8 +5,12 @@ class Addresses::FormComponent < ViewComponent::Base
 
   def initialize(address:, url: nil, method: :post)
     @address = address
-    @url = url || (address.persisted? ? address_path(address) : addresses_path)
+    @url = url
     @method = address.persisted? ? :patch : :post
+  end
+
+  def before_render
+    @url ||= @address.persisted? ? address_path(@address) : addresses_path
   end
 
   private
@@ -20,14 +24,14 @@ class Addresses::FormComponent < ViewComponent::Base
   end
 
   def governorate_options
-    User::LEBANESE_GOVERNORATES.map { |gov| [gov, gov] }
+    User::LEBANESE_GOVERNORATES.map { |gov| [ gov, gov ] }
   end
 
   def label_options
     [
-      [t("addresses.labels.home"), "Home"],
-      [t("addresses.labels.work"), "Work"],
-      [t("addresses.labels.other"), "Other"]
+      [ t("addresses.labels.home"), "Home" ],
+      [ t("addresses.labels.work"), "Work" ],
+      [ t("addresses.labels.other"), "Other" ]
     ]
   end
 

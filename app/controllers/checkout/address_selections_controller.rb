@@ -118,9 +118,9 @@ class Checkout::AddressSelectionsController < ApplicationController
 
   def label_options
     [
-      [t("addresses.labels.home", default: "Home"), "Home"],
-      [t("addresses.labels.work", default: "Work"), "Work"],
-      [t("addresses.labels.other", default: "Other"), "Other"]
+      [ t("addresses.labels.home", default: "Home"), "Home" ],
+      [ t("addresses.labels.work", default: "Work"), "Work" ],
+      [ t("addresses.labels.other", default: "Other"), "Other" ]
     ]
   end
 end
